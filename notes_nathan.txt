@@ -1,0 +1,23 @@
+JavaScript:
+Reviewed W3schools 
+	general syntax
+	variables (let, const, var)
+	events
+	data types
+
+3 hours tutoring with JavaScript.
+	Working with an api to make fetch requests
+	Storing and working with that data
+	Learning more about hooks
+	Handling promises
+
+JavaScript State:
+Source: https://dev.to/reedbarger/what-is-state-and-why-should-we-care-about-it-4o95 for introduction into State.
+	managing state
+	immutable updates to state
+
+MySQL:
+
+Reviewed W3Schools
+	Refreshed knowledge of database commands
+	
