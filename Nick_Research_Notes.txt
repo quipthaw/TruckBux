@@ -1,0 +1,5 @@
+I learned JavaScript through exercises on Exercism.org
+I Completed the REACT track on w3schools.
+I watched videos on reach on youtube.
+I have knowledge on Python, git, mySQL already.
+I researched normalization on youtube.
