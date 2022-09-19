@@ -1,4 +1,5 @@
 JavaScript:
+
 Reviewed W3schools 
 	general syntax
 	variables (let, const, var)
@@ -12,6 +13,7 @@ Reviewed W3schools
 	Handling promises
 
 JavaScript State:
+
 Source: https://dev.to/reedbarger/what-is-state-and-why-should-we-care-about-it-4o95 for introduction into State.
 	managing state
 	immutable updates to state
@@ -20,4 +22,28 @@ MySQL:
 
 Reviewed W3Schools
 	Refreshed knowledge of database commands
-	
+
+Python:
+
+W3Schools refresh on syntax
+Loops and class review
+
+Python Flask:
+
+Source: https://www.youtube.com/watch?v=mqhxxeeTbu0&list=PLzMcBGfZo4-n4vJJybUVV3Un_NFS5EOgX
+	Setting up basic Flask functionality
+	Sessions and passing/using data
+	Redirection
+
+Docker:
+
+Source: https://docker-curriculum.com/
+
+Lightly familiarize myself with docker resources
+
+GIT:
+
+Refreshed myself on git commandline
+
+
+
