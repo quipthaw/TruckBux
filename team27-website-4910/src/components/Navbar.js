@@ -41,7 +41,7 @@ const Navbar = () => {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <img className='logo' src={TruckIcon} />
+                    <a href='/'><img className='logo' src={TruckIcon} /></a>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
