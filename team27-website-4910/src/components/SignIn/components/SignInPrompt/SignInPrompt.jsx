@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { SessionContext } from '../../../..';
 
 //There is currently no endpoint to check valid password/user combos.
 //To test sign in, use username=testuser and password=password
 
 export const SignInPrompt = (props) => {
-    const { setSessionExists, setSigningIn, setSignInError } = props;
+    const { setSessionState } = useContext(SessionContext);
+    const { setSigningIn, setSignInError } = props;
     const [ username, setUsername ] = useState("");
     const [ password, setPassWord ] = useState("");
 
@@ -34,8 +36,9 @@ export const SignInPrompt = (props) => {
         
         if(response.result === "username taken") {
             if(password === "password") {
+                setSignInError("");
                 setSigningIn(false);
-                setSessionExists(true);
+                setSessionState('D');
             }
             else {
                 setSignInError("Incorrect Password");

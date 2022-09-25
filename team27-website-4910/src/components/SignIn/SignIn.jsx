@@ -1,61 +1,63 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { SignInPrompt } from './components/SignInPrompt';
+import { SessionContext } from "../..";
 
 //There is currently no endpoint to check valid password/user combos.
 //To test sign in, use username=testuser and password=password
 
 export const SignIn = (props) => {
-    const { sessionExists, setSessionExists } = props;
-    const [ signingIn, setSigningIn ] = useState(false);
+    const { sessionState, setSessionState } = useContext(SessionContext);
+    const [ signingIn, setSigningIn ] = useState(true);
     const [ signInError, setSignInError ] = useState("");
 
-    const handleLog = () => {
-        if(sessionExists) {
-            setSessionExists(false);
-        }
-        else {
-            setSigningIn(true);
-        }
+    const handleSignIn = () => {
+        setSigningIn(true);
     };
 
-    const displayLogOut = () => {
+    const handleSignOut = () => {
+        setSigningIn(true);
+        setSessionState('0');
+    };
+
+    const DisplaySignOut = () => {
         return (
-            <button type='button' onClick={handleLog}>Log Out</button>
+            <button type='button' onClick={handleSignOut}>Log Out</button>
         );
     };
 
-    const displayLogIn = () => {
+    const DisplaySignIn = () => {
         return (
-            <button type='button' onClick={handleLog}>Sign In</button>
+            <button type='button' onClick={handleSignIn}>Sign In</button>
         );
-    }
+    };
 
-    const displayPrompt = () => {
+    const DisplayPrompt = () => {
         return (
             <SignInPrompt 
-                setSessionExists={setSessionExists} 
+                setSessionState={setSessionState}
                 setSigningIn={setSigningIn} 
                 setSignInError={setSignInError}
             />
         );
     };
 
-    const displaySignInError = () => {
+    const DisplaySignInError = () => {
         return (
             <p>{ signInError }</p>
         );
     };
 
-    //Display a sign in error if one exists.
+    console.log(sessionState);
+    //Display a sign in error if one exists. This isn't currently used - navbar has own signin
     //Log In button only when user has no session and is not actively signing in.
     //Log Out button only when user has a session.
     //Signin Prompt replaces both buttons when user is actively signing in and is not already signed in.
     return (
         <div>
-            {signInError != "" && displaySignInError()}
-            {!sessionExists && signingIn && displayPrompt()}
-            {sessionExists && displayLogOut()}
-            {!sessionExists && !signingIn && displayLogIn()}
+            {!signingIn && sessionState === '0' && <DisplaySignIn/>}
+            {sessionState === '0' && signingIn && <DisplayPrompt/>}
+            {sessionState != '0' && <DisplaySignOut/>}
+            {signInError != "" && <DisplaySignInError/>}
         </div>
     );
 };
