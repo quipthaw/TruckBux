@@ -1,19 +1,15 @@
-import { Button, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import { Container } from '@mui/system';
 import React from 'react'
 import Layout from '../components/Layout';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function Register() {
     const [values, setValues] = React.useState({
         username: '',
         password: '',
+        passwordConf: '',
         fname: '',
         lname: '',
         email: '',
@@ -28,8 +24,16 @@ export default function Register() {
         setValues({ ...values, showPassword: values.showPassword == true ? false : true, });
     };
 
-    const handleSubmit = () => {
-        console.log('submitted :', values);
+    const handleSubmit = async () => {
+        const response = await fetch('http://127.0.0.1:5000/checkuser', {
+            method: 'POST',
+            body: `{ "user": "${values.username}" }`,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        console.log(await response);
+        console.log(values)
     }
 
     return (
@@ -51,17 +55,14 @@ export default function Register() {
                             value={values.password}
                             onChange={handleFormChange('password')}
                             fullWidth
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleShowPassword}
-                                        edge="end"
-                                    >
-                                        {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            }
+                        />
+                        <TextField
+                            id="reg-password-conf"
+                            label="Confirm Password"
+                            type={values.showPassword ? 'text' : 'password'}
+                            value={values.passwordConf}
+                            onChange={handleFormChange('passwordConf')}
+                            fullWidth
                         />
                         <TextField
                             id="reg-fname"
