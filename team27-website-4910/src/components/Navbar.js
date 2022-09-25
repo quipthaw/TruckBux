@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../logos/Trukbux.svg';
 import { Link } from '@mui/material';
 import './Navbar.css';
+import { SignIn } from './SignIn';
 
 const pages = ['Catalog', 'News'];
 const settings = [{ 'text': 'Sign In', 'path': '/login' }, { 'text': 'Register', 'path': '/register' }];
