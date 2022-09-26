@@ -11,7 +11,7 @@ port = 3306
 database = 'TruckBux'
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5000'])
+CORS(app, origins=['http://localhost:5000','http://localhost:3000'])
 
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
@@ -35,8 +35,6 @@ def home_page():
        print(e)
 
 
-
-
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and checks that the username is already present in the database
 # @return 'Username Taken' | 'Username Not Taken' in result field
@@ -49,9 +47,9 @@ def check_username():
     qresult = db_connection.execute(text(f'select * from Users where username = {username}'))
 
     if(qresult.one_or_none() != None):
-        return jsonify({'result': 'Username Taken'})
+        return jsonify({'result': 'FALSE'})
     else:
-        return jsonify({'result': 'Username Not Taken'})
+        return jsonify({'result': 'TRUE'})
 
 
 
