@@ -11,8 +11,22 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Modal from '@mui/material/Modal';
+import { Link, useNavigate } from 'react-router-dom';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '50vw',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 10,
+};
 
 export default function RegForm() {
+    const navigate = useNavigate();
     const [values, setValues] = React.useState({
         username: '',
         password: '',
@@ -23,10 +37,23 @@ export default function RegForm() {
         showPassword: false,
         showPasswordConf: false,
     });
+    const [errors, setErrors] = React.useState({
+        unError: '',
+        pwdError: '',
+        pwdcError: '',
+        emError: '',
+    });
+
+    const [open, setModalOpen] = React.useState(false);
+
+    const handleOpen = () => setModalOpen(true);
+
+    const handleClose = () => setModalOpen(false);
 
     const handleFormChange = (field) => (event) => {
         setValues({ ...values, [field]: event.target.value });
     };
+
 
     const handleShowPassword = () => {
         setValues({ ...values, showPassword: values.showPassword == true ? false : true, });
@@ -36,17 +63,38 @@ export default function RegForm() {
         setValues({ ...values, showPasswordConf: values.showPasswordConf == true ? false : true, });
     };
 
-    const handleSubmit = async () => {
-        const response = await fetch('http://127.0.0.1:5000/checkuser', {
-            method: 'POST',
-            body: `{ "user": "${values.username}" }`,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        console.log(await response);
-        console.log(values)
+    const modifyErrors = (field, value) => {
+        setErrors({ ...errors, [field]: value });
+    };
+
+    const checkUsernameError = async () => {
+        if (values.username === '') {
+            modifyErrors('unError', 'Username cannot be empty!')
+            return true;
+        } else {
+            const response = await fetch('http://127.0.0.1:5000/checkuser', {
+                method: 'POST',
+                body: `{ "user": "${values.username}" }`,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+        }
     }
+
+    const handleSubmit = async () => {
+        if (!checkUsernameError()) {
+            handleOpen();
+            setTimeout(() => { navigate('/login'); }, 5000);
+        }
+    }
+
+    const loginRedirect = (e) => {
+        e.preventDefault();
+        navigate('/login');
+    }
+
     return (
         <Container sx={{
             width: '90% ',
@@ -71,6 +119,9 @@ export default function RegForm() {
                                     value={values.username}
                                     onChange={handleFormChange('username')}
                                     fullWidth
+                                    error={errors.unError == '' ? false : true}
+                                    helperText={errors.unError}
+                                    required
                                 />
                             </div>
                             <div>
@@ -150,10 +201,31 @@ export default function RegForm() {
                             />
                             <Button variant='outlined' onClick={handleSubmit}>Submit</Button>
                         </Stack>
-
                     </Container>
                 </Box>
-            </ Paper>
+            </Paper>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Stack>
+                        <Typography variant="h3" component="h2" gutterBottom>
+                            Account Created Successfully
+                        </Typography>
+                        <Typography variant='p' gutterBottom>
+                            You will be redirected to sign in in 5 seconds.
+                        </Typography>
+                        <Link onClick={loginRedirect}>
+                            <Typography variant='p' sx={{ my: 2 }}>
+                                Click here if you were not redirected...
+                            </Typography>
+                        </Link>
+                    </Stack>
+                </Box>
+            </Modal>
         </Container>
     )
 }
