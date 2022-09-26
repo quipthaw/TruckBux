@@ -79,7 +79,10 @@ export default function RegForm() {
                     'Content-Type': 'application/json',
                 }
             });
-
+            const result = await response.json();
+            if (result.result == 'FALSE') {
+                modifyErrors('unError', 'Username Taken!')
+            }
         }
     }
 
