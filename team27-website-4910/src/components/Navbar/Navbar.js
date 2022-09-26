@@ -11,10 +11,10 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import TruckIcon from '../logos/Trukbux.svg';
+import TruckIcon from '../../logos/Trukbux.svg';
 import { Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { SessionContext } from '..';
+import { SessionContext } from '../..';
 import './Navbar.css';
 
 const pages = ['Catalog', 'News']
@@ -61,7 +61,7 @@ const Navbar = () => {
     const filterSettings = (a) => {
         const loggedOutFilter = ['Log Out'];
         const signedInFilter = ['Sign In', 'Register'];
-        if(sessionState === '0') {
+        if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
         else {
@@ -151,21 +151,21 @@ const Navbar = () => {
                             onClose={handleCloseUserMenu}
                         >
                             {settings.filter(filterSettings).map((setting) => (
-                                <MenuItem 
-                                    key={setting.text} 
+                                <MenuItem
+                                    key={setting.text}
                                     onClick={(e) => {
                                         redirect(e, setting.path);
                                         setting.onClick?.();
                                     }}
                                 >
-                                    <Link href={setting.path} underline='none'><Typography textAlign="center">{setting.text}</Typography></Link>
+                                    <Typography textAlign="center">{setting.text}</Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }}>
-                        {sessionState != '0' && <DisplayWelcome/>}
+                        {sessionState != '0' && <DisplayWelcome />}
                     </Box>
                 </Toolbar>
             </Container>
