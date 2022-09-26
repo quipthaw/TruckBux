@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
@@ -7,6 +7,19 @@ import {
 import "./index.css";
 import Home from './pages/Home';
 import Register from './pages/Register';
+import LogIn from './pages/LogIn';
+
+export const SessionContext = createContext();
+
+const SessionContextProvider = (props) => {
+  const [ sessionState, setSessionState ] = useState('0');
+
+  return (
+    <SessionContext.Provider value={{sessionState, setSessionState}}>
+      {props.children}
+    </SessionContext.Provider>
+  )
+};
 
 const router = createBrowserRouter([
   {
@@ -15,7 +28,7 @@ const router = createBrowserRouter([
   },
   {
     path: "login/",
-    element: <Home />,
+    element: <LogIn />,
   },
   {
     path: "register/",
@@ -25,6 +38,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <SessionContextProvider>
+      <RouterProvider router={router} />
+    </SessionContextProvider>
   </React.StrictMode>
 );

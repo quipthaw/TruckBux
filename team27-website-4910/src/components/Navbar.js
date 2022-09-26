@@ -13,12 +13,22 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../logos/Trukbux.svg';
 import { Link } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { SessionContext } from '..';
 import './Navbar.css';
 
-const pages = ['Catalog', 'News'];
-const settings = [{ 'text': 'Sign In', 'path': '/login' }, { 'text': 'Register', 'path': '/register' }];
+const pages = ['Catalog', 'News']
 
 const Navbar = () => {
+    const { sessionState, setSessionState } = React.useContext(SessionContext);
+
+    const settings = [
+        { 'text': 'Sign In', 'path': '/login' },
+        { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
+        { 'text': 'Register', 'path': '/register' }
+    ];
+
+    const navigate = useNavigate();
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -37,11 +47,39 @@ const Navbar = () => {
         setAnchorElUser(null);
     };
 
+    const homeRedirect = (e) => {
+        e.preventDefault();
+        navigate('/');
+    };
+
+    const redirect = (e, path) => {
+        e.preventDefault();
+        handleCloseNavMenu(null);
+        navigate(path);
+    };
+
+    const filterSettings = (a) => {
+        const loggedOutFilter = ['Log Out'];
+        const signedInFilter = ['Sign In', 'Register'];
+        if(sessionState === '0') {
+            return !(loggedOutFilter.includes(a.text));
+        }
+        else {
+            return !(signedInFilter.includes(a.text));
+        }
+    };
+
+    const DisplayWelcome = () => {
+        return (
+            <p>Welcome!</p> //This isn't final - likely going to want to have username available as context after sign in?
+        );
+    };
+
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <a href='/'><img className='logo' src={TruckIcon} /></a>
+                    <a onClick={homeRedirect}><img className='logo' src={TruckIcon} /></a>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
@@ -112,12 +150,22 @@ const Navbar = () => {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            {settings.map((setting) => (
-                                <MenuItem key={setting.text} onClick={handleCloseUserMenu}>
+                            {settings.filter(filterSettings).map((setting) => (
+                                <MenuItem 
+                                    key={setting.text} 
+                                    onClick={(e) => {
+                                        redirect(e, setting.path);
+                                        setting.onClick?.();
+                                    }}
+                                >
                                     <Link href={setting.path} underline='none'><Typography textAlign="center">{setting.text}</Typography></Link>
                                 </MenuItem>
                             ))}
                         </Menu>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 0 }}>
+                        {sessionState != '0' && <DisplayWelcome/>}
                     </Box>
                 </Toolbar>
             </Container>
