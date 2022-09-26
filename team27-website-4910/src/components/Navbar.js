@@ -60,14 +60,20 @@ const Navbar = () => {
 
     const filterSettings = (a) => {
         const loggedOutFilter = ['Log Out'];
-        const signedInFilter = ['Sign In'];
+        const signedInFilter = ['Sign In', 'Register'];
         if(sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
         else {
             return !(signedInFilter.includes(a.text));
         }
-    }
+    };
+
+    const DisplayWelcome = () => {
+        return (
+            <p>Welcome!</p> //This isn't final - likely going to want to have username available as context after sign in?
+        );
+    };
 
     return (
         <AppBar position="static">
@@ -149,13 +155,17 @@ const Navbar = () => {
                                     key={setting.text} 
                                     onClick={(e) => {
                                         redirect(e, setting.path);
-                                        setting?.onClick();
+                                        setting.onClick?.();
                                     }}
                                 >
                                     <Link href={setting.path} underline='none'><Typography textAlign="center">{setting.text}</Typography></Link>
                                 </MenuItem>
                             ))}
                         </Menu>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 0 }}>
+                        {sessionState != '0' && <DisplayWelcome/>}
                     </Box>
                 </Toolbar>
             </Container>

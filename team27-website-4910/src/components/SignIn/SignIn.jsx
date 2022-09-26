@@ -47,9 +47,8 @@ export const SignIn = (props) => {
         );
     };
 
-    console.log(sessionState);
-    //Display a sign in error if one exists. This isn't currently used - navbar has own signin
-    //Log In button only when user has no session and is not actively signing in.
+    //Display a sign in error if one exists. 
+    //Log In button only when user has no session and is not actively signing in. This isn't currently used - navbar has own signin
     //Log Out button only when user has a session.
     //Signin Prompt replaces both buttons when user is actively signing in and is not already signed in.
     return (
