@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { SignInPrompt } from './components/SignInPrompt';
+import { SignInPrompt } from './SignInPrompt';
 import { SessionContext } from "../..";
 
 //There is currently no endpoint to check valid password/user combos.
@@ -7,8 +7,8 @@ import { SessionContext } from "../..";
 
 export const SignIn = (props) => {
     const { sessionState, setSessionState } = useContext(SessionContext);
-    const [ signingIn, setSigningIn ] = useState(true);
-    const [ signInError, setSignInError ] = useState("");
+    const [signingIn, setSigningIn] = useState(true);
+    const [signInError, setSignInError] = useState("");
 
     const handleSignIn = () => {
         setSigningIn(true);
@@ -33,9 +33,9 @@ export const SignIn = (props) => {
 
     const DisplayPrompt = () => {
         return (
-            <SignInPrompt 
+            <SignInPrompt
                 setSessionState={setSessionState}
-                setSigningIn={setSigningIn} 
+                setSigningIn={setSigningIn}
                 setSignInError={setSignInError}
             />
         );
@@ -43,7 +43,7 @@ export const SignIn = (props) => {
 
     const DisplaySignInError = () => {
         return (
-            <p>{ signInError }</p>
+            <p>{signInError}</p>
         );
     };
 
@@ -53,10 +53,10 @@ export const SignIn = (props) => {
     //Signin Prompt replaces both buttons when user is actively signing in and is not already signed in.
     return (
         <div>
-            {!signingIn && sessionState === '0' && <DisplaySignIn/>}
-            {sessionState === '0' && signingIn && <DisplayPrompt/>}
-            {sessionState != '0' && <DisplaySignOut/>}
-            {signInError != "" && <DisplaySignInError/>}
+            {!signingIn && sessionState === '0' && <DisplaySignIn />}
+            {sessionState === '0' && signingIn && <DisplayPrompt />}
+            {sessionState != '0' && <DisplaySignOut />}
+            {signInError != "" && <DisplaySignInError />}
         </div>
     );
 };
