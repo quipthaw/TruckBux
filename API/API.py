@@ -90,7 +90,6 @@ def insert_users():
 
     #should insert:    
     #db_connection.execute(text(f"INSERT INTO TruckBux.Users(username, password, email, fName, lName, active) VALUES('mcgraha', 'passwd', 'manning@clemson.com', 'manning', 'graham', '1')"))
-    #but will not commit
 
 
     #Insert record into Database
