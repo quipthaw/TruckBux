@@ -1,10 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { SessionContext } from '../../../..';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 //There is currently no endpoint to check valid password/user combos.
 //To test sign in, use username=testuser and password=password
 
 export const SignInPrompt = (props) => {
+    const navigate = useNavigate();
     const { setSessionState } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [ username, setUsername ] = useState("");
@@ -39,6 +41,7 @@ export const SignInPrompt = (props) => {
                 setSignInError("");
                 setSigningIn(false);
                 setSessionState('D');
+                navigate('/');
             }
             else {
                 setSignInError("Incorrect Password");
