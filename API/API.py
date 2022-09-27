@@ -58,7 +58,7 @@ def check_username():
 # and checks that the username and password exist together
 # @return 'Valid Login' | 'Invalid Login' in result field
 @app.route('/checkpassword', methods=['POST'])
-#@cross_origin  -  Will not execute if uncommented. 
+@cross_origin()
 def check_password():
     print('entered')
     _username = f"'{request.json['usr']}'"
