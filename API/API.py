@@ -1,17 +1,22 @@
-import json
-from flask import Flask, request, jsonify, Response
+import re
+from sre_parse import SPECIAL_CHARS
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from sqlalchemy import create_engine, text, insert
-  
+from sqlalchemy import create_engine, text
+
+
 # DEFINE THE DATABASE CREDENTIALS
-user = 'admin'
-password = 'ChaseNathanManningNick27$'
-host = 'team-27.cobd8enwsupz.us-east-1.rds.amazonaws.com'
-port = 3306
-database = 'TruckBux'
+DBUSER = 'admin'
+DBPASSWORD = 'ChaseNathanManningNick27$'
+DBHOST = 'team-27.cobd8enwsupz.us-east-1.rds.amazonaws.com'
+DBPORT = 3306
+DB = 'TruckBux'
+
+PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special character'
+
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:5000','http://localhost:3000'])
+CORS(app, origins=['http://localhost:3000'])
 
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
@@ -19,87 +24,111 @@ CORS(app, origins=['http://localhost:5000','http://localhost:3000'])
 def get_connection():
     return create_engine(
         url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
-            user, password, host, port, database
+            DBUSER, DBPASSWORD, DBHOST, DBPORT, DB
         )
     )
 db_connection = get_connection()
 
 
-#BASIC HOME PAGE
-@app.route('/')
-def home_page():
-   try:
-       res = "<h1 style='position: fixed; top: 50%;  left: 50%; transform: translate(-50%, -50%);text-align:center'>FLASK API HOME<p>If you are seeing this page, Good Job. Your Flask app is ready! Add your endpoints.</p></h1>"
-       return res
-   except Exception as e:
-       print(e)
 
-
-# Endpoint that takes a username via post request in from {'user': <username>}
+# Function that takes a username
 # and checks that the username is already present in the database
-# @return 'Username Taken' | 'Username Not Taken' in result field
-@app.route('/checkuser', methods=['POST'])
-@cross_origin()
-def check_username():
-    print('entered')
-    username = f"'{request.json['user']}'"
-
-    qresult = db_connection.execute(text(f'select * from Users where username = {username}'))
+# @return bools False if taken | True if not taken in result field
+def check_username(username):
+    # Parameterized queries protect against sqli
+    query = text('select * from Users where username = :x')
+    param = {'x':username}
+    
+    qresult = db_connection.execute(query, param)
 
     if(qresult.one_or_none() != None):
-        return jsonify({'result': 'FALSE'})
+        return False
     else:
-        return jsonify({'result': 'TRUE'})
+        return True
 
 
+def check_password(password):
+    good_len = True
+    has_cap = False
+    has_spec = False
+    if len(password) < 8:
+        good_len = False
+    
+    for letter in password:
+        if letter.isupper():
+            has_cap = True
+        if letter in SPECIAL_CHARS:
+            has_spec = True
+    
+    if good_len and has_spec and has_cap:
+        return True
+    else:
+        return False
 
 
-# Endpoint that takes a password and username via post request in from {'user': <username>}
+def check_email(email):
+    if re.match(".+@.+\....", email) == None:
+        return False
+    else:
+        return True
+
+
+# Endpoint that checks if a given username, password, and email are valid
+# If the data is valid it inserts the new user into the databases
+# if the data is not valid it returns 'error': 'True' and the corresponding errors
+@app.route('/register', methods=['POST'])
+@cross_origin()
+def register():
+    username = request.json['user']
+    password = request.json['pass']
+    fname = request.json['fname']
+    lname = request.json['lname']
+    email = request.json['email']
+
+    resp = {'error':'False'}
+
+    # Check for valid data
+    if check_username(username) == False:
+        resp['error'] = 'True'
+        resp['username'] = 'username taken'
+    if check_password(password) == False:
+        resp['error'] = 'True'
+        resp['password'] = PASS_COMP_REQS
+    if check_email(email) == False:
+        resp['error'] = 'True'
+        resp['email'] = 'Expected email in the form XXX@XXX.XXX'
+
+    if resp['error'] == 'False':
+        try:
+            #Insert record into Database
+            query = text("INSERT INTO TruckBux.Users(username, password, email, fName, lName) VALUES(:x, :y, :z, :j, :k)")
+            param = {'x': username, 'y':password, 'z':email, 'j':fname, 'k':lname}
+            db_connection.execute(query, param)
+            return jsonify(resp)
+        except:
+            resp['error'] = 'True'
+            resp['insert'] = 'Registration failed'
+            return jsonify(resp)
+    else:
+        return jsonify(resp)
+
+
+# Endpoint that takes a password and username via post request in from {'user': <username>, 'pass': <password>}
 # and checks that the username and password exist together
-# @return 'Valid Login' | 'Invalid Login' in result field
-@app.route('/checkpassword', methods=['POST'])
-#@cross_origin  -  Will not execute if uncommented. 
-def check_password():
-    print('entered')
-    _username = f"'{request.json['usr']}'"
-    _password = f"'{request.json['pwd']}'"
-
-    qresult = db_connection.execute(text(f'select * from Users where username = {_username} AND password = {_password}'))
+# @return 'True' | 'False' in result field
+@app.route('/checklogin', methods=['POST'])
+@cross_origin()
+def check_login():
+    # Parameterized queries protect against sqli
+    param = {'x':request.json['user'], 'y':request.json['pass']}
+    query = text('select * from Users where username = :x AND password = :y')
+   
+    qresult = db_connection.execute(query, param)
     
     if(qresult.one_or_none() != None):
-       return(jsonify({'results': 'Valid Login'}))
+       return(jsonify({'result': 'True'}))
     else:
-       return(jsonify({'results': 'Invalid Login'}))
+       return(jsonify({'result': 'False'}))
 
-
-
-
-# Endpoint that INSERTS user info via post request in form {'user': <username>, 'passwd': <password>, ...}
-# @return 'Insert Succeeded' | 'Insert Failed' in result field
-@app.route('/insertusers', methods=['POST'])
-def insert_users():
-
-    _form = request.form
-    _user = _form['insert_user']
-    _passwd = _form['insert_passwd']
-    _email = _form['insert_email']
-    _firstname = _form['insert_firstname']
-    _lastname = _form['insert_lastname']
-
-    #should insert:    
-    #db_connection.execute(text(f"INSERT INTO TruckBux.Users(username, password, email, fName, lName, active) VALUES('mcgraha', 'passwd', 'manning@clemson.com', 'manning', 'graham', '1')"))
-
-
-    #Insert record into Database
-    conn = db_connection
-    cursor = conn.cursor()
-    cursor.execute(
-        text(f"INSERT INTO TruckBux.Users(username, password, email, fName, lName) VALUES({_user}, {_passwd}, {_email}, {_firstname}, {_lastname})"))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    res = jsonify('success')
-    res.status_code = 200
-    return res
 
 app.run(debug=True)

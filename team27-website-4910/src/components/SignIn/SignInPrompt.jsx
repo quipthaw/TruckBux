@@ -22,22 +22,35 @@ export const SignInPrompt = (props) => {
 
     const authenticate = async (e) => {
         e.preventDefault();
-
-        const data = { user: username };
-        const options = {
+        
+        const userData = { user: username };
+        const userOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(userData)
         };
 
-        let response = await fetch('http://127.0.0.1:5000/checkuser', options);
+        let userResponse = await fetch('http://127.0.0.1:5000/checkuser', userOptions);
 
-        response = await response.json();
+        userResponse = await userResponse.json();
 
-        if (response.result === "username taken") {
-            if (password === "password") {
+        const validateData = { usr: username, pwd: password };
+        const validateOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(validateData)
+        };
+
+        let validateResponse = await fetch('http://127.0.0.1:5000/checkpassword', validateOptions);
+
+        validateResponse = await validateResponse.json();
+        
+        if(userResponse.result === "FALSE") {
+            if(validateResponse.results === "Valid Login") {
                 setSignInError("");
                 setSigningIn(false);
                 setSessionState('D');
