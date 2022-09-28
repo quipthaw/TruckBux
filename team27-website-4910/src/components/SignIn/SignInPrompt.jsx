@@ -1,9 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { SessionContext } from '../..';
-import { Navigate, useNavigate } from 'react-router-dom';
-
-//There is currently no endpoint to check valid password/user combos.
-//To test sign in, use username=testuser and password=password
+import { useNavigate } from 'react-router-dom';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
@@ -12,58 +9,43 @@ export const SignInPrompt = (props) => {
     const [username, setUsername] = useState("");
     const [password, setPassWord] = useState("");
 
+    //Update username as user inputs characters
     const onUsernameChange = (e) => {
         setUsername(e.target.value);
     };
 
+    //Update password as user inputs characters
     const onPasswordChange = (e) => {
         setPassWord(e.target.value);
     };
 
+    //Used when username and password are submitted. Search DB for combo.
     const authenticate = async (e) => {
         e.preventDefault();
         
-        const userData = { user: username };
-        const userOptions = {
+        //Fetch user/pass combo validation
+        const loginData = { user: username, pass: password };
+        const loginOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(loginData)
         };
 
-        let userResponse = await fetch('http://127.0.0.1:5000/checkuser', userOptions);
+        let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
 
-        userResponse = await userResponse.json();
-
-        const validateData = { usr: username, pwd: password };
-        const validateOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(validateData)
-        };
-
-        let validateResponse = await fetch('http://127.0.0.1:5000/checkpassword', validateOptions);
-
-        validateResponse = await validateResponse.json();
+        loginResponse = await loginResponse.json();
         
-        if(userResponse.result === "FALSE") {
-            if(validateResponse.results === "Valid Login") {
-                setSignInError("");
-                setSigningIn(false);
-                setSessionState('D');
-                navigate('/');
-            }
-            else {
-                setSignInError("Incorrect Password");
-            }
+        if(loginResponse.result === "True") {
+            setSignInError("");
+            setSigningIn(false);
+            setSessionState('D');
+            navigate('/');
         }
         else {
-            setSignInError("Username not found");
+            setSignInError("User and Password Combination Incorrect");
         }
-
     };
 
     return (
