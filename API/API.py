@@ -1,4 +1,5 @@
 import re
+import bcrypt
 from sre_parse import SPECIAL_CHARS
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -29,6 +30,13 @@ def get_connection():
     )
 db_connection = get_connection()
 
+
+# Function that takes a cleartext password and returns 
+# a bcrypt hash of that password
+# @return bytestring salted bcrypt hash
+def hash_password(password):
+    hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    return hash
 
 
 # Function that takes a username
@@ -100,9 +108,11 @@ def register():
 
     if resp['error'] == 'False':
         try:
+            hashed_pass = hash_password(password)
+
             #Insert record into Database
             query = text("INSERT INTO TruckBux.Users(username, password, email, fName, lName) VALUES(:x, :y, :z, :j, :k)")
-            param = {'x': username, 'y':password, 'z':email, 'j':fname, 'k':lname}
+            param = {'x': username, 'y':hashed_pass, 'z':email, 'j':fname, 'k':lname}
             db_connection.execute(query, param)
             return jsonify(resp)
         except:
@@ -119,16 +129,22 @@ def register():
 @app.route('/checklogin', methods=['POST'])
 @cross_origin()
 def check_login():
+    result = {'result': 'False'}
+
     # Parameterized queries protect against sqli
-    param = {'x':request.json['user'], 'y':request.json['pass']}
-    query = text('select * from Users where username = :x AND password = :y')
-   
-    qresult = db_connection.execute(query, param)
+    query = text('select username, password from Users where username = :x')
+    param = {'x':request.json['user']}
+
+    row = db_connection.execute(query, param).first()
     
-    if(qresult.one_or_none() != None):
-       return(jsonify({'result': 'True'}))
-    else:
-       return(jsonify({'result': 'False'}))
+    if row != None:
+        pass_hash = row[1]
+        input_pass = request.json['pass'].encode()
+   
+        if bcrypt.checkpw(input_pass, pass_hash):
+            result['result'] = 'True'
+        
+    return(jsonify(result))
 
 
 app.run(debug=True)
