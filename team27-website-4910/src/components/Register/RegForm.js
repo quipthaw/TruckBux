@@ -4,16 +4,12 @@ import React from 'react';
 import Paper from '@mui/material/Paper';
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Modal from '@mui/material/Modal';
-import { Link, useNavigate } from 'react-router-dom';
-import FormHelperText from '@mui/material/FormHelperText';
+import { useNavigate } from 'react-router-dom';
 
 const style = {
     position: 'absolute',
@@ -40,6 +36,14 @@ export default function RegForm() {
         showPassword: false,
         showPasswordConf: false,
     });
+    //Store and modify errors
+    const [errors, setErrors] = React.useState({
+        username: '',
+        password: '',
+        fname: '',
+        lname: '',
+        email: '',
+    });
 
     const handleFormChange = (field) => (event) => {
         setValues({ ...values, [field]: event.target.value });
@@ -53,38 +57,72 @@ export default function RegForm() {
         setValues({ ...values, showPasswordConf: values.showPasswordConf == true ? false : true, });
     };
 
-    //Store and modify errors
-    const [errors, setErrors] = React.useState({
-        username: '',
-        password: '',
-        passwordConf: '',
-        email: '',
-    });
-
-    const modifyErrors = (field, value) => {
-        setErrors({ ...errors, [field]: value });
-    };
-
-    const checkUsernameError = async () => {
-        if (values.username === '') {
-            modifyErrors('username', 'Username cannot be empty!')
-            return true;
-        } else {
-            const response = await fetch('http://127.0.0.1:5000/checkuser', {
-                method: 'POST',
-                body: `{ "user": "${values.username}" }`,
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const result = await response.json();
-            if (result.result == 'FALSE') {
-                modifyErrors('username', 'Username Taken!')
-                return true;
+    const checkEmptyFields = () => {
+        let tempErrors = {
+            username: errors.username,
+            password: errors.password,
+            fname: errors.fname,
+            lname: errors.lname,
+            email: errors.email,
+        }
+        for (let field in tempErrors) {
+            if (field != 'passwordConf' && values[field] == '') {
+                tempErrors[field] = 'Field cannot be left empty!';
+            } else if (errors[field] == 'Field cannot be left empty!') {
+                tempErrors[field] = '';
             }
         }
+        setErrors(tempErrors);
+    };
+
+    const numErrors = () => {
+        let num = 0;
+        for (let field in errors) {
+            if (errors[field] != '' && errors[field] != 'username taken' && errors[field] != 'Expected email in the form XXX@XXX.XXX' && errors[field] != 'Password must contain 8 characters, 1 uppercase, and 1 special character') {
+                num++;
+            }
+        }
+        if (values['password'] != values['passwordConf'] || values['password'] == '') { num++; }
+        return num;
+    };
+    const parseResponse = async () => {
+        const response = await fetch('http://127.0.0.1:5000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user: values.username,
+                pass: values.password,
+                fname: values.fname,
+                lname: values.lname,
+                email: values.email,
+            }),
+        });
+        const result = await response.json();
+        if (result.error == 'True') {
+            let tempErrors = {
+                username: errors.username,
+                password: errors.password,
+                fname: errors.fname,
+                lname: errors.lname,
+                email: errors.email,
+            }
+            for (let field in tempErrors) {
+                if (field in result) {
+                    tempErrors[field] = result[field];
+                } else if (errors[field] != 'Field cannot be left empty!') {
+                    tempErrors[field] = '';
+                }
+            }
+            setErrors(tempErrors);
+            return true;
+        }
         return false;
-    }
+
+    };
+
+
 
     //handle opening and closing of success modal
     const [open, setModalOpen] = React.useState(false);
@@ -96,9 +134,13 @@ export default function RegForm() {
     //do all the things during submit
     const handleSubmit = async () => {
         setLoading(true);
-        if (!checkUsernameError()) {
-            handleOpen();
-            setTimeout(() => { navigate('/login'); }, 5000);
+        checkEmptyFields();
+        if (numErrors() == 0) {
+            let error = await parseResponse();
+            if (!error) {
+                handleOpen();
+                setTimeout(() => { navigate('/') }, 5000);
+            }
         }
         setLoading(false);
     }
@@ -111,111 +153,7 @@ export default function RegForm() {
 
 
     //change based on if waitng on response from API
-
     const [loading, setLoading] = React.useState(false);
-
-    const formParts = () => {
-        return loading ? <CircularProgress /> : (
-            <div>
-                <Typography textAlign='center' variant='h2' gutterBottom>Create Account</Typography>
-                <div>
-                    <TextField
-                        id="reg-user"
-                        label="Username"
-                        value={values.username}
-                        onChange={handleFormChange('username')}
-                        fullWidth
-                        error={errors.username == '' ? false : true}
-                        helperText={errors.username}
-                        required
-                    />
-                </div>
-                <div>
-                    <FormControl
-                        variant="outlined"
-                        margin='normal'
-                        fullWidth
-                    >
-                        <InputLabel htmlFor='pass'>Password</InputLabel>
-                        <OutlinedInput
-                            id='pass'
-                            type={values.showPassword ? 'text' : 'password'}
-                            value={values.password}
-                            onChange={handleFormChange('password')}
-                            error={errors.password == '' ? false : true}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleShowPassword}
-                                        edge="end"
-                                    >
-                                        {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                            label="Password"
-                        />
-                        <FormHelperText id="passht">{errors.password}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="outlined" fullWidth>
-                        <InputLabel htmlFor="passConf">Confirm Password</InputLabel>
-                        <OutlinedInput
-                            id='passConf'
-                            type={values.showPasswordConf ? 'text' : 'password'}
-                            value={values.passwordConf}
-                            onChange={handleFormChange('passwordConf')}
-                            error={errors.passwordConf == '' ? false : true}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleShowPasswordConf}
-                                        edge="end"
-                                    >
-                                        {values.showPasswordConf ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                            label="Confirm Password"
-                        />
-                        <FormHelperText id="passconfht">{errors.passwordConf}</FormHelperText>
-                    </FormControl>
-                </div>
-                <div>
-                    <TextField
-                        id="reg-fname"
-                        label="First Name"
-                        value={values.fname}
-                        onChange={handleFormChange('fname')}
-                        fullWidth
-                        margin="normal"
-                    />
-                    <TextField
-                        id="reg-lname"
-                        label="Last Name"
-                        value={values.lname}
-                        onChange={handleFormChange('lname')}
-                        fullWidth
-                    />
-                </div>
-
-                <TextField
-                    id="reg-email"
-                    label="E-Mail"
-                    type='email'
-                    value={values.email}
-                    onChange={handleFormChange('email')}
-                    error={errors.username == '' ? false : true}
-                    helperText={errors.username}
-                    fullWidth
-                    margin='normal'
-                />
-                <Button variant='outlined' onClick={handleSubmit} sx={{ width: '100%' }}>Submit</Button>
-            </div >
-
-        )
-    }
 
     return (
         <Container sx={{
@@ -230,9 +168,107 @@ export default function RegForm() {
                     padding: '25px'
                 }}>
                     <Container>
-                        <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
-                            {formParts()}
-                        </Stack>
+                        {loading ? (
+                            <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
+                                <CircularProgress />
+                            </Stack>
+                        ) : (
+                            <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
+                                <Typography textAlign='center' variant='h2'>Create Account</Typography>
+                                <Typography textAlign='center' variant='subtitle1' gutterBottom>* : Required field</Typography>
+                                <TextField
+                                    id="reg-user"
+                                    label="Username"
+                                    value={values.username}
+                                    onChange={handleFormChange('username')}
+                                    fullWidth
+                                    error={errors.username == '' ? false : true}
+                                    helperText={errors.username}
+                                    required
+                                />
+                                <Typography textAlign='center' variant='subtitle1'>Password must contain: 8 characters, 1 uppercase, and 1 special character</Typography>
+                                <TextField
+                                    id='pass'
+                                    type={values.showPassword ? 'text' : 'password'}
+                                    value={values.password}
+                                    onChange={handleFormChange('password')}
+                                    error={errors.password == '' ? false : true}
+                                    helperText={errors.password}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleShowPassword}
+                                                    edge="end"
+                                                >
+                                                    {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                    label="Password"
+                                    fullWidth
+                                    required
+                                />
+                                <TextField
+                                    id='pass'
+                                    type={values.showPasswordConf ? 'text' : 'password'}
+                                    value={values.passwordConf}
+                                    onChange={handleFormChange('passwordConf')}
+                                    error={values.password == values.passwordConf ? false : true}
+                                    helperText={values.passwordConf == '' && values.password == '' ? '' : values.password == values.passwordConf ? 'Passwords match!' : 'Passwords do not match!'}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleShowPasswordConf}
+                                                    edge="end"
+                                                >
+                                                    {values.showPasswordConf ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                    label="Confirm Password"
+                                    fullWidth
+                                    required
+                                />
+                                <TextField
+                                    id="reg-fname"
+                                    label="First Name"
+                                    value={values.fname}
+                                    onChange={handleFormChange('fname')}
+                                    fullWidth
+                                    error={errors.fname == '' ? false : true}
+                                    helperText={errors.fname}
+                                    required
+                                />
+                                <TextField
+                                    id="reg-lname"
+                                    label="Last Name"
+                                    value={values.lname}
+                                    onChange={handleFormChange('lname')}
+                                    fullWidth
+                                    error={errors.lname == '' ? false : true}
+                                    helperText={errors.lname}
+                                    required
+                                />
+                                <TextField
+                                    id="reg-email"
+                                    label="E-Mail"
+                                    type='email'
+                                    value={values.email}
+                                    onChange={handleFormChange('email')}
+                                    error={errors.email == '' ? false : true}
+                                    helperText={errors.email}
+                                    fullWidth
+                                    required
+                                />
+                                <Button variant='outlined' onClick={handleSubmit} sx={{ width: '100%' }}>Submit</Button>
+                            </Stack>
+                        )}
                     </Container>
                 </Box>
             </Paper>
@@ -250,11 +286,9 @@ export default function RegForm() {
                         <Typography variant='p' gutterBottom>
                             You will be redirected to sign in in 5 seconds.
                         </Typography>
-                        <Link onClick={loginRedirect}>
-                            <Typography variant='p' sx={{ my: 2 }}>
-                                Click here if you were not redirected...
-                            </Typography>
-                        </Link>
+                        <Typography onClick={loginRedirect} variant='p' sx={{ my: 2 }}>
+                            Click here if you were not redirected...
+                        </Typography>
                     </Stack>
                 </Box>
             </Modal>
