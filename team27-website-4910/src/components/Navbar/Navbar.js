@@ -20,12 +20,13 @@ import './Navbar.css';
 const pages = ['Catalog', 'News']
 
 const Navbar = () => {
-    const { sessionState, setSessionState } = React.useContext(SessionContext);
+    const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
-        { 'text': 'Register', 'path': '/register' }
+        { 'text': 'Register', 'path': '/register' },
+        { 'text': 'Profile', 'path': '/profile'}
     ];
 
     const navigate = useNavigate();
@@ -59,7 +60,7 @@ const Navbar = () => {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out'];
+        const loggedOutFilter = ['Log Out', 'Profile'];
         const signedInFilter = ['Sign In', 'Register'];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
@@ -71,7 +72,7 @@ const Navbar = () => {
 
     const DisplayWelcome = () => {
         return (
-            <p>Welcome!</p> //This isn't final - likely going to want to have username available as context after sign in?
+            <p>{ usernameState }</p>
         );
     };
 

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
-    const { setSessionState } = useContext(SessionContext);
+    const { setSessionState, setUsernameState } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
     const [password, setPassWord] = useState("");
@@ -41,6 +41,7 @@ export const SignInPrompt = (props) => {
             setSignInError("");
             setSigningIn(false);
             setSessionState('D');
+            setUsernameState(username);
             navigate('/');
         }
         else {
