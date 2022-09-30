@@ -1,13 +1,27 @@
 import React, { useState, useContext } from 'react';
 import { SessionContext } from '../..';
 import { useNavigate } from 'react-router-dom';
+import { Button, Paper, TextField, Stack } from '@mui/material';
+import { Box } from '@mui/system';
+import { Container } from '@mui/system';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
     const { setSessionState, setUsernameState } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
-    const [password, setPassWord] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [ showPasswordState, setShowPasswordState ] = useState(false);
+
+    //Toggle show password visibility in textfield
+    const handleShowPassword = () => {
+        setShowPasswordState(showPasswordState ? false : true);
+    };
 
     //Update username as user inputs characters
     const onUsernameChange = (e) => {
@@ -16,7 +30,7 @@ export const SignInPrompt = (props) => {
 
     //Update password as user inputs characters
     const onPasswordChange = (e) => {
-        setPassWord(e.target.value);
+        setPassword(e.target.value);
     };
 
     //Used when username and password are submitted. Search DB for combo.
@@ -50,18 +64,50 @@ export const SignInPrompt = (props) => {
     };
 
     return (
-        <div>
-            <form onSubmit={authenticate}>
-                <label>
-                    Username:
-                    <input type='text' value={username} onChange={onUsernameChange} />
-                </label>
-                <label>
-                    Password:
-                    <input type='text' value={password} onChange={onPasswordChange} />
-                </label>
-                <input type='submit' value="Submit" />
-            </form>
-        </div>
+        <Container sx={{
+            width: '90% ',
+            display: 'flex',
+            marginY: '5vh'
+        }}>
+            <Paper sx={{ width: '100%' }}> 
+                <Box sx={{
+                    height: '100%',
+                    width: '100%',
+                    padding: '25px'
+                }}>
+                    <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
+                        <TextField 
+                            id="signinUsername"
+                            label="username"
+                            fullWidth
+                            value={username} 
+                            onChange={onUsernameChange}
+                        />
+                        <TextField
+                            id="signinPassword"
+                            label="password"
+                            fullWidth
+                            value={password}
+                            onChange={onPasswordChange}
+                            type={showPasswordState ? 'text' : 'password'}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={handleShowPassword}
+                                            edge="end"
+                                        >
+                                            {showPasswordState ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
+                    </Stack>
+                </Box>
+            </Paper>
+        </Container>
     );
 };

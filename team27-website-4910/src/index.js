@@ -13,20 +13,31 @@ import Profile from './pages/Profile';
 export const SessionContext = createContext();
 
 const SessionContextProvider = (props) => {
+  //SessionStates: 
+    //0: not signed in
+    //D: driver signed in
+    //S: sponsor signed in
+    //A: admin signed in
   const [ sessionState, setSessionState ] = useState('0');
+  //General profile states
   const [ usernameState, setUsernameState ] = useState("");
-  const [ firstNameState, setFirstNameState ] = useState("");
+  const [ firstnameState, setFirstnameState ] = useState("");
+  const [ lastnameState, setLastnameState ] = useState("");
+  const [ emailState, setEmailState ] = useState("");
+  const [ bioState, setBioState ] = useState("");
   
   // not used, but may need in future to maintain authentic calls to db
-  const [ tokenState, setTokenState ] = useState(""); 
+  //const [ tokenState, setTokenState ] = useState(""); 
  
   return (
     <SessionContext.Provider 
       value={{
-        sessionState, 
-        setSessionState, 
-        usernameState, 
-        setUsernameState
+        sessionState, setSessionState, 
+        usernameState, setUsernameState,
+        firstnameState, setFirstnameState,
+        lastnameState, setLastnameState,
+        emailState, setEmailState,
+        bioState, setBioState
       }}
     >
       {props.children}
