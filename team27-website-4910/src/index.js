@@ -9,30 +9,31 @@ import Home from './pages/Home';
 import Register from './pages/Register';
 import LogIn from './pages/LogIn';
 import Profile from './pages/Profile';
+import Catalog from './pages/Catalog';
 
 export const SessionContext = createContext();
 
 const SessionContextProvider = (props) => {
   //SessionStates: 
-    //0: not signed in
-    //D: driver signed in
-    //S: sponsor signed in
-    //A: admin signed in
-  const [ sessionState, setSessionState ] = useState('0');
+  //0: not signed in
+  //D: driver signed in
+  //S: sponsor signed in
+  //A: admin signed in
+  const [sessionState, setSessionState] = useState('0');
   //General profile states
-  const [ usernameState, setUsernameState ] = useState("");
-  const [ firstnameState, setFirstnameState ] = useState("");
-  const [ lastnameState, setLastnameState ] = useState("");
-  const [ emailState, setEmailState ] = useState("");
-  const [ bioState, setBioState ] = useState("");
-  
+  const [usernameState, setUsernameState] = useState("");
+  const [firstnameState, setFirstnameState] = useState("");
+  const [lastnameState, setLastnameState] = useState("");
+  const [emailState, setEmailState] = useState("");
+  const [bioState, setBioState] = useState("");
+
   // not used, but may need in future to maintain authentic calls to db
   //const [ tokenState, setTokenState ] = useState(""); 
- 
+
   return (
-    <SessionContext.Provider 
+    <SessionContext.Provider
       value={{
-        sessionState, setSessionState, 
+        sessionState, setSessionState,
         usernameState, setUsernameState,
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
   {
     path: "profile/",
     element: <Profile />,
+  },
+  {
+    path: "catalog/",
+    element: <Catalog />,
   },
 ]);
 

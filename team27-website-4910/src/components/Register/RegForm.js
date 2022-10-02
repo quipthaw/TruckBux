@@ -139,7 +139,7 @@ export default function RegForm() {
             let error = await parseResponse();
             if (!error) {
                 handleOpen();
-                setTimeout(() => { navigate('/') }, 5000);
+                setTimeout(() => { navigate('/login') }, 5000);
             }
         }
         setLoading(false);
