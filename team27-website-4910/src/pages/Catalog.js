@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Layout from "../components/Layout";
 import { Container } from '@mui/system';
-import { CircularProgress, Stack } from '@mui/material';
+import { CircularProgress, Grid, Stack } from '@mui/material';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
@@ -36,23 +36,30 @@ export default function Catalog() {
             )
         } else {
             return (
-                <Stack>
+                <Grid container spacing={2} sx={{ margin: '15px' }}>
                     {itemList.map((item) => {
                         return (
-                            <Card>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    {item.itemId}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {item.title}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {item.price}
-                                </Typography>
-                            </Card>
+                            <Grid item>
+                                <Card sx={{ maxWidth: 345 }}>
+                                    <CardMedia>
+                                        <img src={item.image} alt={item.title} style={{ height: '250px' }} />
+                                    </CardMedia>
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h5" component="div">
+                                            {item.itemId}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {item.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {item.price}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
                         )
                     })}
-                </Stack>
+                </Grid>
             )
         }
     }

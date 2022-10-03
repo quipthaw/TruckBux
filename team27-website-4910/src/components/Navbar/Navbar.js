@@ -12,12 +12,11 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../../logos/Trukbux.svg';
-import { Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
 
-const pages = ['Catalog', 'News']
+const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
 const Navbar = () => {
     const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
@@ -26,7 +25,7 @@ const Navbar = () => {
         { 'text': 'Sign In', 'path': '/login' },
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
         { 'text': 'Register', 'path': '/register' },
-        { 'text': 'Profile', 'path': '/profile'}
+        { 'text': 'Profile', 'path': '/profile' }
     ];
 
     const navigate = useNavigate();
@@ -72,7 +71,7 @@ const Navbar = () => {
 
     const DisplayWelcome = () => {
         return (
-            <p>{ usernameState }</p>
+            <p>{usernameState}</p>
         );
     };
 
@@ -92,39 +91,17 @@ const Navbar = () => {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                            }}
-                        >
-                            {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                    <Typography textAlign="center">{page}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
-                                key={page}
-                                onClick={handleCloseNavMenu}
+                                key={page.label}
+                                onClick={(e) => {
+                                    redirect(e, page.path)
+                                }}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                             >
-                                {page}
+                                {page.label}
                             </Button>
                         ))}
                     </Box>
