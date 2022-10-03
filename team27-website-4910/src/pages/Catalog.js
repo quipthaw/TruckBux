@@ -38,17 +38,19 @@ export default function Catalog() {
             return (
                 <Stack>
                     {itemList.map((item) => {
-                        <Card>
-                            <Typography gutterBottom variant="h5" component="div">
-                                {item.itemId}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {item.title}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {item.price}
-                            </Typography>
-                        </Card>
+                        return (
+                            <Card>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    {item.itemId}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {item.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {item.price}
+                                </Typography>
+                            </Card>
+                        )
                     })}
                 </Stack>
             )
@@ -61,6 +63,5 @@ export default function Catalog() {
                 {showCatalog()}
             </Container>
         </Layout>
-
     )
 }
