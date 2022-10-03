@@ -27,7 +27,6 @@ EXPIRES = datetime.datetime.now()
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:3000'])
 
-
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
 def get_connection():
@@ -112,6 +111,41 @@ def check_email(email):
         return True
 
 
+# Endpoint that takes a username via post request in from {'user': <username>}
+# and returns all of it's user info
+# @return correct user info | 'Error, Invalid User' in result field
+@app.route("/getprofile", methods=['POST'])
+@cross_origin()
+def get_profile():
+    # Parameterized queries protect against sqli
+    usr_str = ["foo"] * 10
+    query = text('SELECT * from Users where username = :x')
+    param = {'x': request.json['user']}
+    my_data = db_connection.execute(query, param).first()
+    if my_data != None:
+        i = 0
+        for row in my_data:
+            usr_str[i] = str(row)
+            i = i + 1
+        user = []
+        user_val = {
+            "username": usr_str[0],
+            "password": usr_str[1],
+            "email": usr_str[2],
+            "fName": usr_str[3],
+            "lName": usr_str[4],
+            "acctType": usr_str[5],
+            "sponsorID": usr_str[6],
+            "dateCreated": usr_str[7],
+            "lockedUntil": usr_str[8],
+            "active": usr_str[9]
+        }
+        user.append(user_val)
+        return jsonify({"user":user})
+    else: 
+        return(jsonify('Error, Invalid User'))
+
+
 # Endpoint that checks if a given username, password, and email are valid
 # If the data is valid it inserts the new user into the databases
 # if the data is not valid it returns 'error': 'True' and the corresponding errors
@@ -187,7 +221,6 @@ def get_catalog():
         new_token()
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
-
     }
     resp = requests.get(
         "https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?category_ids=293", headers=header)
@@ -210,7 +243,7 @@ def get_catalog():
             else:
                 itemObject["image"] = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr40W2krm7bk8rMzHeoQV4Mu8G6D8SGeKttA&usqp=CAU"
             items.append(itemObject)
-
+            
     return jsonify({"items":items})
 
 # Endpoint that updates profile info.
@@ -257,4 +290,6 @@ def update_profile():
     
     return(jsonify(resp))
 
+
 app.run(debug=True)
+
