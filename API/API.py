@@ -192,7 +192,7 @@ def get_catalog():
     resp = requests.get(
         "https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?category_ids=293", headers=header)
 
-    items = {}
+    items = []
     data = json.loads(resp.content)['itemSummaries']
     for item in data:
         itemObject = {
@@ -209,9 +209,9 @@ def get_catalog():
                 itemObject["image"] = item["image"]["imageUrl"]
             else:
                 itemObject["image"] = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr40W2krm7bk8rMzHeoQV4Mu8G6D8SGeKttA&usqp=CAU"
-            items[item['itemId']] = itemObject
+            items.append(itemObject)
 
-    return jsonify(items)
+    return jsonify({"items":items})
 
 <<<<<<< HEAD
 # Endpoint that updates profile info.
