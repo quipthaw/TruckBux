@@ -155,6 +155,9 @@ def check_login():
 @app.route('/updateprof', methods=['POST'])
 @cross_origin()
 def update_profile():
+    print(request.json)
+    print(request.json)
+    print(request.json)
     username = request.json['user']
     fname = request.json['fname']
     lname = request.json['lname']

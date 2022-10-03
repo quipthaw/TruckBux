@@ -64,50 +64,39 @@ export const SignInPrompt = (props) => {
     };
 
     return (
-        <Container sx={{
-            width: '90% ',
-            display: 'flex',
-            marginY: '5vh'
-        }}>
-            <Paper sx={{ width: '100%' }}> 
-                <Box sx={{
-                    height: '100%',
-                    width: '100%',
-                    padding: '25px'
-                }}>
-                    <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
-                        <TextField 
-                            id="signinUsername"
-                            label="username"
-                            fullWidth
-                            value={username} 
-                            onChange={onUsernameChange}
-                        />
-                        <TextField
-                            id="signinPassword"
-                            label="password"
-                            fullWidth
-                            value={password}
-                            onChange={onPasswordChange}
-                            type={showPasswordState ? 'text' : 'password'}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onClick={handleShowPassword}
-                                            edge="end"
-                                        >
-                                            {showPasswordState ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
-                        />
-                        <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
-                    </Stack>
-                </Box>
-            </Paper>
-        </Container>
+    
+        <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>            
+            <Stack direction='row' spacing={2}>
+                <TextField 
+                    id="signinUsername"
+                    label="username"
+                    fullWidth
+                    value={username} 
+                    onChange={onUsernameChange}
+                />
+                <TextField
+                    id="signinPassword"
+                    label="password"
+                    fullWidth
+                    value={password}
+                    onChange={onPasswordChange}
+                    type={showPasswordState ? 'text' : 'password'}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={handleShowPassword}
+                                    edge="end"
+                                >
+                                    {showPasswordState ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                />
+            </Stack>
+        <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
+    </Stack>
     );
 };
