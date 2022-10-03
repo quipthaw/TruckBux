@@ -213,5 +213,48 @@ def get_catalog():
 
     return jsonify({"items":items})
 
+# Endpoint that updates profile info.
+# Request should have all fields present and blank if not being updated.
+# user must have a value when request is sent to the endpoint
+# {'user': 'test', 'fname': 'john', 'lname': ''}
+# if the data is not valid it returns 'error': 'True' and the corresponding errors
+@app.route('/updateprof', methods=['POST'])
+@cross_origin()
+def update_profile():
+    username = request.json['user']
+    fname = request.json['fname']
+    lname = request.json['lname']
+    email = request.json['email']
+
+    resp = {'error':'False'}
+    query = "UPDATE TruckBux.Users SET "
+    param = {'u': username}
+
+    if email != '':
+        if check_email(email) == False:
+            resp['error'] = 'True'
+            resp['email'] = 'Expected email in the form XXX@XXX.XXX'
+        else:
+            query += "`email` = :x"
+            param['x'] = email
+    if fname != '':
+        param['y'] = fname
+        if email != '':
+            query += ", `fName` = :y"
+        else:
+            query += "`fName` = :y"
+    if lname != '':
+        param['z'] = lname
+        if email != '' or fname != '':
+            query += ", `lName` = :z"
+        else:
+            query += "`lName` = :z"
+ 
+    query += " WHERE `username` = :u"
+
+    if resp['error'] == "False":
+        db_connection.execute(text(query), param)
+    
+    return(jsonify(resp))
 
 app.run(debug=True)

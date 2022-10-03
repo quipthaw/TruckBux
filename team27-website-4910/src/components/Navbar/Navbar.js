@@ -165,8 +165,8 @@ const Navbar = () => {
                         </Menu>
                     </Box>
 
-                    <Box sx={{ flexGrow: 0 }}>
-                        {sessionState != '0' && <DisplayWelcome />}
+                    <Box sx={{ p: 2, flexGrow: 0 }}>
+                        {sessionState != '0' && <Typography>{usernameState}</Typography>}
                     </Box>
                 </Toolbar>
             </Container>
