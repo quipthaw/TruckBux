@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../../logos/Trukbux.svg';
+import { Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
@@ -91,14 +92,36 @@ const Navbar = () => {
                         >
                             <MenuIcon />
                         </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                            }}
+                        >
+                            {pages.map((page) => (
+                                <MenuItem key={page.label} onClick={(e) => { redirect(e, page.path) }}>
+                                    <Typography textAlign="center">{page.label}</Typography>
+                                </MenuItem>
+                            ))}
+                        </Menu>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
                                 key={page.label}
-                                onClick={(e) => {
-                                    redirect(e, page.path)
-                                }}
+                                onClick={(e) => { redirect(e, page.path) }}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                             >
                                 {page.label}
