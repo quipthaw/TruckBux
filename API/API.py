@@ -213,7 +213,6 @@ def get_catalog():
 
     return jsonify({"items":items})
 
-<<<<<<< HEAD
 # Endpoint that updates profile info.
 # Request should have all fields present and blank if not being updated.
 # user must have a value when request is sent to the endpoint
@@ -259,7 +258,7 @@ def update_profile():
     return(jsonify(resp))
 
 app.run(debug=True)
-=======
+
 @app.route('/catalog', methods=['GET'])
 @cross_origin()
 def get_catalog():
@@ -292,11 +291,6 @@ def get_catalog():
             items[item['itemId']] = itemObject
 
     return jsonify(items)
-
-
-app.run(debug=True)
->>>>>>> baac05a (catalog attempt)
-
 # Endpoint that updates profile info.
 # Request should have all fields present and blank if not being updated.
 # user must have a value when request is sent to the endpoint
