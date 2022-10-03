@@ -1,11 +1,11 @@
-import { Button, Paper, TextField, Stack } from '@mui/material';
+import { Button, Paper, TextField, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
 
 export const ProfileInfo = () => {
-    const { 
+    const {
         usernameState, 
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
@@ -19,6 +19,8 @@ export const ProfileInfo = () => {
     const [ profileLastname, setProfileLastname ] = useState(lastnameState);
     const [ profileEmail, setProfileEmail ] = useState(emailState);
     const [ profileBio, setProfileBio ] = useState(bioState);
+
+    const [ profileUpdateError, setProfileUpdateError ] = useState("");
 
     //On changes for profile-specific variables - we do not change context here
     const onEmailChange = (e) => {
@@ -46,10 +48,16 @@ export const ProfileInfo = () => {
     //IF UPDATE SUCCESSFUL, then update our contexts,
     //ELSE warning
     const handleUpdateProfileInformation = async (e) => {
-        /*
         e.preventDefault();
+        
         //Send update request to server.
-        const profileData = {};
+        const profileData = {
+            user: usernameState,
+            email: profileEmail,
+            fname: profileFirstname, 
+            lname: profileLastname,
+        };
+
         const profileOptions = {
             method: 'POST',
             headers: {
@@ -58,18 +66,26 @@ export const ProfileInfo = () => {
             body: JSON.stringify(profileData)
         };
 
-        let profileResponse = await fetch('http', profileOptions);
+        let profileResponse = await fetch('http://127.0.0.1:5000/updateprof', profileOptions);
         
         profileResponse = await profileResponse.json();
 
-        if(profileResponse.result === "True") {
+        if(profileResponse.error === "False") {
             setEmailState(profileEmail);
             setFirstnameState(profileFirstname);
             setLastnameState(profileLastname);
             setBioState(profileBio);
+            setProfileUpdateError("");
             toggleUpdatingProfile();
         }
-        */
+        else {
+            if('email' in profileResponse) {
+                setProfileUpdateError(profileResponse.email);
+            }
+            else {
+                setProfileUpdateError("We were unable to update your profile");
+            }
+        }
     };
 
     return (
@@ -144,8 +160,9 @@ export const ProfileInfo = () => {
                             }
                         />
                         </Stack>
+                        {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
-                        {updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Confirm Changes</Button>}
+                        {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
                     </Stack>
                 </Box>
             </Paper>
