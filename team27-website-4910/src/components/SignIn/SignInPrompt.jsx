@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useInsertionEffect } from 'react';
 import { SessionContext } from '../..';
 import { useNavigate } from 'react-router-dom';
 import { Button, Paper, TextField, Stack } from '@mui/material';
@@ -11,7 +11,13 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
-    const { setSessionState, setUsernameState } = useContext(SessionContext);
+    const { 
+        setSessionState, 
+        setUsernameState, 
+        setEmailState, 
+        setFirstnameState, 
+        setLastnameState 
+    } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -33,6 +39,25 @@ export const SignInPrompt = (props) => {
         setPassword(e.target.value);
     };
 
+    const getUserProfile = async () => {
+        const userData = { user: username };
+        const userOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        };
+
+        let userResponse = await fetch('http://127.0.0.1:5000/getprofile', userOptions);
+
+        userResponse = await userResponse.json();
+
+        setEmailState(userResponse.email);
+        setFirstnameState(userResponse.fName);
+        setLastnameState(userResponse.lName);
+    };
+
     //Used when username and password are submitted. Search DB for combo.
     const authenticate = async (e) => {
         e.preventDefault();
@@ -52,6 +77,7 @@ export const SignInPrompt = (props) => {
         loginResponse = await loginResponse.json();
         
         if(loginResponse.result === "True") {
+            getUserProfile();
             setSignInError("");
             setSigningIn(false);
             setSessionState('D');
