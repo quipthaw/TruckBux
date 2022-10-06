@@ -22,6 +22,9 @@ export const ProfileInfo = () => {
 
     const [ profileUpdateError, setProfileUpdateError ] = useState("");
 
+    console.log(profileFirstname);
+    console.log(firstnameState);
+
     //On changes for profile-specific variables - we do not change context here
     const onEmailChange = (e) => {
         setProfileEmail(e.target.value);
