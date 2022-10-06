@@ -315,5 +315,39 @@ def update_profile():
 #     return result
 
 
+# Endpoint to reset a user's password if they forgot
+# Must provide the user's email, first name, and last name
+# in order to reset the password
+# @returns {'error': 'False'} if successful
+@app.route('/resetpass', methods=['POST'])
+@cross_origin()
+def reset_password():
+    email = request.json['email']
+    fname = request.json['fname']
+    lname = request.json['lname']
+    new_pass = request.json['pass']
+
+    query = text('select email, fname, lname from Users where username = :x')
+    param = {'x': request.json['user']}
+
+    resp = {'error': 'False'}
+
+    row = db_connection.execute(query, param).first()
+    if row != None:
+        if email == row[0] and fname == row[1] and lname == row[2]:
+            query = text('UPDATE TruckBux.Users SET password = :x WHERE username = :y')
+            param = {'x': hash_password(new_pass), 'y': request.json['user']}
+
+            try:
+                db_connection.execute(query, param)
+            except:
+                resp['error'] = 'True'
+                resp['reason'] = 'Insert Failed'
+        else:
+            resp['error'] = 'True'
+            resp['reason'] = 'User with that info does not exist'
+    
+    return resp
+
 app.run(debug=True)
 
