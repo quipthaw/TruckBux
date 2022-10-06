@@ -36,30 +36,37 @@ export default function Catalog() {
             )
         } else {
             return (
-                <Grid container spacing={2} sx={{ margin: '15px' }}>
-                    {itemList.map((item) => {
-                        return (
-                            <Grid item>
-                                <Card sx={{ maxWidth: 345 }}>
-                                    <CardMedia>
-                                        <img src={item.image} alt={item.title} style={{ height: '250px' }} />
-                                    </CardMedia>
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h5" component="div">
-                                            {item.itemId}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {item.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {item.price}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        )
-                    })}
-                </Grid>
+                <Container alignContent='center'>
+                    <Grid container spacing={2}>
+                        {itemList.map((item) => {
+                            return (
+                                <Grid item>
+                                    <Card sx={{ maxWidth: 300, minWidth: 250 }}>
+                                        <CardMedia sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignContent: 'center'
+                                        }}>
+                                            <img src={item.image} alt={item.title} style={{ width: '200px', height: '200px' }} />
+                                        </CardMedia>
+                                        <CardContent>
+                                            <Typography gutterBottom variant="h5" component="div">
+                                                {item.itemId}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {item.title}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {item.price}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            )
+                        })}
+                    </Grid>
+
+                </Container>
             )
         }
     }
