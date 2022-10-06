@@ -1,12 +1,13 @@
 import { CssBaseline, Toolbar } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Container } from '@mui/system';
 import React, { useState } from 'react'
 import Navbar from './Navbar/Navbar';
 
 const darkTheme = createTheme(
     {
         palette: {
-            mode: 'light',
+            mode: 'dark',
         }
     }
 )
@@ -30,7 +31,9 @@ export default function Layout(props) {
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             <Navbar />
-            {props.children}
+            <Container>
+                {props.children}
+            </Container>
         </ThemeProvider>
     )
 }
