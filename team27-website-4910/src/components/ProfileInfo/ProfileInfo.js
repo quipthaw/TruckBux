@@ -3,6 +3,7 @@ import { Box } from '@mui/system';
 import React, { useContext, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
+import { UpdatePassword } from './UpdatePassword';
 
 export const ProfileInfo = () => {
     const {
@@ -21,9 +22,6 @@ export const ProfileInfo = () => {
     const [ profileBio, setProfileBio ] = useState(bioState);
 
     const [ profileUpdateError, setProfileUpdateError ] = useState("");
-
-    console.log(profileFirstname);
-    console.log(firstnameState);
 
     //On changes for profile-specific variables - we do not change context here
     const onEmailChange = (e) => {
@@ -46,10 +44,6 @@ export const ProfileInfo = () => {
         setUpdatingProfile(updatingProfile ? false : true);
     };
 
-    //TODO
-    //Make a call to database, handle verification, update changes.
-    //IF UPDATE SUCCESSFUL, then update our contexts,
-    //ELSE warning
     const handleUpdateProfileInformation = async (e) => {
         e.preventDefault();
         
@@ -91,6 +85,7 @@ export const ProfileInfo = () => {
         }
     };
 
+
     return (
         <Container sx={{
             width: '90% ',
@@ -105,67 +100,69 @@ export const ProfileInfo = () => {
                 }}>
                     <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
                         <Stack direction='row' spacing={2}>
-                        <TextField      
-                            id="username"   
-                            label="username"
-                            value={usernameState}
-                            fullWidth
-                            inputProps={
-                                { disabled: true, }
-                            }
-                        />
-                        <TextField      
-                            id="email"   
-                            label="email"
-                            value={updatingProfile ? profileEmail : emailState}
-                            onChange={(onEmailChange)}
-                            fullWidth
-                            variant={ updatingProfile ? 'filled' : 'outlined' }
-                            inputProps={
-                                updatingProfile ? {disabled: false} : { disabled: true, }
-                            }
-                        />
+                            <TextField      
+                                id="username"   
+                                label="username"
+                                value={usernameState}
+                                fullWidth
+                                inputProps={
+                                    { disabled: true, }
+                                }
+                            />
+                            <TextField      
+                                id="email"   
+                                label="email"
+                                value={updatingProfile ? profileEmail : emailState}
+                                onChange={(onEmailChange)}
+                                fullWidth
+                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                inputProps={
+                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                }
+                            />
                         </Stack>
                         <Stack direction='row' spacing={2}>
-                        <TextField      
-                            id="firstname"   
-                            label="firstname"
-                            value={updatingProfile ? profileFirstname : firstnameState}
-                            onChange={(onFirstnameChange)}
-                            fullWidth
-                            variant={ updatingProfile ? 'filled' : 'outlined' }
-                            inputProps={
-                                updatingProfile ? {disabled: false} : { disabled: true, }
-                            }
-                        />
-                        <TextField      
-                            id="lastname"   
-                            label="lastname"
-                            value={updatingProfile ? profileLastname : lastnameState}
-                            onChange={(onLastnameChange)}
-                            fullWidth
-                            variant={ updatingProfile ? 'filled' : 'outlined' }
-                            inputProps={
-                                updatingProfile ? {disabled: false} : { disabled: true, }
-                            }
-                        />
+                            <TextField      
+                                id="firstname"   
+                                label="firstname"
+                                value={updatingProfile ? profileFirstname : firstnameState}
+                                onChange={(onFirstnameChange)}
+                                fullWidth
+                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                inputProps={
+                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                }
+                            />
+                            <TextField      
+                                id="lastname"   
+                                label="lastname"
+                                value={updatingProfile ? profileLastname : lastnameState}
+                                onChange={(onLastnameChange)}
+                                fullWidth
+                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                inputProps={
+                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                }
+                            />
                         </Stack>
                         <Stack direction='row' spacing={2}>
-                        <TextField      
-                            id="userbio"   
-                            label="userbio"
-                            value={updatingProfile ? profileBio : bioState}
-                            onChange={(onUserBioChange)}
-                            fullWidth
-                            variant={ updatingProfile ? 'filled' : 'outlined' }
-                            inputProps={
-                                updatingProfile ? {disabled: false} : { disabled: true, }
-                            }
-                        />
+                            <TextField      
+                                id="userbio"   
+                                label="userbio"
+                                value={updatingProfile ? profileBio : bioState}
+                                onChange={(onUserBioChange)}
+                                fullWidth
+                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                inputProps={
+                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                }
+                            />
                         </Stack>
                         {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
+
+                        <UpdatePassword/>
                     </Stack>
                 </Box>
             </Paper>
