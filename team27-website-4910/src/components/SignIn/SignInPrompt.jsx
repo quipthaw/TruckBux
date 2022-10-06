@@ -1,9 +1,7 @@
 import React, { useState, useContext, useInsertionEffect } from 'react';
 import { SessionContext } from '../..';
 import { useNavigate } from 'react-router-dom';
-import { Button, Paper, TextField, Stack } from '@mui/material';
-import { Box } from '@mui/system';
-import { Container } from '@mui/system';
+import { Button, TextField, Stack } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
@@ -53,9 +51,12 @@ export const SignInPrompt = (props) => {
 
         userResponse = await userResponse.json();
 
-        setEmailState(userResponse.email);
-        setFirstnameState(userResponse.fName);
-        setLastnameState(userResponse.lName);
+        console.log(userResponse.user[0]);
+        console.log(userResponse.user[0].email);
+
+        setEmailState(userResponse.user[0].email);
+        setFirstnameState(userResponse.user[0].fName);
+        setLastnameState(userResponse.user[0].lName);
     };
 
     //Used when username and password are submitted. Search DB for combo.
