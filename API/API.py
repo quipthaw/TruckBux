@@ -111,6 +111,18 @@ def check_email(email):
         return True
 
 
+def check_sponsor_name(name):
+    # Parameterized queries protect against sqli
+    query = text('select * from Sponsors where sponsorName = :x')
+    param = {'x': name}
+
+    qresult = db_connection.execute(query, param)
+
+    if (qresult.one_or_none() != None):
+        return False
+    else:
+        return True
+
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and returns all of it's user info
 # @return correct user info | 'Error, Invalid User' in result field
@@ -192,6 +204,30 @@ def register():
             return jsonify(resp)
     else:
         return jsonify(resp)
+
+
+# Endpoint to insert sponsor data into the Sponsors table
+@app.route('/createsponsor', methods=['POST'])
+@cross_origin()
+def create_sponsor():
+    resp = {'error': 'False'}
+    name = request.json['name']
+    rate = request.json['rate']
+
+    if(check_sponsor_name(name) == False):
+        resp['error'] = 'True'
+        resp['reason'] = 'Name Taken'
+    else:
+        query = text('INSERT INTO TruckBux.Sponsors(sponsorName, pointConversionRate) VALUES(:x, :y)')
+        param = {'x': name, 'y':rate}
+
+        try:
+            db_connection.execute(query, param)
+        except:
+            resp['error'] = 'True'
+            resp['reason'] = 'Insert Failed'
+    
+    return resp
 
 
 # Endpoint that takes a password and username via post request in from {'user': <username>, 'pass': <password>}
