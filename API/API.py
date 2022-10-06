@@ -157,6 +157,10 @@ def register():
     fname = request.json['fname']
     lname = request.json['lname']
     email = request.json['email']
+    if 'type' in request.json:
+        act_type = request.json['type']
+    else:
+        act_type = 'D'
 
     resp = {'error': 'False'}
 
@@ -177,9 +181,9 @@ def register():
 
             # Insert record into Database
             query = text(
-                "INSERT INTO TruckBux.Users(username, password, email, fName, lName) VALUES(:x, :y, :z, :j, :k)")
+                "INSERT INTO TruckBux.Users(username, password, email, fName, lName, acctType) VALUES(:x, :y, :z, :j, :k, :l)")
             param = {'x': username, 'y': hashed_pass,
-                     'z': email, 'j': fname, 'k': lname}
+                     'z': email, 'j': fname, 'k': lname, 'l':act_type}
             db_connection.execute(query, param)
             return jsonify(resp)
         except:
@@ -291,24 +295,24 @@ def update_profile():
     return(jsonify(resp))
 
 
-@app.route('/getprofile', methods=['POST'])
-@cross_origin()
-def get_profile():
-    query = text(
-        'SELECT email, fName, lName FROM Users where username = :x'
-    )
+# @app.route('/getprofile', methods=['GET'])
+# @cross_origin()
+# def get_profile():
+#     query = text(
+#         'SELECT email, fName, lName FROM Users where username = :x'
+#     )
     
-    param = {'x': request.json['user']}
+#     param = {'x': request.json['user']}
 
-    row = db_connection.execute(query, param).first()
+#     row = db_connection.execute(query, param).first()
 
-    result = {
-        'email': row[0],
-        'fName': row[1],
-        'lName': row[2],
-    }
+#     result = {
+#         'email': row[0],
+#         'fName': row[1],
+#         'lName': row[2],
+#     }
 
-    return result
+#     return result
 
 
 app.run(debug=True)
