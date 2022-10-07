@@ -418,6 +418,11 @@ def reset_password():
 
     resp = {'error': 'False'}
 
+    if check_password(new_pass) == False:
+        resp['error'] = 'True'
+        resp['reason'] = PASS_COMP_REQS
+        return resp
+
     row = db_connection.execute(query, param).first()
     if row != None:
         if email == row[0] and fname == row[1] and lname == row[2]:
