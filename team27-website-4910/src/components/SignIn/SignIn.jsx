@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
 import { SignInPrompt } from './SignInPrompt';
 import { SessionContext } from "../..";
-import { Paper, Stack, Typography } from '@mui/material';
+import { Paper, Button, Stack, Typography } from '@mui/material';
 import { Box, Container } from '@mui/system';
+import { UpdatePassword } from "../PasswordRecovery/UpdatePassword";
 
 //There is currently no endpoint to check valid password/user combos.
 //To test sign in, use username=testuser and password=password
@@ -11,6 +12,12 @@ export const SignIn = (props) => {
     const { sessionState, setSessionState } = useContext(SessionContext);
     const [signingIn, setSigningIn] = useState(true);
     const [signInError, setSignInError] = useState("");
+    
+    const [ updatingPassword, setUpdatingPassword ] = useState(false);
+    
+    const toggleUpdatingPassword = () => {
+        setUpdatingPassword( updatingPassword ? false : true);
+    };
 
     const handleSignIn = () => {
         setSigningIn(true);
@@ -59,10 +66,15 @@ export const SignIn = (props) => {
                     width: '100%',
                     padding: '25px'
                 }}>
-                    {!signingIn && sessionState === '0' && <DisplaySignIn />}
-                    {sessionState === '0' && signingIn && <DisplayPrompt />}
-                    {sessionState != '0' && <DisplaySignOut />}
-                    {signInError != "" && <Typography align='center' color='red'>{signInError}</Typography>}
+                    <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
+                        {!updatingPassword && !signingIn && sessionState === '0' && <DisplaySignIn />}
+                        {!updatingPassword && sessionState === '0' && signingIn && <DisplayPrompt />}
+                        {!updatingPassword && sessionState != '0' && <DisplaySignOut />}
+                        {!updatingPassword && signInError != "" && <Typography align='center' color='red'>{signInError}</Typography>}
+                        {!updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Change Password</Button>}
+                        {updatingPassword && <UpdatePassword/>}
+                        {updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Go Back to Sign In</Button>}
+                    </Stack>
                 </Box>
             </Paper>
         </Container>

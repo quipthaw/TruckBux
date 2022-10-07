@@ -51,9 +51,6 @@ export const SignInPrompt = (props) => {
 
         userResponse = await userResponse.json();
 
-        console.log(userResponse.user[0]);
-        console.log(userResponse.user[0].email);
-
         setEmailState(userResponse.user[0].email);
         setFirstnameState(userResponse.user[0].fName);
         setLastnameState(userResponse.user[0].lName);
@@ -91,7 +88,6 @@ export const SignInPrompt = (props) => {
     };
 
     return (
-    
         <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>            
             <Stack direction='row' spacing={2}>
                 <TextField 

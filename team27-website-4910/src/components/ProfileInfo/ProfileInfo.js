@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import React, { useContext, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
-import { UpdatePassword } from './UpdatePassword';
+import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
 
 export const ProfileInfo = () => {
     const {
@@ -46,7 +46,7 @@ export const ProfileInfo = () => {
 
     const handleUpdateProfileInformation = async (e) => {
         e.preventDefault();
-        
+
         //Send update request to server.
         const profileData = {
             user: usernameState,
@@ -161,8 +161,7 @@ export const ProfileInfo = () => {
                         {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
-
-                        <UpdatePassword/>
+                        <UpdatePassword updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile}/>
                     </Stack>
                 </Box>
             </Paper>
