@@ -51,9 +51,17 @@ export const SignInPrompt = (props) => {
 
         userResponse = await userResponse.json();
 
+        if(!(userResponse.user[0].active)) {
+            return false;
+        }
+
+        setUsernameState(userResponse.user[0].username);
         setEmailState(userResponse.user[0].email);
         setFirstnameState(userResponse.user[0].fName);
         setLastnameState(userResponse.user[0].lName);
+        setSessionState(userResponse.user[0].acctType);
+
+        return true;
     };
 
     //Used when username and password are submitted. Search DB for combo.
@@ -73,14 +81,33 @@ export const SignInPrompt = (props) => {
         let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
 
         loginResponse = await loginResponse.json();
+
+        //Request to store login attempt log
+        const loginAttemptStatus = loginResponse.result === "True" ? 'Success' : 'Failure';
+
+        const attemptData = { user: username, lresult: loginAttemptStatus };
+
+        const attemptOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(attemptData)
+        };
+
+        let attemptResponse = await fetch('http://127.0.0.1:5000/loginlog', attemptOptions);
+
+        attemptResponse = await attemptResponse.json();
         
         if(loginResponse.result === "True") {
-            getUserProfile();
-            setSignInError("");
-            setSigningIn(false);
-            setSessionState('D');
-            setUsernameState(username);
-            navigate('/');
+            if(getUserProfile()) {
+                setSignInError("");
+                setSigningIn(false);
+                navigate('/');
+            }
+            else {
+                setSignInError("User Account is Currently Deactivated");
+            }
         }
         else {
             setSignInError("User and Password Combination Incorrect");
