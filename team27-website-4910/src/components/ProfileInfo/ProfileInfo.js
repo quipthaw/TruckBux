@@ -4,9 +4,14 @@ import React, { useContext, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
 import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
+import { AccountDeactivation } from './AccountDeactivation';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfileInfo = () => {
+    const navigate = useNavigate();
+
     const {
+        sessionState,
         usernameState, 
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
@@ -162,6 +167,7 @@ export const ProfileInfo = () => {
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
                         <UpdatePassword updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile}/>
+                        {<AccountDeactivation/>}
                     </Stack>
                 </Box>
             </Paper>
