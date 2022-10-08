@@ -51,17 +51,18 @@ export const SignInPrompt = (props) => {
 
         userResponse = await userResponse.json();
 
-        if(!(userResponse.user[0].active)) {
+        if(userResponse.user[0].active === '0') {
             return false;
         }
-
-        setUsernameState(userResponse.user[0].username);
-        setEmailState(userResponse.user[0].email);
-        setFirstnameState(userResponse.user[0].fName);
-        setLastnameState(userResponse.user[0].lName);
-        setSessionState(userResponse.user[0].acctType);
-
-        return true;
+        else {
+            setUsernameState(userResponse.user[0].username);
+            setEmailState(userResponse.user[0].email);
+            setFirstnameState(userResponse.user[0].fName);
+            setLastnameState(userResponse.user[0].lName);
+            setSessionState(userResponse.user[0].acctType);
+    
+            return true;
+        }
     };
 
     //Used when username and password are submitted. Search DB for combo.
@@ -100,7 +101,7 @@ export const SignInPrompt = (props) => {
         attemptResponse = await attemptResponse.json();
         
         if(loginResponse.result === "True") {
-            if(getUserProfile()) {
+            if(await getUserProfile()) {
                 setSignInError("");
                 setSigningIn(false);
                 navigate('/');

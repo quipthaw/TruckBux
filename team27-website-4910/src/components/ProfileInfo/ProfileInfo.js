@@ -5,9 +5,13 @@ import { Container } from '@mui/system';
 import { SessionContext } from '../..';
 import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
 import { AccountDeactivation } from './AccountDeactivation';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfileInfo = () => {
+    const navigate = useNavigate();
+
     const {
+        sessionState,
         usernameState, 
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
