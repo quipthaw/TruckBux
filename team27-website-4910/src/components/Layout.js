@@ -28,7 +28,7 @@ const lightTheme = createTheme(
 export default function Layout(props) {
 
     return (
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={lightTheme}>
             <CssBaseline />
             <Navbar />
             <Container>
