@@ -65,53 +65,89 @@ export const SignInPrompt = (props) => {
         }
     };
 
+    //TODO: This currently checks number of login attempts to lock the account.
+    //Likely want to move this to a system that checks last lockout date
+    const checkLoginAttempts = async () => {
+        //Fetch login attempts to see if locked
+        const lockedData = { user: username };
+        const lockedOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(lockedData)
+        }
+
+        let lockedResponse = await fetch('http://127.0.0.1:5000/loginattempts', lockedOptions);
+
+        lockedResponse = await lockedResponse.json();
+
+        console.log(lockedResponse.result);
+
+        if(lockedResponse.result === 'error, invalid user') {
+            console.log("invalid user");
+            setSignInError(lockedResponse.result);
+            return false;
+        }
+
+        if(lockedResponse.result >= 3) {
+            console.log("number greater than 3")
+            setSignInError("Account is currently locked.");
+            return false;
+        }
+        
+        return true;
+    };
+
     //Used when username and password are submitted. Search DB for combo.
     const authenticate = async (e) => {
         e.preventDefault();
-        
-        //Fetch user/pass combo validation
-        const loginData = { user: username, pass: password };
-        const loginOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(loginData)
-        };
 
-        let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
+        if(await checkLoginAttempts()) {
+            //Fetch user/pass combo validation
+            const loginData = { user: username, pass: password };
+            const loginOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData)
+            };
 
-        loginResponse = await loginResponse.json();
+            let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
 
-        //Request to store login attempt log
-        const loginAttemptStatus = loginResponse.result === "True" ? 'Success' : 'Failure';
+            loginResponse = await loginResponse.json();
 
-        const attemptData = { user: username, lresult: loginAttemptStatus };
+            //Request to store login attempt log
+            const loginAttemptStatus = loginResponse.result === "True" ? 'Success' : 'Failure';
 
-        const attemptOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(attemptData)
-        };
+            const attemptData = { user: username, lresult: loginAttemptStatus };
 
-        let attemptResponse = await fetch('http://127.0.0.1:5000/loginlog', attemptOptions);
+            const attemptOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(attemptData)
+            };
 
-        attemptResponse = await attemptResponse.json();
-        
-        if(loginResponse.result === "True") {
-            if(await getUserProfile()) {
-                setSignInError("");
-                setSigningIn(false);
-                navigate('/');
+            let attemptResponse = await fetch('http://127.0.0.1:5000/loginlog', attemptOptions);
+
+            attemptResponse = await attemptResponse.json();
+            
+            if(loginResponse.result === "True") {
+                if(await getUserProfile()) {
+                    setSignInError("");
+                    setSigningIn(false);
+                    navigate('/');
+                }
+                else {
+                    setSignInError("User Account is Currently Deactivated");
+                }
             }
             else {
-                setSignInError("User Account is Currently Deactivated");
+                setSignInError("User and Password Combination Incorrect");
             }
-        }
-        else {
-            setSignInError("User and Password Combination Incorrect");
         }
     };
 
