@@ -12,14 +12,36 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../../logos/Trukbux.svg';
-import { Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
+import { createTheme } from '@mui/material/styles';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
-const Navbar = () => {
+const Navbar = (props) => {
+
+    const darkTheme = createTheme(
+        {
+            palette: {
+                mode: 'dark',
+            }
+        }
+    )
+
+    const lightTheme = createTheme(
+        {
+            palette: {
+                primary: {
+                    main: '#1F8F1D',
+                },
+                secondary: {
+                    main: '#8F13A3'
+                }
+            }
+        }
+    )
+
     const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
 
     const settings = [

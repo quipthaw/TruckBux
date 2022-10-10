@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import { Container } from '@mui/system';
 import React from 'react';
 import Paper from '@mui/material/Paper';
-import { Box, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
@@ -10,6 +10,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Modal from '@mui/material/Modal';
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { SessionContext } from '../..';
 
 const style = {
     position: 'absolute',
@@ -25,6 +27,9 @@ const style = {
 export default function RegForm() {
     const navigate = useNavigate();
 
+
+    const session = useContext(SessionContext);
+
     //Store and modify form values
     const [values, setValues] = React.useState({
         username: '',
@@ -33,6 +38,7 @@ export default function RegForm() {
         fname: '',
         lname: '',
         email: '',
+        type: 'D',
         showPassword: false,
         showPasswordConf: false,
     });
@@ -55,6 +61,10 @@ export default function RegForm() {
 
     const handleShowPasswordConf = () => {
         setValues({ ...values, showPasswordConf: values.showPasswordConf == true ? false : true, });
+    };
+
+    const handleCreationType = (type) => {
+        setValues({ ...values, ['type']: type });
     };
 
     const checkEmptyFields = () => {
@@ -97,6 +107,7 @@ export default function RegForm() {
                 fname: values.fname,
                 lname: values.lname,
                 email: values.email,
+                type: values.type,
             }),
         });
         const result = await response.json();
@@ -121,8 +132,6 @@ export default function RegForm() {
         return false;
 
     };
-
-
 
     //handle opening and closing of success modal
     const [open, setModalOpen] = React.useState(false);
@@ -151,6 +160,44 @@ export default function RegForm() {
         navigate('/login');
     }
 
+    const showButtons = () => {
+        if (session.sessionType == 'S') {
+            return (
+                <Box textAlign='center'>
+                    <Typography variant='h5'>Please Select User Type To Create.</Typography>
+                    <Typography variant='subtitle1'>User who are not logged in will only be able to create driver accounts.</Typography>
+                    <ButtonGroup variant="outlined" aria-label="outlined button group">
+                        <Button variant={values.type == 'D' ? 'contained' : 'outlined'} onClick={() => handleCreationType('D')}>Driver</Button>
+                        <Button variant={values.type == 'S' ? 'contained' : 'outlined'} onClick={() => handleCreationType('S')}>Sponsor</Button>
+                    </ButtonGroup>
+                </Box>
+            )
+        }
+        else if (session.sessionType == 'A') {
+            return (
+                <Box textAlign='center'>
+                    <Typography variant='h5'>Please Select User Type To Create.</Typography>
+                    <Typography variant='subtitle1'>User who are not logged in will only be able to create driver accounts.</Typography>
+                    <ButtonGroup variant="outlined" aria-label="outlined button group">
+                        <Button variant={values.type == 'D' ? 'contained' : 'outlined'} onClick={() => handleCreationType('D')}>Driver</Button>
+                        <Button variant={values.type == 'S' ? 'contained' : 'outlined'} onClick={() => handleCreationType('S')}>Sponsor</Button>
+                        <Button variant={values.type == 'A' ? 'contained' : 'outlined'} onClick={() => handleCreationType('A')}>Admin</Button>
+                    </ButtonGroup>
+                </Box>
+            )
+        }
+        else {
+            return (
+                <Box textAlign='center'>
+                    <Typography variant='h5'>Please Select User Type To Create.</Typography>
+                    <Typography variant='subtitle1'>User who are not logged in will only be able to create driver accounts.</Typography>
+                    <ButtonGroup variant="outlined" aria-label="outlined button group">
+                        <Button variant={values.type == 'D' ? 'contained' : 'outlined'} onClick={() => handleCreationType('D')}>Driver</Button>
+                    </ButtonGroup>
+                </Box>
+            )
+        }
+    };
 
     //change based on if waitng on response from API
     const [loading, setLoading] = React.useState(false);
@@ -176,6 +223,7 @@ export default function RegForm() {
                             <Stack direction='column' spacing={2} justifyContent='center' alignItems='center' alignContent='center'>
                                 <Typography textAlign='center' variant='h2'>Create Account</Typography>
                                 <Typography textAlign='center' variant='subtitle1' gutterBottom>* : Required field</Typography>
+                                {showButtons()}
                                 <TextField
                                     id="reg-user"
                                     label="Username"
