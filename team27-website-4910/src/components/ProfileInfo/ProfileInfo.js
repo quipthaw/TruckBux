@@ -19,6 +19,8 @@ export const ProfileInfo = () => {
         bioState, setBioState
     } = useContext(SessionContext);
 
+    console.log('Our user type is currently ' + sessionState);
+
     const [ updatingProfile, setUpdatingProfile ] = useState(false);
 
     const [ profileFirstname, setProfileFirstname ] = useState(firstnameState);
@@ -58,6 +60,7 @@ export const ProfileInfo = () => {
             email: profileEmail,
             fname: profileFirstname, 
             lname: profileLastname,
+            bio: profileBio
         };
 
         const profileOptions = {
