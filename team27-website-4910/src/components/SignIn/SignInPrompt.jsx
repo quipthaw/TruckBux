@@ -14,7 +14,8 @@ export const SignInPrompt = (props) => {
         setUsernameState, 
         setEmailState, 
         setFirstnameState, 
-        setLastnameState 
+        setLastnameState,
+        setBioState
     } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
@@ -60,6 +61,7 @@ export const SignInPrompt = (props) => {
             setFirstnameState(userResponse.user[0].fName);
             setLastnameState(userResponse.user[0].lName);
             setSessionState(userResponse.user[0].acctType);
+            setBioState(userResponse.user[0].bio);
     
             return true;
         }

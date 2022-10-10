@@ -130,7 +130,7 @@ def check_sponsor_name(name):
 @cross_origin()
 def get_profile():
     # Parameterized queries protect against sqli
-    usr_str = ["foo"] * 10
+    usr_str = ["foo"] * 11
     query = text('SELECT * from Users where username = :x')
     param = {'x': request.json['user']}
     my_data = db_connection.execute(query, param).first()
@@ -150,7 +150,8 @@ def get_profile():
             "sponsorID": usr_str[6],
             "dateCreated": usr_str[7],
             "lockedUntil": usr_str[8],
-            "active": usr_str[9]
+            "active": usr_str[9],
+            "bio": usr_str[10]
         }
         user.append(user_val)
         return jsonify({"user":user})
@@ -298,6 +299,7 @@ def update_profile():
     fname = request.json['fname']
     lname = request.json['lname']
     email = request.json['email']
+    bio = request.json['bio']
 
     resp = {'error':'False'}
     query = "UPDATE TruckBux.Users SET "
@@ -322,6 +324,8 @@ def update_profile():
             query += ", `lName` = :z"
         else:
             query += "`lName` = :z"
+    param['w'] = bio
+    query += ", `bio` = :w"
  
     query += " WHERE `username` = :u"
 
