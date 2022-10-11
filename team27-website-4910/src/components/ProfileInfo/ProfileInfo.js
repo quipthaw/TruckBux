@@ -12,7 +12,7 @@ export const ProfileInfo = () => {
 
     const {
         sessionState,
-        usernameState, 
+        usernameState,
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
         emailState, setEmailState,
@@ -21,14 +21,14 @@ export const ProfileInfo = () => {
 
     console.log('Our user type is currently ' + sessionState);
 
-    const [ updatingProfile, setUpdatingProfile ] = useState(false);
+    const [updatingProfile, setUpdatingProfile] = useState(false);
 
-    const [ profileFirstname, setProfileFirstname ] = useState(firstnameState);
-    const [ profileLastname, setProfileLastname ] = useState(lastnameState);
-    const [ profileEmail, setProfileEmail ] = useState(emailState);
-    const [ profileBio, setProfileBio ] = useState(bioState);
+    const [profileFirstname, setProfileFirstname] = useState(firstnameState);
+    const [profileLastname, setProfileLastname] = useState(lastnameState);
+    const [profileEmail, setProfileEmail] = useState(emailState);
+    const [profileBio, setProfileBio] = useState(bioState);
 
-    const [ profileUpdateError, setProfileUpdateError ] = useState("");
+    const [profileUpdateError, setProfileUpdateError] = useState("");
 
     //On changes for profile-specific variables - we do not change context here
     const onEmailChange = (e) => {
@@ -38,7 +38,7 @@ export const ProfileInfo = () => {
     const onFirstnameChange = (e) => {
         setProfileFirstname(e.target.value);
     };
-    
+
     const onLastnameChange = (e) => {
         setProfileLastname(e.target.value);
     };
@@ -58,7 +58,7 @@ export const ProfileInfo = () => {
         const profileData = {
             user: usernameState,
             email: profileEmail,
-            fname: profileFirstname, 
+            fname: profileFirstname,
             lname: profileLastname,
             bio: profileBio
         };
@@ -71,11 +71,11 @@ export const ProfileInfo = () => {
             body: JSON.stringify(profileData)
         };
 
-        let profileResponse = await fetch('http://127.0.0.1:5000/updateprof', profileOptions);
-        
+        let profileResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/updateprof', profileOptions);
+
         profileResponse = await profileResponse.json();
 
-        if(profileResponse.error === "False") {
+        if (profileResponse.error === "False") {
             setEmailState(profileEmail);
             setFirstnameState(profileFirstname);
             setLastnameState(profileLastname);
@@ -84,7 +84,7 @@ export const ProfileInfo = () => {
             toggleUpdatingProfile();
         }
         else {
-            if('email' in profileResponse) {
+            if ('email' in profileResponse) {
                 setProfileUpdateError(profileResponse.email);
             }
             else {
@@ -100,7 +100,7 @@ export const ProfileInfo = () => {
             display: 'flex',
             marginY: '5vh'
         }}>
-            <Paper sx={{ width: '100%' }}> 
+            <Paper sx={{ width: '100%' }}>
                 <Box sx={{
                     height: '100%',
                     width: '100%',
@@ -108,8 +108,8 @@ export const ProfileInfo = () => {
                 }}>
                     <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
                         <Stack direction='row' spacing={2}>
-                            <TextField      
-                                id="username"   
+                            <TextField
+                                id="username"
                                 label="username"
                                 value={usernameState}
                                 fullWidth
@@ -117,60 +117,60 @@ export const ProfileInfo = () => {
                                     { disabled: true, }
                                 }
                             />
-                            <TextField      
-                                id="email"   
+                            <TextField
+                                id="email"
                                 label="email"
                                 value={updatingProfile ? profileEmail : emailState}
                                 onChange={(onEmailChange)}
                                 fullWidth
-                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                variant={updatingProfile ? 'filled' : 'outlined'}
                                 inputProps={
-                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                    updatingProfile ? { disabled: false } : { disabled: true, }
                                 }
                             />
                         </Stack>
                         <Stack direction='row' spacing={2}>
-                            <TextField      
-                                id="firstname"   
+                            <TextField
+                                id="firstname"
                                 label="firstname"
                                 value={updatingProfile ? profileFirstname : firstnameState}
                                 onChange={(onFirstnameChange)}
                                 fullWidth
-                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                variant={updatingProfile ? 'filled' : 'outlined'}
                                 inputProps={
-                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                    updatingProfile ? { disabled: false } : { disabled: true, }
                                 }
                             />
-                            <TextField      
-                                id="lastname"   
+                            <TextField
+                                id="lastname"
                                 label="lastname"
                                 value={updatingProfile ? profileLastname : lastnameState}
                                 onChange={(onLastnameChange)}
                                 fullWidth
-                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                variant={updatingProfile ? 'filled' : 'outlined'}
                                 inputProps={
-                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                    updatingProfile ? { disabled: false } : { disabled: true, }
                                 }
                             />
                         </Stack>
                         <Stack direction='row' spacing={2}>
-                            <TextField      
-                                id="userbio"   
+                            <TextField
+                                id="userbio"
                                 label="userbio"
                                 value={updatingProfile ? profileBio : bioState}
                                 onChange={(onUserBioChange)}
                                 fullWidth
-                                variant={ updatingProfile ? 'filled' : 'outlined' }
+                                variant={updatingProfile ? 'filled' : 'outlined'}
                                 inputProps={
-                                    updatingProfile ? {disabled: false} : { disabled: true, }
+                                    updatingProfile ? { disabled: false } : { disabled: true, }
                                 }
                             />
                         </Stack>
                         {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
-                        <UpdatePassword updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile}/>
-                        {<AccountDeactivation/>}
+                        <UpdatePassword updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile} />
+                        {<AccountDeactivation />}
                     </Stack>
                 </Box>
             </Paper>

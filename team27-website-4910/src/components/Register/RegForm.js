@@ -96,7 +96,7 @@ export default function RegForm() {
         return num;
     };
     const parseResponse = async () => {
-        const response = await fetch('http://127.0.0.1:5000/register', {
+        const response = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

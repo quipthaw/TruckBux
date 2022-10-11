@@ -9,11 +9,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
-    const { 
-        setSessionState, 
-        setUsernameState, 
-        setEmailState, 
-        setFirstnameState, 
+    const {
+        setSessionState,
+        setUsernameState,
+        setEmailState,
+        setFirstnameState,
         setLastnameState,
         setBioState
     } = useContext(SessionContext);
@@ -21,7 +21,7 @@ export const SignInPrompt = (props) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const [ showPasswordState, setShowPasswordState ] = useState(false);
+    const [showPasswordState, setShowPasswordState] = useState(false);
 
     //Toggle show password visibility in textfield
     const handleShowPassword = () => {
@@ -48,11 +48,11 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(userData)
         };
 
-        let userResponse = await fetch('http://127.0.0.1:5000/getprofile', userOptions);
+        let userResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/getprofile', userOptions);
 
         userResponse = await userResponse.json();
 
-        if(userResponse.user[0].active === '0') {
+        if (userResponse.user[0].active === '0') {
             return false;
         }
         else {
@@ -62,7 +62,7 @@ export const SignInPrompt = (props) => {
             setLastnameState(userResponse.user[0].lName);
             setSessionState(userResponse.user[0].acctType);
             setBioState(userResponse.user[0].bio);
-    
+
             return true;
         }
     };
@@ -80,24 +80,24 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(lockedData)
         }
 
-        let lockedResponse = await fetch('http://127.0.0.1:5000/loginattempts', lockedOptions);
+        let lockedResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/loginattempts', lockedOptions);
 
         lockedResponse = await lockedResponse.json();
 
         console.log(lockedResponse.result);
 
-        if(lockedResponse.result === 'error, invalid user') {
+        if (lockedResponse.result === 'error, invalid user') {
             console.log("invalid user");
             setSignInError(lockedResponse.result);
             return false;
         }
 
-        if(lockedResponse.result >= 3) {
+        if (lockedResponse.result >= 3) {
             console.log("number greater than 3")
             setSignInError("Account is currently locked.");
             return false;
         }
-        
+
         return true;
     };
 
@@ -105,7 +105,7 @@ export const SignInPrompt = (props) => {
     const authenticate = async (e) => {
         e.preventDefault();
 
-        if(await checkLoginAttempts()) {
+        if (await checkLoginAttempts()) {
             //Fetch user/pass combo validation
             const loginData = { user: username, pass: password };
             const loginOptions = {
@@ -116,7 +116,7 @@ export const SignInPrompt = (props) => {
                 body: JSON.stringify(loginData)
             };
 
-            let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
+            let loginResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/checklogin', loginOptions);
 
             loginResponse = await loginResponse.json();
 
@@ -133,12 +133,12 @@ export const SignInPrompt = (props) => {
                 body: JSON.stringify(attemptData)
             };
 
-            let attemptResponse = await fetch('http://127.0.0.1:5000/loginlog', attemptOptions);
+            let attemptResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/loginlog', attemptOptions);
 
             attemptResponse = await attemptResponse.json();
-            
-            if(loginResponse.result === "True") {
-                if(await getUserProfile()) {
+
+            if (loginResponse.result === "True") {
+                if (await getUserProfile()) {
                     setSignInError("");
                     setSigningIn(false);
                     navigate('/');
@@ -154,13 +154,13 @@ export const SignInPrompt = (props) => {
     };
 
     return (
-        <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>            
+        <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
             <Stack direction='row' spacing={2}>
-                <TextField 
+                <TextField
                     id="signinUsername"
                     label="username"
                     fullWidth
-                    value={username} 
+                    value={username}
                     onChange={onUsernameChange}
                 />
                 <TextField
@@ -185,7 +185,7 @@ export const SignInPrompt = (props) => {
                     }}
                 />
             </Stack>
-        <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
-    </Stack>
+            <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
+        </Stack>
     );
 };

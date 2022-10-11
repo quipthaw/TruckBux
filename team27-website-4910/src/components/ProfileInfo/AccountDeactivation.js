@@ -13,11 +13,11 @@ export const AccountDeactivation = () => {
 
     const { setSessionState, usernameState } = useContext(SessionContext);
 
-    const [ deactivating, setDeactivating ] = useState(false);
-    const [ finalConfirmation, setFinalConfirmation ] = useState(false);
-    const [ systemMessage, setSystemMessage ] = useState('');
-    const [ deactivatePassword, setDeactivatePassword ] = useState('');
-    const [ showPasswordState, setShowPasswordState ] = useState(false);
+    const [deactivating, setDeactivating] = useState(false);
+    const [finalConfirmation, setFinalConfirmation] = useState(false);
+    const [systemMessage, setSystemMessage] = useState('');
+    const [deactivatePassword, setDeactivatePassword] = useState('');
+    const [showPasswordState, setShowPasswordState] = useState(false);
 
     const toggleDeactivating = () => {
         setSystemMessage('');
@@ -25,7 +25,7 @@ export const AccountDeactivation = () => {
     };
 
     const showFinalConfirmation = async () => {
-        const passData = { user: usernameState, pass: deactivatePassword};
+        const passData = { user: usernameState, pass: deactivatePassword };
 
         const passOptions = {
             method: 'POST',
@@ -35,11 +35,11 @@ export const AccountDeactivation = () => {
             body: JSON.stringify(passData)
         };
 
-        let passResponse = await fetch('http://127.0.0.1:5000/checklogin', passOptions);
-        
+        let passResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/checklogin', passOptions);
+
         passResponse = await passResponse.json();
 
-        if(passResponse.result === 'True') {
+        if (passResponse.result === 'True') {
             setSystemMessage('');
             setFinalConfirmation(true);
         }
@@ -65,7 +65,7 @@ export const AccountDeactivation = () => {
 
     const deactivateAccount = async () => {
         const deactivateData = { user: usernameState, status: 0 };
-        
+
         const deactivateOptions = {
             method: 'POST',
             headers: {
@@ -74,11 +74,11 @@ export const AccountDeactivation = () => {
             body: JSON.stringify(deactivateData)
         };
 
-        let deactivateResponse = await fetch('http://127.0.0.1:5000/updatestatus', deactivateOptions);
-        
+        let deactivateResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/updatestatus', deactivateOptions);
+
         deactivateResponse = await deactivateResponse.json();
 
-        if(deactivateResponse.response === 'Success') {
+        if (deactivateResponse.response === 'Success') {
             setSessionState('0')
             navigate('/');
         }
@@ -92,7 +92,7 @@ export const AccountDeactivation = () => {
 
     return (
         <Stack direction='column' spacing={2}>
-            {!deactivating && <Button variant='outlined' color='error' startIcon={<DeleteIcon/>} onClick={(toggleDeactivating)}>Deactivate Account</Button>}
+            {!deactivating && <Button variant='outlined' color='error' startIcon={<DeleteIcon />} onClick={(toggleDeactivating)}>Deactivate Account</Button>}
 
             {!finalConfirmation && deactivating &&
                 <TextField
@@ -118,11 +118,11 @@ export const AccountDeactivation = () => {
                 />
             }
             {systemMessage !== '' && <Typography align='center' color='red'>{systemMessage}</Typography>}
-            {!finalConfirmation && deactivating && <Button variant='outlined' color='error' startIcon={<DeleteIcon/>} onClick={(showFinalConfirmation)}>Deactivate Account</Button>}
+            {!finalConfirmation && deactivating && <Button variant='outlined' color='error' startIcon={<DeleteIcon />} onClick={(showFinalConfirmation)}>Deactivate Account</Button>}
 
-            {finalConfirmation && deactivating && <Button variant='contained' color='error' startIcon={<DeleteIcon/>} onClick={(deactivateAccount)}>CONFIRM ACCOUNT DEACTIVATION</Button>}
-            
-            {deactivating && <Button variant='outlined'  color='success' onClick={(cancelDeactivation)}>Cancel Account Deactivation</Button>}
+            {finalConfirmation && deactivating && <Button variant='contained' color='error' startIcon={<DeleteIcon />} onClick={(deactivateAccount)}>CONFIRM ACCOUNT DEACTIVATION</Button>}
+
+            {deactivating && <Button variant='outlined' color='success' onClick={(cancelDeactivation)}>Cancel Account Deactivation</Button>}
         </Stack>
     );
 };

@@ -19,25 +19,25 @@ export const UpdatePassword = () => {
     const navigate = useNavigate();
 
     //Variables for password recovery when not signed in
-    const [ needVerification, setNeedVerification ] = useState(sessionState === '0' ? true : false)
+    const [needVerification, setNeedVerification] = useState(sessionState === '0' ? true : false)
 
-    const [ recoveryUsername, setRecoveryUsername ] = useState(needVerification ? '' : usernameState);
-    const [ recoveryFirstname, setRecoveryFirstname ] = useState(needVerification ? '' : firstnameState);
-    const [ recoveryLastname, setRecoveryLastname ] = useState(needVerification ? '' : lastnameState);
-    const [ recoveryEmail, setRecoveryEmail ] = useState(needVerification ? '' : emailState);
+    const [recoveryUsername, setRecoveryUsername] = useState(needVerification ? '' : usernameState);
+    const [recoveryFirstname, setRecoveryFirstname] = useState(needVerification ? '' : firstnameState);
+    const [recoveryLastname, setRecoveryLastname] = useState(needVerification ? '' : lastnameState);
+    const [recoveryEmail, setRecoveryEmail] = useState(needVerification ? '' : emailState);
 
     //General password change variables
-    const [ updatingPassword, setUpdatingPassword ] = useState(needVerification ? true : false);
-    const [ updatingPasswordMessage, setUpdatingPasswordMessage ] = useState('');
+    const [updatingPassword, setUpdatingPassword] = useState(needVerification ? true : false);
+    const [updatingPasswordMessage, setUpdatingPasswordMessage] = useState('');
 
-    const [ newPassword, setNewPassword ] = useState("");
-    const [ confirmPassword, setConfirmPassword ] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     //Visibility of password fields
-    const [ showPasswordState, setShowPasswordState ] = useState(false);
+    const [showPasswordState, setShowPasswordState] = useState(false);
 
     const NoPasswordError = '';
-    const [ passwordError, setPasswordError ] = useState(NoPasswordError);
+    const [passwordError, setPasswordError] = useState(NoPasswordError);
 
     //Password recovery when not signed in
     const onUsernameChange = (e) => {
@@ -63,7 +63,7 @@ export const UpdatePassword = () => {
         setConfirmPassword('');
         setUpdatingPassword(updatingPassword ? false : true);
     };
-    
+
     const PasswordVisibilityAdornment = () => {
         return (
             <InputAdornment position="end">
@@ -88,15 +88,15 @@ export const UpdatePassword = () => {
 
     const handleUpdatePassword = async () => {
 
-        let passwordData = { 
+        let passwordData = {
             user: recoveryUsername,
             email: recoveryEmail,
             fname: recoveryFirstname,
             lname: recoveryLastname,
             pass: newPassword,
         };
-        if(sessionState !== '0'){
-            passwordData = { 
+        if (sessionState !== '0') {
+            passwordData = {
                 user: usernameState,
                 email: emailState,
                 fname: firstnameState,
@@ -114,16 +114,16 @@ export const UpdatePassword = () => {
             body: JSON.stringify(passwordData)
         };
 
-        let passwordResponse = await fetch('http://127.0.0.1:5000/resetpass', passwordOptions);
+        let passwordResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/resetpass', passwordOptions);
 
         passwordResponse = await passwordResponse.json();
 
-        if(passwordResponse.error === 'True') {
+        if (passwordResponse.error === 'True') {
             setPasswordError(passwordResponse.reason);
         }
         else {
             setUpdatingPasswordMessage("Successfully Updated Password");
-            if(sessionState === '0') {
+            if (sessionState === '0') {
                 navigate('../login/');
             }
             setPasswordError(NoPasswordError);
@@ -133,7 +133,7 @@ export const UpdatePassword = () => {
 
     return (
         <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
-            {needVerification && updatingPassword &&         
+            {needVerification && updatingPassword &&
                 <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
                     <TextField
                         id="username"
@@ -199,7 +199,7 @@ export const UpdatePassword = () => {
                     type={showPasswordState ? 'text' : 'password'}
                     InputProps={{
                         endAdornment: (
-                            <PasswordVisibilityAdornment/>
+                            <PasswordVisibilityAdornment />
                         )
                     }}
                 />

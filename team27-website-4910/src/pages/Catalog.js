@@ -11,7 +11,7 @@ export default function Catalog() {
     const [itemList, setItemList] = React.useState();
 
     const getItems = async () => {
-        const response = await fetch('http://127.0.0.1:5000/catalog');
+        const response = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/catalog');
         if (response.ok) {
             console.log("set");
             const result = await response.json();
