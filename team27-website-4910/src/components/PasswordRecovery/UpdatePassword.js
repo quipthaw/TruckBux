@@ -114,7 +114,7 @@ export const UpdatePassword = () => {
             body: JSON.stringify(passwordData)
         };
 
-        let passwordResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/resetpass', passwordOptions);
+        let passwordResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/resetpass', passwordOptions);
 
         passwordResponse = await passwordResponse.json();
 

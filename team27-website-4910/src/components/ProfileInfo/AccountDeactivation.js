@@ -35,7 +35,7 @@ export const AccountDeactivation = () => {
             body: JSON.stringify(passData)
         };
 
-        let passResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/checklogin', passOptions);
+        let passResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/checklogin', passOptions);
 
         passResponse = await passResponse.json();
 
@@ -74,7 +74,7 @@ export const AccountDeactivation = () => {
             body: JSON.stringify(deactivateData)
         };
 
-        let deactivateResponse = await fetch('http://ec2-52-205-128-217.compute-1.amazonaws.com:8080/updatestatus', deactivateOptions);
+        let deactivateResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/updatestatus', deactivateOptions);
 
         deactivateResponse = await deactivateResponse.json();
 
