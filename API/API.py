@@ -170,6 +170,7 @@ def register():
     fname = request.json['fname']
     lname = request.json['lname']
     email = request.json['email']
+    active = 1
     if 'type' in request.json:
         act_type = request.json['type']
     else:
@@ -194,9 +195,10 @@ def register():
 
             # Insert record into Database
             query = text(
-                "INSERT INTO TruckBux.Users(username, password, email, fName, lName, acctType) VALUES(:x, :y, :z, :j, :k, :l)")
+                "INSERT INTO TruckBux.Users(username, password, email, fName, lName, acctType, active) VALUES(:x, :y, :z, :j, :k, :l, :a)")
             param = {'x': username, 'y': hashed_pass,
-                     'z': email, 'j': fname, 'k': lname, 'l':act_type}
+                     'z': email, 'j': fname, 'k': lname, 'l':act_type,
+                     'a': active}
             db_connection.execute(query, param)
             return jsonify(resp)
         except:
