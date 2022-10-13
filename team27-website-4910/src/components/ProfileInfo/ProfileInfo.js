@@ -19,8 +19,6 @@ export const ProfileInfo = () => {
         bioState, setBioState
     } = useContext(SessionContext);
 
-    console.log('Our user type is currently ' + sessionState);
-
     const [ updatingProfile, setUpdatingProfile ] = useState(false);
 
     const [ profileFirstname, setProfileFirstname ] = useState(firstnameState);
@@ -93,6 +91,24 @@ export const ProfileInfo = () => {
         }
     };
 
+    const DisplayUserType = () => {
+        let userTypeMessage = 'Account Type: ';
+
+        if(sessionState === 'A') {
+            userTypeMessage = userTypeMessage.concat('Admin');
+        }
+        else if(sessionState === 'S') {
+            userTypeMessage = userTypeMessage.concat('Sponsor');
+        }
+        else {
+            userTypeMessage = userTypeMessage.concat('Driver');
+        }
+
+        return (
+            <Typography align='center'>{userTypeMessage}</Typography>
+        );
+    };
+
 
     return (
         <Container sx={{
@@ -107,10 +123,11 @@ export const ProfileInfo = () => {
                     padding: '25px'
                 }}>
                     <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
+                        <DisplayUserType/>
                         <Stack direction='row' spacing={2}>
                             <TextField      
                                 id="username"   
-                                label="username"
+                                label="Username"
                                 value={usernameState}
                                 fullWidth
                                 inputProps={
@@ -119,7 +136,7 @@ export const ProfileInfo = () => {
                             />
                             <TextField      
                                 id="email"   
-                                label="email"
+                                label="Email"
                                 value={updatingProfile ? profileEmail : emailState}
                                 onChange={(onEmailChange)}
                                 fullWidth
@@ -132,7 +149,7 @@ export const ProfileInfo = () => {
                         <Stack direction='row' spacing={2}>
                             <TextField      
                                 id="firstname"   
-                                label="firstname"
+                                label="First Name"
                                 value={updatingProfile ? profileFirstname : firstnameState}
                                 onChange={(onFirstnameChange)}
                                 fullWidth
@@ -143,7 +160,7 @@ export const ProfileInfo = () => {
                             />
                             <TextField      
                                 id="lastname"   
-                                label="lastname"
+                                label="Last Name"
                                 value={updatingProfile ? profileLastname : lastnameState}
                                 onChange={(onLastnameChange)}
                                 fullWidth
@@ -156,7 +173,7 @@ export const ProfileInfo = () => {
                         <Stack direction='row' spacing={2}>
                             <TextField      
                                 id="userbio"   
-                                label="userbio"
+                                label="Bio"
                                 value={updatingProfile ? profileBio : bioState}
                                 onChange={(onUserBioChange)}
                                 fullWidth
