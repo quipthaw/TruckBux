@@ -414,13 +414,15 @@ def update_status():
 @app.route('/resetpass', methods=['POST'])
 @cross_origin()
 def reset_password():
+    modder = request.json['modder']
     email = request.json['email']
     fname = request.json['fname']
     lname = request.json['lname']
     new_pass = request.json['pass']
+    user = request.json['user']
 
     query = text('select email, fname, lname from Users where username = :x')
-    param = {'x': request.json['user']}
+    param = {'x': user}
 
     resp = {'error': 'False'}
 
@@ -428,23 +430,47 @@ def reset_password():
         resp['error'] = 'True'
         resp['reason'] = PASS_COMP_REQS
         return resp
+    else:
+        row = db_connection.execute(query, param).first()
+        if row != None:
+            if email == row[0] and fname == row[1] and lname == row[2]:
+                query = text('UPDATE TruckBux.Users SET password = :x WHERE username = :y')
+                param = {'x': hash_password(new_pass), 'y': request.json['user']}
 
-    row = db_connection.execute(query, param).first()
-    if row != None:
-        if email == row[0] and fname == row[1] and lname == row[2]:
-            query = text('UPDATE TruckBux.Users SET password = :x WHERE username = :y')
-            param = {'x': hash_password(new_pass), 'y': request.json['user']}
-
-            try:
-                db_connection.execute(query, param)
-            except:
+                try:
+                    db_connection.execute(query, param)
+                except:
+                    resp['error'] = 'True'
+                    resp['reason'] = 'Insert Failed'
+            else:
                 resp['error'] = 'True'
-                resp['reason'] = 'Insert Failed'
-        else:
-            resp['error'] = 'True'
-            resp['reason'] = 'User with that info does not exist'
+                resp['reason'] = 'User with that info does not exist'
     
+
+    if 'reason' in request.json:
+        reason = request.json['reason']
+        log_pass_change(modder, user, reason)
+    else:
+        log_pass_change(modder, user)
+
     return resp
+
+
+def log_pass_change(modder, user, reason=None):
+    change_type = 'password reset'
+
+    if reason == None:
+        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type) VALUES(:x, :y, :z)'
+        param = {'x': modder, 'y':user, 'z':change_type}
+    else:
+        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type, modReason) VALUES(:x, :y, :z, :j)'
+        param = {'x': modder, 'y':user, 'z':change_type, 'j':reason}
+    
+    try:
+        db_connection.execute(text(query), param)
+    except:
+        print("Could not log password reset")
+
 
 app.run(debug=True)
 
