@@ -125,6 +125,20 @@ def check_sponsor_name(name):
     else:
         return True
 
+
+#Function to insert record of login instance into loginLog Table
+# Username must be valid
+# Returns bool True or False 
+def log(username, logresult):
+    if check_username(username) == False: 
+        query = text("INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
+        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()} 
+        db_connection.execute(query, param)
+        return True
+    else:
+        return False
+
+
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and returns all of it's user info
 # @return correct user info | 'Error, Invalid User' in result field
@@ -355,6 +369,56 @@ def update_profile():
         db_connection.execute(text(query), param)
 
     return (jsonify(resp))
+
+
+
+# Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
+# and inserts their login attempt into the database
+# User MUST exist in the User table to be inserted
+# @return 'Success' | 'Failure' in result field
+@app.route('/userlogin', methods=['POST'])
+@cross_origin()
+def user_login():
+    username = request.json['user']
+    result = {'result': 'Success'}
+    #Checks to see if username is valid    
+    if (check_username(username) == False):
+        #Checks to see if too many failed login attempts
+        query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
+        param = {'x': username, 'n': 'Failure', 't': 'Success'} 
+        my_data = db_connection.execute(query, param)
+        i = 0
+        for row in my_data:
+            i = i + 1
+        if (i <= 3):
+            #Checks to see if account if timelocked
+            query = text('select * from TruckBux.Users Where username = :x and lockedUntil is NOT NULL') 
+            param = {'x': username}
+            lock_result = db_connection.execute(query, param)
+            if (lock_result.one_or_none() == None):
+                #Checks to see if login combo is correct
+                query = text('select username, password from Users where username = :x')
+                param = {'x': request.json['user']}
+                row = db_connection.execute(query, param).first()
+                if row != None:
+                    pass_hash = row[1]
+                    input_pass = request.json['passwd'].encode()
+                if bcrypt.checkpw(input_pass, pass_hash):
+                    result = {'result': 'Success'}
+                    log(username, 'Success')
+                else: 
+                    result = {'result': 'Invalid Password'}
+                    log(username, 'Failure')
+            else:
+                result = {'result': 'Account Locked'}
+                log(username, 'Failure')
+        else: 
+            result = {'result': 'Too Many Failed Login Attempts!'}
+            log(username, 'Failure')
+    else:
+        result = {'result': 'Invalid Username'}
+    return (jsonify(result))
+
 
 
 # Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
