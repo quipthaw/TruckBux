@@ -1,17 +1,59 @@
-import React from 'react'
+import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Layout from "../components/Layout";
-import { CircularProgress, Grid } from '@mui/material';
+import { Button, CircularProgress, Grid } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
     const [itemList, setItemList] = React.useState();
+    const [searchParams, setParams] = React.useState({
+        category: "293",
+        search: "",
+        price: "[0..250]",
+    })
+    const categories = [
+        {
+            name: "Consumer Electronics",
+            number: 293,
+        },
+        {
+            name: "Sporting Goods",
+            number: 888,
+        },
+    ]
+
+    const handleSearchChange = (field) => (event) => {
+        setParams({ ...searchParams, [field]: event.target.value });
+    };
+
+    const handleCategoryChange = (event) => {
+        setParams({ ...searchParams, ['category']: event.target.value });
+    };
 
     const getItems = async () => {
-        const response = await fetch('http://127.0.0.1:5000/catalog');
+        setLoading(true);
+        const response = await fetch('http://127.0.0.1:5000/catalog', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                category: searchParams.category,
+                search: searchParams.search,
+                price: searchParams.price,
+            }),
+        });
         if (response.ok) {
             console.log("set");
             const result = await response.json();
@@ -67,6 +109,37 @@ export default function Catalog() {
 
     return (
         <Layout>
+            <TextField
+                id="input-with-icon-textfield"
+                label="TextField"
+                onChange={handleSearchChange('search')}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                }}
+                variant="standard"
+            />
+            <FormControl>
+                <FormLabel id="demo-controlled-radio-buttons-group">Category</FormLabel>
+                <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={searchParams.category}
+                    onChange={handleCategoryChange}
+                >
+                    {categories.map((item) => {
+                        return (
+                            <FormControlLabel value={item.number} control={<Radio />} label={item.name} />
+                        )
+                    })}
+                </RadioGroup>
+            </FormControl>
+            <Button variant='contained' onClick={getItems}>
+                Search
+            </Button>
             {showCatalog()}
         </Layout>
     )
