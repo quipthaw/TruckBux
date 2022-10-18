@@ -25,10 +25,12 @@ EXPIRES = datetime.datetime.now()
 
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:3000'])
+CORS(app, origins=['http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
+
+
 def get_connection():
     return create_engine(
         url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
@@ -126,6 +128,8 @@ def check_sponsor_name(name):
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and returns all of it's user info
 # @return correct user info | 'Error, Invalid User' in result field
+
+
 @app.route("/getprofile", methods=['POST'])
 @cross_origin()
 def get_profile():
@@ -154,9 +158,9 @@ def get_profile():
             "bio": usr_str[10]
         }
         user.append(user_val)
-        return jsonify({"user":user})
-    else: 
-        return(jsonify('Error, Invalid User'))
+        return jsonify({"user": user})
+    else:
+        return (jsonify('Error, Invalid User'))
 
 
 # Endpoint that checks if a given username, password, and email are valid
@@ -197,7 +201,7 @@ def register():
             query = text(
                 "INSERT INTO TruckBux.Users(username, password, email, fName, lName, acctType, active) VALUES(:x, :y, :z, :j, :k, :l, :a)")
             param = {'x': username, 'y': hashed_pass,
-                     'z': email, 'j': fname, 'k': lname, 'l':act_type,
+                     'z': email, 'j': fname, 'k': lname, 'l': act_type,
                      'a': active}
             db_connection.execute(query, param)
             return jsonify(resp)
@@ -217,19 +221,20 @@ def create_sponsor():
     name = request.json['name']
     rate = request.json['rate']
 
-    if(check_sponsor_name(name) == False):
+    if (check_sponsor_name(name) == False):
         resp['error'] = 'True'
         resp['reason'] = 'Name Taken'
     else:
-        query = text('INSERT INTO TruckBux.Sponsors(sponsorName, pointConversionRate) VALUES(:x, :y)')
-        param = {'x': name, 'y':rate}
+        query = text(
+            'INSERT INTO TruckBux.Sponsors(sponsorName, pointConversionRate) VALUES(:x, :y)')
+        param = {'x': name, 'y': rate}
 
         try:
             db_connection.execute(query, param)
         except:
             resp['error'] = 'True'
             resp['reason'] = 'Insert Failed'
-    
+
     return resp
 
 
@@ -257,18 +262,31 @@ def check_login():
     return (jsonify(result))
 
 
-@app.route('/catalog', methods=['GET'])
+@app.route('/catalog', methods=['POST'])
 @cross_origin()
 def get_catalog():
     if EXPIRES < datetime.datetime.now():
         new_token()
+
+    search = request.json['search']
+    price = request.json['price']
+    category = request.json['category']
+
+    queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?category_ids={category}&filter=price:{price},priceCurrency:USD"
+
+    if search != "":
+        queryURL += '&q=' + search + '&auto_correct=KEYWORD'
+
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
     }
+    print(queryURL)
     resp = requests.get(
-        "https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?category_ids=293", headers=header)
+        queryURL, headers=header)
 
     items = []
+    if json.loads(resp.content)["total"] == 0:
+        return jsonify({"items": items})
     data = json.loads(resp.content)['itemSummaries']
     for item in data:
         itemObject = {
@@ -286,14 +304,16 @@ def get_catalog():
             else:
                 itemObject["image"] = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr40W2krm7bk8rMzHeoQV4Mu8G6D8SGeKttA&usqp=CAU"
             items.append(itemObject)
-            
-    return jsonify({"items":items})
+
+    return jsonify({"items": items})
 
 # Endpoint that updates profile info.
 # Request should have all fields present and blank if not being updated.
 # user must have a value when request is sent to the endpoint
 # {'user': 'test', 'fname': 'john', 'lname': ''}
 # if the data is not valid it returns 'error': 'True' and the corresponding errors
+
+
 @app.route('/updateprof', methods=['POST'])
 @cross_origin()
 def update_profile():
@@ -303,7 +323,7 @@ def update_profile():
     email = request.json['email']
     bio = request.json['bio']
 
-    resp = {'error':'False'}
+    resp = {'error': 'False'}
     query = "UPDATE TruckBux.Users SET "
     param = {'u': username}
 
@@ -328,16 +348,13 @@ def update_profile():
             query += "`lName` = :z"
     param['w'] = bio
     query += ", `bio` = :w"
- 
+
     query += " WHERE `username` = :u"
 
     if resp['error'] == "False":
         db_connection.execute(text(query), param)
-    
-    return(jsonify(resp))
 
-
-
+    return (jsonify(resp))
 
 
 # Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
@@ -349,12 +366,13 @@ def update_profile():
 def log_login():
     username = request.json['user']
     logresult = request.json['lresult']
-    
+
     result = {'result': 'Success'}
-    if check_username(username) == False: 
-        query = text("INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()} 
-        # Insert record of initial login into loginLog Table 
+    if check_username(username) == False:
+        query = text(
+            "INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
+        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()}
+        # Insert record of initial login into loginLog Table
         db_connection.execute(query, param)
     else:
         result = {'result': 'Failure'}
@@ -364,6 +382,8 @@ def log_login():
 # and returns number of failed login attempts occurred since the last succesful login
 # User MUST exist in the User table to be counted
 # @return number of failed logins | 'error'
+
+
 @app.route('/loginattempts', methods=['POST'])
 @cross_origin()
 def get_login_attempts():
@@ -371,7 +391,7 @@ def get_login_attempts():
     username = request.json['user']
     if check_username(username) == False:
         query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
-        param = {'x': username, 'n': 'Failure', 't': 'Success'} 
+        param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
         i = 0
         for row in my_data:
@@ -381,30 +401,31 @@ def get_login_attempts():
         result['result'] = 'error, invalid user'
     return (jsonify(result))
 
-#Endpoint that updates user status,  via post request in from {'user': <username>, 'pass': <password>}
+# Endpoint that updates user status,  via post request in from {'user': <username>, 'pass': <password>}
 # Username should be valid in order to update
 # Input for active must be a tinyint(1)
 # {'user': 'test', 'active': '1'}
 # @returns 'Success': 'Failure'
+
+
 @app.route('/updatestatus', methods=['POST'])
 @cross_origin()
 def update_status():
     username = request.json['user']
     status = request.json['status']
     param = {'u': username, 'x': status}
-    resp = {'response':'Success'}
+    resp = {'response': 'Success'}
     if check_username(username) == False:
         query_one = 'SELECT active FROM TruckBux.Users WHERE username = :u'
         origStatus = db_connection.execute(text(query_one), param).first()
         if origStatus[0] == status:
-            resp['response'] = 'Must be new status' 
+            resp['response'] = 'Must be new status'
         else:
             query = 'UPDATE TruckBux.Users SET active = :x WHERE username = :u'
             db_connection.execute(text(query), param)
     else:
         resp['response'] = 'Failure'
-    return(jsonify(resp))
-
+    return (jsonify(resp))
 
 
 # Endpoint to reset a user's password if they forgot
@@ -414,13 +435,15 @@ def update_status():
 @app.route('/resetpass', methods=['POST'])
 @cross_origin()
 def reset_password():
+    modder = request.json['modder']
     email = request.json['email']
     fname = request.json['fname']
     lname = request.json['lname']
     new_pass = request.json['pass']
+    user = request.json['user']
 
     query = text('select email, fname, lname from Users where username = :x')
-    param = {'x': request.json['user']}
+    param = {'x': user}
 
     resp = {'error': 'False'}
 
@@ -428,23 +451,47 @@ def reset_password():
         resp['error'] = 'True'
         resp['reason'] = PASS_COMP_REQS
         return resp
+    else:
+        row = db_connection.execute(query, param).first()
+        if row != None:
+            if email == row[0] and fname == row[1] and lname == row[2]:
+                query = text(
+                    'UPDATE TruckBux.Users SET password = :x WHERE username = :y')
+                param = {'x': hash_password(
+                    new_pass), 'y': request.json['user']}
 
-    row = db_connection.execute(query, param).first()
-    if row != None:
-        if email == row[0] and fname == row[1] and lname == row[2]:
-            query = text('UPDATE TruckBux.Users SET password = :x WHERE username = :y')
-            param = {'x': hash_password(new_pass), 'y': request.json['user']}
-
-            try:
-                db_connection.execute(query, param)
-            except:
+                try:
+                    db_connection.execute(query, param)
+                except:
+                    resp['error'] = 'True'
+                    resp['reason'] = 'Insert Failed'
+            else:
                 resp['error'] = 'True'
-                resp['reason'] = 'Insert Failed'
-        else:
-            resp['error'] = 'True'
-            resp['reason'] = 'User with that info does not exist'
-    
+                resp['reason'] = 'User with that info does not exist'
+
+    if 'reason' in request.json:
+        reason = request.json['reason']
+        log_pass_change(modder, user, reason)
+    else:
+        log_pass_change(modder, user)
+
     return resp
 
-app.run(debug=True)
 
+def log_pass_change(modder, user, reason=None):
+    change_type = 'password reset'
+
+    if reason == None:
+        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type) VALUES(:x, :y, :z)'
+        param = {'x': modder, 'y': user, 'z': change_type}
+    else:
+        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type, modReason) VALUES(:x, :y, :z, :j)'
+        param = {'x': modder, 'y': user, 'z': change_type, 'j': reason}
+
+    try:
+        db_connection.execute(text(query), param)
+    except:
+        print("Could not log password reset")
+
+
+app.run(debug=True)
