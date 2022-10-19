@@ -1,3 +1,4 @@
+import queue
 import re
 import bcrypt
 import datetime
@@ -142,8 +143,6 @@ def log(username, logresult):
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and returns all of it's user info
 # @return correct user info | 'Error, Invalid User' in result field
-
-
 @app.route("/getprofile", methods=['POST'])
 @cross_origin()
 def get_profile():
@@ -321,13 +320,12 @@ def get_catalog():
 
     return jsonify({"items": items})
 
+
 # Endpoint that updates profile info.
 # Request should have all fields present and blank if not being updated.
 # user must have a value when request is sent to the endpoint
 # {'user': 'test', 'fname': 'john', 'lname': ''}
 # if the data is not valid it returns 'error': 'True' and the corresponding errors
-
-
 @app.route('/updateprof', methods=['POST'])
 @cross_origin()
 def update_profile():
@@ -369,7 +367,6 @@ def update_profile():
         db_connection.execute(text(query), param)
 
     return (jsonify(resp))
-
 
 
 # Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
@@ -420,7 +417,6 @@ def user_login():
     return (jsonify(result))
 
 
-
 # Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
 # and inserts their login attempt into the database
 # User MUST exist in the User table to be inserted
@@ -442,12 +438,11 @@ def log_login():
         result = {'result': 'Failure'}
     return (jsonify(result))
 
+
 # Endpoint that takes a username via post request in from {'user': <username>}
 # and returns number of failed login attempts occurred since the last succesful login
 # User MUST exist in the User table to be counted
 # @return number of failed logins | 'error'
-
-
 @app.route('/loginattempts', methods=['POST'])
 @cross_origin()
 def get_login_attempts():
@@ -465,13 +460,12 @@ def get_login_attempts():
         result['result'] = 'error, invalid user'
     return (jsonify(result))
 
+
 # Endpoint that updates user status,  via post request in from {'user': <username>, 'pass': <password>}
 # Username should be valid in order to update
 # Input for active must be a tinyint(1)
 # {'user': 'test', 'active': '1'}
 # @returns 'Success': 'Failure'
-
-
 @app.route('/updatestatus', methods=['POST'])
 @cross_origin()
 def update_status():
@@ -556,6 +550,108 @@ def log_pass_change(modder, user, reason=None):
         db_connection.execute(text(query), param)
     except:
         print("Could not log password reset")
+
+
+# Endpoint to retrieve all applications
+@app.route('/getallapps', methods=['GET'])
+@cross_origin()
+def get_all_apps():
+    query = 'SELECT * FROM TruckBux.Applications'
+    
+    rows = db_connection.execute(text(query)).fetchall()
+
+    apps = {}
+    i = 1
+    for row in rows:
+        apps[i] = dict(row)
+        apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+        i += 1
+
+    return jsonify(apps)
+
+
+# Endpoint to retrieve application data
+@app.route('/getappdata', methods=['GET'])
+@cross_origin()
+def get_app_data():
+    if 'user' in request.json:
+        user = request.json['user']
+        query = 'SELECT * FROM TruckBux.Applications where username = :x'
+        param = {'x': user}
+
+        apps = {}
+        rows = db_connection.execute(text(query), param).fetchall()
+        i = 1
+        for row in rows:
+            apps[i] = dict(row)
+            apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+            i += 1
+
+    elif 'sponsName' in request.json:
+        sponsName = request.json['sponsName']
+        sponsID = get_spons_id(sponsName)
+        query = 'SELECT * FROM TruckBux.Applications where sponsorID = :x'
+        param = {'x': sponsID}
+
+        apps = {}
+        rows = db_connection.execute(text(query), param).fetchall()
+        i = 1
+        for row in rows:
+            apps[i] = dict(row)
+            apps[i]['sponsName'] = sponsName
+            i += 1
+
+    return jsonify(apps)
+
+
+def get_spons_name(id):
+    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorID = :x'
+    param = {'x': id}
+
+    row = db_connection.execute(text(query), param).fetchone()
+    return row['sponsorName']
+
+
+def get_spons_id(name):
+    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName = :x'
+    param = {'x': name}
+
+    rows = db_connection.execute(text(query), param).fetchone()
+    return rows['sponsorID']
+
+# Endpoint to store application data
+@app.route('/submitapp', methods=['POST'])
+@cross_origin()
+def submit_app():
+    user = request.json['user']
+    sponsID = request.json['sponsID']
+
+    if not check_dup_app(user, sponsID):
+        query = 'INSERT INTO TruckBux.Applications (username, sponsorID) VALUES(:x, :y)'
+        param = {'x': user, 'y': sponsID}
+
+        try:
+            db_connection.execute(text(query), param)
+            resp = {'result': 'success'}
+        except:
+            resp = {'result': 'failure'}
+    else:
+        resp = {'error': 'duplicate application'}
+
+    return jsonify(resp)
+
+
+def check_dup_app(user, sponsID):
+    dup = False
+    query = 'SELECT username, sponsorID from TruckBux.Applications WHERE username = :x'
+    param = {'x': user}
+
+    data = db_connection.execute(text(query), param)
+    for row in data.fetchall():
+        if row['sponsorID'] == sponsID:
+            dup = True
+
+    return dup
 
 
 app.run(debug=True)
