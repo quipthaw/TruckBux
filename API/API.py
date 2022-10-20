@@ -26,7 +26,7 @@ EXPIRES = datetime.datetime.now()
 
 
 app = Flask(__name__)
-CORS(app, origins=['http://127.0.0.1:3000'])
+CORS(app, origins=['https://dev.d2g18lgy66c0b0.amplifyapp.com/*','http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
@@ -653,5 +653,5 @@ def check_dup_app(user, sponsID):
 
     return dup
 
-
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=False)
