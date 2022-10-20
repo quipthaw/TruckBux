@@ -159,7 +159,6 @@ def get_profile():
         user = []
         user_val = {
             "username": usr_str[0],
-            "password": usr_str[1],
             "email": usr_str[2],
             "fName": usr_str[3],
             "lName": usr_str[4],
@@ -553,6 +552,7 @@ def log_pass_change(modder, user, reason=None):
 
 
 # Endpoint to retrieve all applications
+# @returns {1: {app1}, 2: {app2}}
 @app.route('/getallapps', methods=['GET'])
 @cross_origin()
 def get_all_apps():
@@ -571,6 +571,9 @@ def get_all_apps():
 
 
 # Endpoint to retrieve application data
+# if given user=<username> returns all apps associated with that user
+# if given sponsName=<sponsorName> returns all apps associated with that sponsor
+# @returns {1: {app1}, 2: {app2}}
 @app.route('/getappdata', methods=['GET'])
 @cross_origin()
 def get_app_data():
@@ -604,6 +607,7 @@ def get_app_data():
     return jsonify(apps)
 
 
+# gets sponsor name from sponsID
 def get_spons_name(id):
     query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorID = :x'
     param = {'x': id}
@@ -612,12 +616,14 @@ def get_spons_name(id):
     return row['sponsorName']
 
 
+# gets sponsorID from sponsName
 def get_spons_id(name):
     query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName = :x'
     param = {'x': name}
 
     rows = db_connection.execute(text(query), param).fetchone()
     return rows['sponsorID']
+
 
 # Endpoint to store application data
 @app.route('/submitapp', methods=['POST'])
@@ -652,6 +658,45 @@ def check_dup_app(user, sponsID):
             dup = True
 
     return dup
+
+
+# Endpoint to retrieve all sponsor accounts
+# @returns {1: {account1}, 2: {account2}}
+@app.route('/getsponsors', methods=['GET'])
+@cross_origin()
+def getsponsors():
+    query = 'SELECT * FROM TruckBux.Sponsors'
+    rows = db_connection.execute(text(query)).fetchall()
+
+    sponsors = {}
+    i = 1
+    for row in rows:
+        sponsors[i] = dict(row)
+        i += 1
+    
+    return jsonify(sponsors)
+
+
+# Endpoint to retrieve all users associated with a Sponsor
+# takes in sponsName
+# @returns {1: {account1}, 2: {account2}}
+@app.route('/relateddrivers', methods=['GET'])
+@cross_origin()
+def get_related_drivers():
+    sponsName = request.json['sponsName']
+    sponsID = get_spons_id(sponsName)
+
+    query = 'SELECT username, email, fname, lname, bio, active, dateCreated FROM TruckBux.Users WHERE sponsorID = :x'
+    param = {'x': sponsID}
+    rows = db_connection.execute(text(query), param)
+
+    i = 1
+    drivers = {}
+    for row in rows:
+        drivers[i] = dict(row)
+        i += 1
+
+    return jsonify(drivers)
 
 
 app.run(debug=True)
