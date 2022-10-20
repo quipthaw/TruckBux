@@ -48,7 +48,7 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(userData)
         };
 
-        let userResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/getprofile', userOptions);
+        let userResponse = await fetch('https://team27.cpsc4911.com/getprofile', userOptions);
 
         userResponse = await userResponse.json();
 
@@ -80,7 +80,7 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(lockedData)
         }
 
-        let lockedResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/loginattempts', lockedOptions);
+        let lockedResponse = await fetch('https://team27.cpsc4911.com/loginattempts', lockedOptions);
 
         lockedResponse = await lockedResponse.json();
 
@@ -116,7 +116,7 @@ export const SignInPrompt = (props) => {
                 body: JSON.stringify(loginData)
             };
 
-            let loginResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/checklogin', loginOptions);
+            let loginResponse = await fetch('https://team27.cpsc4911.com/checklogin', loginOptions);
 
             loginResponse = await loginResponse.json();
 
@@ -133,7 +133,7 @@ export const SignInPrompt = (props) => {
                 body: JSON.stringify(attemptData)
             };
 
-            let attemptResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/loginlog', attemptOptions);
+            let attemptResponse = await fetch('https://team27.cpsc4911.com/loginlog', attemptOptions);
 
             attemptResponse = await attemptResponse.json();
 

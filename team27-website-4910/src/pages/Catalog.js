@@ -43,7 +43,7 @@ export default function Catalog() {
 
     const getItems = async () => {
         setLoading(true);
-        const response = await fetch('http://127.0.0.1:5000/catalog', {
+        const response = await fetch('https://team27.cpsc4911.com/catalog', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

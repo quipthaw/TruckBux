@@ -69,7 +69,7 @@ export const ProfileInfo = () => {
             body: JSON.stringify(profileData)
         };
 
-        let profileResponse = await fetch('https://ec2-52-205-128-217.compute-1.amazonaws.com:8080/updateprof', profileOptions);
+        let profileResponse = await fetch('https://team27.cpsc4911.com/updateprof', profileOptions);
 
         profileResponse = await profileResponse.json();
 
