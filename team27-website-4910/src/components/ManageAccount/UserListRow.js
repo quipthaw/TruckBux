@@ -26,25 +26,33 @@ export const UserListRow = (props) => {
         username
     */
     const { user } = props;
+
+    const [ userType, setUserType ] = useState(user.acctType);
+    const [ username, setUsername ] = useState(user.username);
+    const [ fname, setFname ] = useState(user.fname);
+    const [ lname, setLname ] = useState(user.lname);
+    const [ email, setEmail ] = useState(user.email);
+    const [ bio, setBio ] = useState(user.bio ? user.bio : '');
+
     const [ selected, setSelected ] = useState(false);
     const [ activeUser, setActiveUser ] = useState(user.username === usernameState);
 
     //Allows changes when this row is current user's account. Should we display this?
     const setProfile = {
-        'setFirstname': setFirstnameState,
-        'setLastname': setLastnameState,
-        'setEmail': setEmailState,
-        'setBio': setBioState,
+        'setFirstname': activeUser ? setFirstnameState : setFname,
+        'setLastname': activeUser ? setLastnameState : setLname,
+        'setEmail': activeUser ? setEmailState : setEmail,
+        'setBio': activeUser ? setBioState : setBio,
     };
 
     const userInfo = {
-        'userType': user.acctType,
-        'username': user.username,
-        'firstname': user.fname,
-        'lastname': user.lname,
-        'email': user.email,
-        'bio': user.bio ? user.bio : '',
-        'setProfile': activeUser ? setProfile : null,
+        'userType': userType,
+        'username': username,
+        'firstname': fname,
+        'lastname': lname,
+        'email': email,
+        'bio': bio,
+        'setProfile': setProfile,
     };
 
     const openDialog = () => {

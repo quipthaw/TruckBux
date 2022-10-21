@@ -65,12 +65,10 @@ export const ProfileInfo = (props) => {
         profileResponse = await profileResponse.json();
 
         if(profileResponse.error === "False") {
-            if(userInfo.setProfile !== null) {
-                userInfo.setProfile.setEmail(profileEmail);
-                userInfo.setProfile.setFirstname(profileFirstname);
-                userInfo.setProfile.setLastname(profileLastname);
-                userInfo.setProfile.setBio(profileBio);
-            }
+            userInfo.setProfile.setEmail(profileEmail);
+            userInfo.setProfile.setFirstname(profileFirstname);
+            userInfo.setProfile.setLastname(profileLastname);
+            userInfo.setProfile.setBio(profileBio);
             setProfileUpdateError("");
             toggleUpdatingProfile();
         }
