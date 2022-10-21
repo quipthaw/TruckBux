@@ -680,23 +680,21 @@ def getsponsors():
 # Endpoint to retrieve all users associated with a Sponsor
 # takes in sponsName
 # @returns {1: {account1}, 2: {account2}}
-@app.route('/relateddrivers', methods=['GET'])
+@app.route('/relateddrivers', methods=['POST'])
 @cross_origin()
 def get_related_drivers():
     sponsName = request.json['sponsName']
     sponsID = get_spons_id(sponsName)
 
-    query = 'SELECT username, email, fname, lname, bio, active, dateCreated FROM TruckBux.Users WHERE sponsorID = :x'
+    query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
     param = {'x': sponsID}
     rows = db_connection.execute(text(query), param)
 
-    i = 1
-    drivers = {}
+    accounts = []
     for row in rows:
-        drivers[i] = dict(row)
-        i += 1
+        accounts.append(dict(row))
 
-    return jsonify(drivers)
+    return jsonify({"accounts": accounts})
 
 
 app.run(debug=True)

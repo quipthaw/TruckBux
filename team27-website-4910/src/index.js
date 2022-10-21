@@ -10,6 +10,8 @@ import Register from './pages/Register';
 import LogIn from './pages/LogIn';
 import Profile from './pages/Profile';
 import Catalog from './pages/Catalog';
+import { ManageAccount } from "./components/ManageAccount/ManageAccounts";
+import AccountManagement from "./pages/AccountManagement";
 
 export const SessionContext = createContext();
 
@@ -66,6 +68,10 @@ const router = createBrowserRouter([
   {
     path: "catalog/",
     element: <Catalog />,
+  },
+  {
+    path: "AccountManagement/",
+    element: <AccountManagement/>,
   },
 ]);
 

@@ -1,30 +1,21 @@
 import { Button, Paper, TextField, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Container } from '@mui/system';
-import { SessionContext } from '../..';
 import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
 import { AccountDeactivation } from './AccountDeactivation';
-import { useNavigate } from 'react-router-dom';
 
-export const ProfileInfo = () => {
-    const navigate = useNavigate();
+export const ProfileInfo = (props) => {
 
-    const {
-        sessionState,
-        usernameState, 
-        firstnameState, setFirstnameState,
-        lastnameState, setLastnameState,
-        emailState, setEmailState,
-        bioState, setBioState
-    } = useContext(SessionContext);
+    const { userInfo } = props;
 
     const [ updatingProfile, setUpdatingProfile ] = useState(false);
 
-    const [ profileFirstname, setProfileFirstname ] = useState(firstnameState);
-    const [ profileLastname, setProfileLastname ] = useState(lastnameState);
-    const [ profileEmail, setProfileEmail ] = useState(emailState);
-    const [ profileBio, setProfileBio ] = useState(bioState);
+    const [ profileUsername, setProfileUsername ] = useState (userInfo.username);
+    const [ profileFirstname, setProfileFirstname ] = useState(userInfo.firstname);
+    const [ profileLastname, setProfileLastname ] = useState(userInfo.lastname);
+    const [ profileEmail, setProfileEmail ] = useState(userInfo.email);
+    const [ profileBio, setProfileBio ] = useState(userInfo.bio);
 
     const [ profileUpdateError, setProfileUpdateError ] = useState("");
 
@@ -54,7 +45,7 @@ export const ProfileInfo = () => {
 
         //Send update request to server.
         const profileData = {
-            user: usernameState,
+            user: profileUsername,
             email: profileEmail,
             fname: profileFirstname, 
             lname: profileLastname,
@@ -74,10 +65,12 @@ export const ProfileInfo = () => {
         profileResponse = await profileResponse.json();
 
         if(profileResponse.error === "False") {
-            setEmailState(profileEmail);
-            setFirstnameState(profileFirstname);
-            setLastnameState(profileLastname);
-            setBioState(profileBio);
+            if(userInfo.setProfile !== null) {
+                userInfo.setProfile.setEmail(profileEmail);
+                userInfo.setProfile.setFirstname(profileFirstname);
+                userInfo.setProfile.setLastname(profileLastname);
+                userInfo.setProfile.setBio(profileBio);
+            }
             setProfileUpdateError("");
             toggleUpdatingProfile();
         }
@@ -94,10 +87,10 @@ export const ProfileInfo = () => {
     const DisplayUserType = () => {
         let userTypeMessage = 'Account Type: ';
 
-        if(sessionState === 'A') {
+        if(userInfo.userType === 'A') {
             userTypeMessage = userTypeMessage.concat('Admin');
         }
-        else if(sessionState === 'S') {
+        else if(userInfo.userType === 'S') {
             userTypeMessage = userTypeMessage.concat('Sponsor');
         }
         else {
@@ -128,7 +121,7 @@ export const ProfileInfo = () => {
                             <TextField      
                                 id="username"   
                                 label="Username"
-                                value={usernameState}
+                                value={userInfo.username}
                                 fullWidth
                                 inputProps={
                                     { disabled: true, }
@@ -137,7 +130,7 @@ export const ProfileInfo = () => {
                             <TextField      
                                 id="email"   
                                 label="Email"
-                                value={updatingProfile ? profileEmail : emailState}
+                                value={updatingProfile ? profileEmail : userInfo.email}
                                 onChange={(onEmailChange)}
                                 fullWidth
                                 variant={ updatingProfile ? 'filled' : 'outlined' }
@@ -150,7 +143,7 @@ export const ProfileInfo = () => {
                             <TextField      
                                 id="firstname"   
                                 label="First Name"
-                                value={updatingProfile ? profileFirstname : firstnameState}
+                                value={updatingProfile ? profileFirstname : userInfo.firstname}
                                 onChange={(onFirstnameChange)}
                                 fullWidth
                                 variant={ updatingProfile ? 'filled' : 'outlined' }
@@ -161,7 +154,7 @@ export const ProfileInfo = () => {
                             <TextField      
                                 id="lastname"   
                                 label="Last Name"
-                                value={updatingProfile ? profileLastname : lastnameState}
+                                value={updatingProfile ? profileLastname : userInfo.lastname}
                                 onChange={(onLastnameChange)}
                                 fullWidth
                                 variant={ updatingProfile ? 'filled' : 'outlined' }
@@ -174,7 +167,7 @@ export const ProfileInfo = () => {
                             <TextField      
                                 id="userbio"   
                                 label="Bio"
-                                value={updatingProfile ? profileBio : bioState}
+                                value={updatingProfile ? profileBio : userInfo.bio}
                                 onChange={(onUserBioChange)}
                                 fullWidth
                                 variant={ updatingProfile ? 'filled' : 'outlined' }

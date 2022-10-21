@@ -48,7 +48,8 @@ const Navbar = (props) => {
         { 'text': 'Sign In', 'path': '/login' },
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
         { 'text': 'Register', 'path': '/register' },
-        { 'text': 'Profile', 'path': '/profile' }
+        { 'text': 'Profile', 'path': '/profile' },
+        { 'text': 'Account Management', 'path': '/AccountManagement' }
     ];
 
     const navigate = useNavigate();

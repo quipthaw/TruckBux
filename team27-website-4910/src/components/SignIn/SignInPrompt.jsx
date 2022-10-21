@@ -61,7 +61,7 @@ export const SignInPrompt = (props) => {
             setFirstnameState(userResponse.user[0].fName);
             setLastnameState(userResponse.user[0].lName);
             setSessionState(userResponse.user[0].acctType);
-            setBioState(userResponse.user[0].bio);
+            setBioState(userResponse.user[0].bio ? userResponse.user[0].bio : '');
     
             return true;
         }
