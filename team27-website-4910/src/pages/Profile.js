@@ -28,7 +28,8 @@ export default function Profile() {
         'lastname': lastnameState,
         'email': emailState,
         'bio': bioState,
-        'setProfile': setProfile
+        'setProfile': setProfile,
+        'active': 1,
     };
 
     return (

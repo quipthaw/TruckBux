@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Button, Stack, Typography } from '@mui/material'
+import { Button, Stack, toggleButtonClasses, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
@@ -7,13 +7,16 @@ import { SessionContext } from '../..';
 export const AccountDeactivation = (props) => {
     const navigate = useNavigate();
 
-    const { setSessionState, usernameState } = useContext(SessionContext);
+    const { userInfo } = props;
 
-    //const { username, accountStatus } = props.userInfo;
+    const { setSessionState, usernameState } = useContext(SessionContext);
 
     const [ deactivating, setDeactivating ] = useState(false);
     const [ finalConfirmation, setFinalConfirmation ] = useState(false);
     const [ systemMessage, setSystemMessage ] = useState('');
+
+    const [ buttonMessage, setButtonMessage ] = useState(userInfo.active ? "Deactivate Account" : "Activate Account");
+    const [ buttonColor, setButtonColor ] = useState(userInfo.active ? "error" : "success");
 
     const toggleDeactivating = () => {
         setSystemMessage('');
@@ -26,27 +29,49 @@ export const AccountDeactivation = (props) => {
         setFinalConfirmation(false);
     };
 
-    const deactivateAccount = async () => {
-        const deactivateData = { user: usernameState, status: 0 };
+    const toggleButton = () => {
+        setButtonMessage(userInfo.active === 0 ? "Deactivate Account" : "Activate Account");
+        setButtonColor(userInfo.active === 0 ? "error" : "success");
+    }
+
+    const toggleActivation = async () => {
+        //const modder = usernameState;
+        const target = userInfo.username;
+        const newActive = userInfo.active ? 0 : 1;
+
+        const statusChangeData = { 
+            user: target, 
+            status: newActive
+        };
         
-        const deactivateOptions = {
+        const statusChangeOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(deactivateData)
+            body: JSON.stringify(statusChangeData)
         };
 
-        let deactivateResponse = await fetch('http://127.0.0.1:5000/updatestatus', deactivateOptions);
+        let statusChangeResponse = await fetch('http://127.0.0.1:5000/updatestatus', statusChangeOptions);
         
-        deactivateResponse = await deactivateResponse.json();
+        statusChangeResponse = await statusChangeResponse.json();
 
-        if(deactivateResponse.response === 'Success') {
-            setSessionState('0')
-            navigate('/');
+        if(statusChangeResponse.response === 'Success') {
+            //Kick the user to homepage if they deactivate own account
+            if(userInfo.username === usernameState) {
+                setSessionState('0')
+                navigate('/');
+            }
+            userInfo.setProfile.setActive(userInfo.active ? 0 : 1);
+            console.log(userInfo.active);
+            toggleButton();
+            console.log(buttonColor);
+            console.log(buttonMessage);
+            setDeactivating(false);
+            setFinalConfirmation(false);
         }
         else {
-            setSystemMessage("This account could not be deactivated or is already deactivated.")
+            setSystemMessage("This account status could not be changed.")
             setDeactivating(false);
             setFinalConfirmation(false);
         }
@@ -54,9 +79,9 @@ export const AccountDeactivation = (props) => {
 
     return (
         <Stack direction='column' spacing={2}>
-            {!deactivating && <Button variant='outlined' color='error' startIcon={<DeleteIcon/>} onClick={(toggleDeactivating)}>Deactivate Account</Button>}
-            {systemMessage !== '' && <Typography align='center' color='red'>{systemMessage}</Typography>}
-            {!finalConfirmation && deactivating && <Button variant='contained' color='error' startIcon={<DeleteIcon/>} onClick={(deactivateAccount)}>CONFIRM ACCOUNT DEACTIVATION</Button>}
+            {!deactivating && <Button variant='outlined' color={buttonColor} startIcon={<DeleteIcon/>} onClick={(toggleDeactivating)}>{buttonMessage}</Button>}
+            {systemMessage !== '' && <Typography align='center' color={buttonColor}>{systemMessage}</Typography>}
+            {!finalConfirmation && deactivating && <Button variant='contained' color={buttonColor} startIcon={<DeleteIcon/>} onClick={(toggleActivation)}>{buttonMessage}</Button>}
             {deactivating && <Button variant='outlined'  color='success' onClick={(cancelDeactivation)}>Cancel Account Deactivation</Button>}
         </Stack>
     );

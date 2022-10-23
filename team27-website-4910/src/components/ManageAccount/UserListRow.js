@@ -44,6 +44,7 @@ export const UserListRow = (props) => {
         'setLastname': activeUser ? setLastnameState : setLname,
         'setEmail': activeUser ? setEmailState : setEmail,
         'setBio': activeUser ? setBioState : setBio,
+        'setActive': setActive,
     };
 
     const userInfo = {
@@ -54,6 +55,7 @@ export const UserListRow = (props) => {
         'email': email,
         'bio': bio,
         'setProfile': setProfile,
+        'active': active,
     };
 
     const openDialog = () => {
