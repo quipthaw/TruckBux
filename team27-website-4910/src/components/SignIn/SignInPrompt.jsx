@@ -84,19 +84,17 @@ export const SignInPrompt = (props) => {
 
         lockedResponse = await lockedResponse.json();
 
-        console.log(lockedResponse.result);
-
         if(lockedResponse.result === 'error, invalid user') {
             console.log("invalid user");
             setSignInError(lockedResponse.result);
             return false;
         }
 
-        if(lockedResponse.result >= 3) {
+        /*if(lockedResponse.result >= 3) {
             console.log("number greater than 3")
             setSignInError("Account is currently locked.");
             return false;
-        }
+        }*/
         
         return true;
     };

@@ -9,7 +9,21 @@ import { UpdatePassword } from "../PasswordRecovery/UpdatePassword";
 //To test sign in, use username=testuser and password=password
 
 export const SignIn = (props) => {
-    const { sessionState, setSessionState } = useContext(SessionContext);
+    const {
+        sessionState, setSessionState,
+        usernameState,
+        firstnameState,
+        lastnameState,
+        emailState,
+    } = useContext(SessionContext);
+
+    const userInfo = {
+        "username": usernameState,
+        "firstname": firstnameState,
+        "lastname": lastnameState,
+        "email": emailState,
+    }
+
     const [signingIn, setSigningIn] = useState(true);
     const [signInError, setSignInError] = useState("");
     
@@ -72,7 +86,7 @@ export const SignIn = (props) => {
                         {!updatingPassword && sessionState != '0' && <DisplaySignOut />}
                         {!updatingPassword && signInError != "" && <Typography align='center' color='red'>{signInError}</Typography>}
                         {!updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Change Password</Button>}
-                        {updatingPassword && <UpdatePassword/>}
+                        {updatingPassword && <UpdatePassword userInfo={userInfo}/>}
                         {updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Go Back to Sign In</Button>}
                     </Stack>
                 </Box>

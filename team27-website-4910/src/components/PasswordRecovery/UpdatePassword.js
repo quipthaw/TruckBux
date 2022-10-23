@@ -7,24 +7,20 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 
-export const UpdatePassword = () => {
-    const {
-        sessionState,
-        usernameState,
-        firstnameState,
-        lastnameState,
-        emailState,
-    } = useContext(SessionContext);
+export const UpdatePassword = (props) => {
+    const { sessionState, usernameState } = useContext(SessionContext);
+
+    const { username, firstname, lastname, email } = props.userInfo;
 
     const navigate = useNavigate();
 
     //Variables for password recovery when not signed in
     const [ needVerification, setNeedVerification ] = useState(sessionState === '0' ? true : false)
 
-    const [ recoveryUsername, setRecoveryUsername ] = useState(needVerification ? '' : usernameState);
-    const [ recoveryFirstname, setRecoveryFirstname ] = useState(needVerification ? '' : firstnameState);
-    const [ recoveryLastname, setRecoveryLastname ] = useState(needVerification ? '' : lastnameState);
-    const [ recoveryEmail, setRecoveryEmail ] = useState(needVerification ? '' : emailState);
+    const [ recoveryUsername, setRecoveryUsername ] = useState(needVerification ? '' : username);
+    const [ recoveryFirstname, setRecoveryFirstname ] = useState(needVerification ? '' : firstname);
+    const [ recoveryLastname, setRecoveryLastname ] = useState(needVerification ? '' : lastname);
+    const [ recoveryEmail, setRecoveryEmail ] = useState(needVerification ? '' : email);
 
     //General password change variables
     const [ updatingPassword, setUpdatingPassword ] = useState(needVerification ? true : false);
@@ -89,6 +85,7 @@ export const UpdatePassword = () => {
     const handleUpdatePassword = async () => {
 
         let passwordData = { 
+            modder: usernameState,
             user: recoveryUsername,
             email: recoveryEmail,
             fname: recoveryFirstname,
@@ -97,10 +94,11 @@ export const UpdatePassword = () => {
         };
         if(sessionState !== '0'){
             passwordData = { 
-                user: usernameState,
-                email: emailState,
-                fname: firstnameState,
-                lname: lastnameState,
+                modder: usernameState,
+                user: username,
+                email: email,
+                fname: firstname,
+                lname: lastname,
                 pass: newPassword,
             };
         }
