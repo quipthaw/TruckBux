@@ -33,6 +33,7 @@ export const UserListRow = (props) => {
     const [ lname, setLname ] = useState(user.lname);
     const [ email, setEmail ] = useState(user.email);
     const [ bio, setBio ] = useState(user.bio ? user.bio : '');
+    const [ active, setActive ] = useState(user.active);
 
     const [ selected, setSelected ] = useState(false);
     const [ activeUser, setActiveUser ] = useState(user.username === usernameState);

@@ -178,7 +178,7 @@ export const ProfileInfo = (props) => {
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
                         <UpdatePassword userInfo={userInfo} updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile}/>
-                        {<AccountDeactivation/>}
+                        {<AccountDeactivation userInfo={userInfo}/>}
                     </Stack>
                 </Box>
             </Paper>

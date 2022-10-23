@@ -89,12 +89,6 @@ export const SignInPrompt = (props) => {
             setSignInError(lockedResponse.result);
             return false;
         }
-
-        /*if(lockedResponse.result >= 3) {
-            console.log("number greater than 3")
-            setSignInError("Account is currently locked.");
-            return false;
-        }*/
         
         return true;
     };
@@ -103,51 +97,33 @@ export const SignInPrompt = (props) => {
     const authenticate = async (e) => {
         e.preventDefault();
 
-        if(await checkLoginAttempts()) {
-            //Fetch user/pass combo validation
-            const loginData = { user: username, pass: password };
-            const loginOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(loginData)
-            };
+        const loginData = { user: username, passwd: password };
+        const loginOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData)
+        };
 
-            let loginResponse = await fetch('http://127.0.0.1:5000/checklogin', loginOptions);
+        let loginResponse = await fetch('http://127.0.0.1:5000/userlogin', loginOptions);
 
-            loginResponse = await loginResponse.json();
+        loginResponse = await loginResponse.json();
 
-            //Request to store login attempt log
-            const loginAttemptStatus = loginResponse.result === "True" ? 'Success' : 'Failure';
+        console.log(loginResponse);
 
-            const attemptData = { user: username, lresult: loginAttemptStatus };
-
-            const attemptOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(attemptData)
-            };
-
-            let attemptResponse = await fetch('http://127.0.0.1:5000/loginlog', attemptOptions);
-
-            attemptResponse = await attemptResponse.json();
-            
-            if(loginResponse.result === "True") {
-                if(await getUserProfile()) {
-                    setSignInError("");
-                    setSigningIn(false);
-                    navigate('/');
-                }
-                else {
-                    setSignInError("User Account is Currently Deactivated");
-                }
+        if(loginResponse.result === "Success") {
+            if(await getUserProfile()) {
+                setSignInError("");
+                setSigningIn(false);
+                navigate('/');
             }
             else {
-                setSignInError("User and Password Combination Incorrect");
+                setSignInError("Account is Deactivated.");
             }
+        }
+        else {
+            setSignInError(loginResponse.result);
         }
     };
 
