@@ -15,7 +15,8 @@ export const SignInPrompt = (props) => {
         setEmailState, 
         setFirstnameState, 
         setLastnameState,
-        setBioState
+        setBioState,
+        setSponsorIDs
     } = useContext(SessionContext);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
@@ -62,6 +63,7 @@ export const SignInPrompt = (props) => {
             setLastnameState(userResponse.user[0].lName);
             setSessionState(userResponse.user[0].acctType);
             setBioState(userResponse.user[0].bio ? userResponse.user[0].bio : '');
+            setSponsorIDs(userResponse.user[0].sponsorID);
     
             return true;
         }

@@ -11,7 +11,8 @@ export default function Profile() {
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
         emailState, setEmailState,
-        bioState, setBioState
+        bioState, setBioState,
+        sponsorIDs, setSponsorIDs
     } = useContext(SessionContext);
 
     const setProfile = {
@@ -30,6 +31,7 @@ export default function Profile() {
         'bio': bioState,
         'setProfile': setProfile,
         'active': 1,
+        'sponsorIDs': sponsorIDs,
     };
 
     return (

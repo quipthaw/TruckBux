@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Container } from '@mui/system';
 import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
 import { AccountDeactivation } from './AccountDeactivation';
+import { MySponsors } from './MySponsors';
 
 export const ProfileInfo = (props) => {
 
@@ -177,7 +178,11 @@ export const ProfileInfo = (props) => {
                         {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
                         {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
                         {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
+                        
                         <UpdatePassword userInfo={userInfo} updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile}/>
+                        
+                        <MySponsors sponsorList={userInfo.sponsorIDs}/>           
+
                         {<AccountDeactivation userInfo={userInfo}/>}
                     </Stack>
                 </Box>

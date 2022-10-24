@@ -28,6 +28,7 @@ const SessionContextProvider = (props) => {
   const [lastnameState, setLastnameState] = useState("");
   const [emailState, setEmailState] = useState("");
   const [bioState, setBioState] = useState("");
+  const [sponsorIDs, setSponsorIDs] = useState();
 
   // not used, but may need in future to maintain authentic calls to db
   //const [ tokenState, setTokenState ] = useState(""); 
@@ -40,7 +41,8 @@ const SessionContextProvider = (props) => {
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
         emailState, setEmailState,
-        bioState, setBioState
+        bioState, setBioState,
+        sponsorIDs, setSponsorIDs
       }}
     >
       {props.children}
