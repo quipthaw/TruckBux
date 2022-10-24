@@ -9,6 +9,10 @@ import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Modal from '@mui/material/Modal';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { SessionContext } from '../..';
@@ -39,6 +43,7 @@ export default function RegForm() {
         lname: '',
         email: '',
         type: 'D',
+        sponsor: '',
         showPassword: false,
         showPasswordConf: false,
     });
@@ -199,6 +204,27 @@ export default function RegForm() {
         }
     };
 
+    const showSponsor = () => {
+        if (values.type === 'S' || session.sessionType == 'A') {
+            return (
+                <FormControl fullWidth>
+                    <InputLabel id="sponsor-select-label">Sponsor</InputLabel>
+                    <Select
+                        labelId="sponsor-select-label"
+                        id="sponsor-select"
+                        value={values.sponsor}
+                        label="Sponsor"
+                        onChange={handleFormChange('sponsor')}
+                    >
+                        <MenuItem value={101}>Sponsor A</MenuItem>
+                        <MenuItem value={201}>Sponsor B</MenuItem>
+                        <MenuItem value={301}>Sponsor C</MenuItem>
+                    </Select>
+                </FormControl>
+            )
+        }
+    }
+
     //change based on if waitng on response from API
     const [loading, setLoading] = React.useState(false);
 
@@ -224,6 +250,7 @@ export default function RegForm() {
                                 <Typography textAlign='center' variant='h2'>Create Account</Typography>
                                 <Typography textAlign='center' variant='subtitle1' gutterBottom>* : Required field</Typography>
                                 {showButtons()}
+                                {showSponsor()}
                                 <TextField
                                     id="reg-user"
                                     label="Username"
