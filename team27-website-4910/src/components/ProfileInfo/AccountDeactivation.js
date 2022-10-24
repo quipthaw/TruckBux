@@ -35,6 +35,7 @@ export const AccountDeactivation = (props) => {
     }
 
     const toggleActivation = async () => {
+        //Need logging in the future
         //const modder = usernameState;
         const target = userInfo.username;
         const newActive = userInfo.active ? 0 : 1;
@@ -82,7 +83,7 @@ export const AccountDeactivation = (props) => {
             {!deactivating && <Button variant='outlined' color={buttonColor} startIcon={<DeleteIcon/>} onClick={(toggleDeactivating)}>{buttonMessage}</Button>}
             {systemMessage !== '' && <Typography align='center' color={buttonColor}>{systemMessage}</Typography>}
             {!finalConfirmation && deactivating && <Button variant='contained' color={buttonColor} startIcon={<DeleteIcon/>} onClick={(toggleActivation)}>{buttonMessage}</Button>}
-            {deactivating && <Button variant='outlined'  color='success' onClick={(cancelDeactivation)}>Cancel Account Deactivation</Button>}
+            {deactivating && <Button variant='outlined' color='success' onClick={(cancelDeactivation)}>Cancel Activation Setting</Button>}
         </Stack>
     );
 };

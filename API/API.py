@@ -624,6 +624,14 @@ def get_spons_id(name):
     rows = db_connection.execute(text(query), param).fetchone()
     return rows['sponsorID']
 
+# gets acctType from username
+def get_acctType(name):
+    query = 'SELECT * FROM TruckBux.Users WHERE username = :x'
+    param = {'x': name}
+
+    rows = db_connection.execute(text(query), param).fetchone()
+    return rows['acctType']
+
 
 # Endpoint to store application data
 @app.route('/submitapp', methods=['POST'])
@@ -683,16 +691,27 @@ def getsponsors():
 @app.route('/relateddrivers', methods=['POST'])
 @cross_origin()
 def get_related_drivers():
-    sponsName = request.json['sponsName']
-    sponsID = get_spons_id(sponsName)
-
-    query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
-    param = {'x': sponsID}
-    rows = db_connection.execute(text(query), param)
+    accountName = request.json['accountName']
+    acctType = get_acctType(accountName)
 
     accounts = []
-    for row in rows:
-        accounts.append(dict(row))
+
+    if(acctType == 'S'):
+        sponsID = get_spons_id(accountName)
+
+        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
+        param = {'x': sponsID}
+        rows = db_connection.execute(text(query), param)
+
+        for row in rows:
+            accounts.append(dict(row))
+
+    elif(acctType == 'A'):
+        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
+        rows = db_connection.execute(text(query))
+
+        for row in rows:
+            accounts.append(dict(row))
 
     return jsonify({"accounts": accounts})
 

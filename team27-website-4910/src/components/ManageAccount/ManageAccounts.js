@@ -18,7 +18,7 @@ export const ManageAccount = () => {
     }
 
     const getRelatedUsers = async () => {
-        const relatedUsersData = { sponsName: usernameState };
+        const relatedUsersData = { accountName: usernameState };
 
         const relatedUsersOptions = {
             method: 'POST',
