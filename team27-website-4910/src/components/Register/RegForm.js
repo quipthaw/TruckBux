@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import { Container } from '@mui/system';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import { Box, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
@@ -9,6 +9,10 @@ import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Modal from '@mui/material/Modal';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { SessionContext } from '../..';
@@ -27,7 +31,6 @@ const style = {
 export default function RegForm() {
     const navigate = useNavigate();
 
-
     const session = useContext(SessionContext);
 
     //Store and modify form values
@@ -39,6 +42,7 @@ export default function RegForm() {
         lname: '',
         email: '',
         type: 'D',
+        sponsor: '',
         showPassword: false,
         showPasswordConf: false,
     });
@@ -50,6 +54,11 @@ export default function RegForm() {
         lname: '',
         email: '',
     });
+
+    useEffect(() => {
+        getSponsors();
+        setLoading(false);
+    }, [])
 
     const handleFormChange = (field) => (event) => {
         setValues({ ...values, [field]: event.target.value });
@@ -65,6 +74,17 @@ export default function RegForm() {
 
     const handleCreationType = (type) => {
         setValues({ ...values, ['type']: type });
+    };
+
+    const [sponsors, setSponsors] = React.useState([]);
+    const getSponsors = async () => {
+        const response = await fetch('http://127.0.0.1:5000/getsponsors');
+        const result = await response.json();
+        changeSponsors(result.sponsors);
+    };
+
+    const changeSponsors = (values) => {
+        setSponsors(values);
     };
 
     const checkEmptyFields = () => {
@@ -199,8 +219,31 @@ export default function RegForm() {
         }
     };
 
+    const showSponsor = () => {
+        if (values.type === 'S' && session.sessionType == 'A') {
+            return (
+                <FormControl fullWidth>
+                    <InputLabel id="sponsor-select-label">Sponsor</InputLabel>
+                    <Select
+                        labelId="sponsor-select-label"
+                        id="sponsor-select"
+                        value={values.sponsor}
+                        label="Sponsor"
+                        onChange={handleFormChange('sponsor')}
+                    >
+                        {
+                            sponsors.map((sponsor) => {
+                                <MenuItem value={sponsor.sponsorID}>{sponsor.sponsorName}</MenuItem>
+                            })
+                        }
+                    </Select>
+                </FormControl>
+            )
+        }
+    }
+
     //change based on if waitng on response from API
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
 
     return (
         <Container sx={{
@@ -224,6 +267,7 @@ export default function RegForm() {
                                 <Typography textAlign='center' variant='h2'>Create Account</Typography>
                                 <Typography textAlign='center' variant='subtitle1' gutterBottom>* : Required field</Typography>
                                 {showButtons()}
+                                {showSponsor()}
                                 <TextField
                                     id="reg-user"
                                     label="Username"
