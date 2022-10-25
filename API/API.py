@@ -127,13 +127,14 @@ def check_sponsor_name(name):
         return True
 
 
-#Function to insert record of login instance into loginLog Table
+# Function to insert record of login instance into loginLog Table
 # Username must be valid
-# Returns bool True or False 
+# Returns bool True or False
 def log(username, logresult):
-    if check_username(username) == False: 
-        query = text("INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()} 
+    if check_username(username) == False:
+        query = text(
+            "INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
+        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()}
         db_connection.execute(query, param)
         return True
     else:
@@ -377,23 +378,25 @@ def update_profile():
 def user_login():
     username = request.json['user']
     result = {'result': 'Success'}
-    #Checks to see if username is valid    
+    # Checks to see if username is valid
     if (check_username(username) == False):
-        #Checks to see if too many failed login attempts
+        # Checks to see if too many failed login attempts
         query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
-        param = {'x': username, 'n': 'Failure', 't': 'Success'} 
+        param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
         i = 0
         for row in my_data:
             i = i + 1
         if (i <= 3):
-            #Checks to see if account if timelocked
-            query = text('select * from TruckBux.Users Where username = :x and lockedUntil is NOT NULL') 
+            # Checks to see if account if timelocked
+            query = text(
+                'select * from TruckBux.Users Where username = :x and lockedUntil is NOT NULL')
             param = {'x': username}
             lock_result = db_connection.execute(query, param)
             if (lock_result.one_or_none() == None):
-                #Checks to see if login combo is correct
-                query = text('select username, password from Users where username = :x')
+                # Checks to see if login combo is correct
+                query = text(
+                    'select username, password from Users where username = :x')
                 param = {'x': request.json['user']}
                 row = db_connection.execute(query, param).first()
                 if row != None:
@@ -402,13 +405,13 @@ def user_login():
                 if bcrypt.checkpw(input_pass, pass_hash):
                     result = {'result': 'Success'}
                     log(username, 'Success')
-                else: 
+                else:
                     result = {'result': 'Invalid Password'}
                     log(username, 'Failure')
             else:
                 result = {'result': 'Account Locked'}
                 log(username, 'Failure')
-        else: 
+        else:
             result = {'result': 'Too Many Failed Login Attempts!'}
             log(username, 'Failure')
     else:
@@ -557,7 +560,7 @@ def log_pass_change(modder, user, reason=None):
 @cross_origin()
 def get_all_apps():
     query = 'SELECT * FROM TruckBux.Applications'
-    
+
     rows = db_connection.execute(text(query)).fetchall()
 
     apps = {}
@@ -625,6 +628,8 @@ def get_spons_id(name):
     return rows['sponsorID']
 
 # gets acctType from username
+
+
 def get_acctType(name):
     query = 'SELECT * FROM TruckBux.Users WHERE username = :x'
     param = {'x': name}
@@ -676,13 +681,13 @@ def getsponsors():
     query = 'SELECT * FROM TruckBux.Sponsors'
     rows = db_connection.execute(text(query)).fetchall()
 
-    sponsors = {}
-    i = 1
+    sponsors = []
+    i = 0
     for row in rows:
-        sponsors[i] = dict(row)
         i += 1
-    
-    return jsonify(sponsors)
+        sponsors.append(dict(row))
+
+    return jsonify({"number": i, "sponsors": sponsors})
 
 
 # Endpoint to retrieve all users associated with a Sponsor
@@ -696,7 +701,7 @@ def get_related_drivers():
 
     accounts = []
 
-    if(acctType == 'S'):
+    if (acctType == 'S'):
         sponsID = get_spons_id(accountName)
 
         query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
@@ -706,7 +711,7 @@ def get_related_drivers():
         for row in rows:
             accounts.append(dict(row))
 
-    elif(acctType == 'A'):
+    elif (acctType == 'A'):
         query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
         rows = db_connection.execute(text(query))
 

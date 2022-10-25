@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import { Container } from '@mui/system';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import { Box, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
@@ -31,7 +31,6 @@ const style = {
 export default function RegForm() {
     const navigate = useNavigate();
 
-
     const session = useContext(SessionContext);
 
     //Store and modify form values
@@ -56,6 +55,11 @@ export default function RegForm() {
         email: '',
     });
 
+    useEffect(() => {
+        getSponsors();
+        setLoading(false);
+    }, [])
+
     const handleFormChange = (field) => (event) => {
         setValues({ ...values, [field]: event.target.value });
     };
@@ -70,6 +74,17 @@ export default function RegForm() {
 
     const handleCreationType = (type) => {
         setValues({ ...values, ['type']: type });
+    };
+
+    const [sponsors, setSponsors] = React.useState([]);
+    const getSponsors = async () => {
+        const response = await fetch('http://127.0.0.1:5000/getsponsors');
+        const result = await response.json();
+        changeSponsors(result.sponsors);
+    };
+
+    const changeSponsors = (values) => {
+        setSponsors(values);
     };
 
     const checkEmptyFields = () => {
@@ -205,7 +220,7 @@ export default function RegForm() {
     };
 
     const showSponsor = () => {
-        if (values.type === 'S' || session.sessionType == 'A') {
+        if (values.type === 'S' && session.sessionType == 'A') {
             return (
                 <FormControl fullWidth>
                     <InputLabel id="sponsor-select-label">Sponsor</InputLabel>
@@ -216,9 +231,11 @@ export default function RegForm() {
                         label="Sponsor"
                         onChange={handleFormChange('sponsor')}
                     >
-                        <MenuItem value={101}>Sponsor A</MenuItem>
-                        <MenuItem value={201}>Sponsor B</MenuItem>
-                        <MenuItem value={301}>Sponsor C</MenuItem>
+                        {
+                            sponsors.map((sponsor) => {
+                                <MenuItem value={sponsor.sponsorID}>{sponsor.sponsorName}</MenuItem>
+                            })
+                        }
                     </Select>
                 </FormControl>
             )
@@ -226,7 +243,7 @@ export default function RegForm() {
     }
 
     //change based on if waitng on response from API
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
 
     return (
         <Container sx={{

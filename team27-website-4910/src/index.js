@@ -12,6 +12,8 @@ import Profile from './pages/Profile';
 import Catalog from './pages/Catalog';
 import { ManageAccount } from "./components/ManageAccount/ManageAccounts";
 import AccountManagement from "./pages/AccountManagement";
+import Sponsors from './pages/Sponsors';
+import Drivers from './pages/Drivers';
 
 export const SessionContext = createContext();
 
@@ -73,7 +75,15 @@ const router = createBrowserRouter([
   },
   {
     path: "AccountManagement/",
-    element: <AccountManagement/>,
+    element: <AccountManagement />,
+  },
+  {
+    path: "sponsors/",
+    element: <Sponsors />,
+  },
+  {
+    path: "drivers/",
+    element: <Drivers />,
   },
 ]);
 
