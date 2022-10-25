@@ -1,3 +1,4 @@
+from pickle import NONE
 import queue
 import re
 import bcrypt
@@ -138,6 +139,61 @@ def log(username, logresult):
         return True
     else:
         return False
+
+
+#Helper Funtion to add years to a datetime
+def add_years(start_date, years):
+    try:
+        return start_date.replace(year=start_date.year + years)
+    except ValueError:
+        return start_date.replace(year=start_date.year + years, day=28)
+
+
+#Function to Lock Account based on username and number of years to lock
+def lock_account(username, years):
+    date_1 = datetime.datetime.now()
+    date_2 = add_years(date_1, years)
+    if check_username(username) == False:
+        query = 'UPDATE TruckBux.Users SET lockedUntil = :u WHERE username = :x'
+        param = {'x': username, 'u': date_2}
+        db_connection.execute(text(query), param)
+        return True
+    else:
+        return False
+
+
+# Function to Unlock Account based on username
+def unlock_account(username):
+    if check_username(username) == False:
+        query = 'UPDATE TruckBux.Users SET lockedUntil = NULL WHERE username = :x'
+        param = {'x': username}
+        db_connection.execute(text(query), param)
+        return True
+    else:
+        return False
+
+
+#Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
+@app.route('/lockeduntil', methods=['POST'])
+@cross_origin()
+def lockeduntil():
+    username = request.json['user']
+    lock_or_unlock = request.json['action']
+    res = jsonify('error, no result')
+    if lock_or_unlock[0] == 'l':
+        #currently only locks account by incriments of 1 year.
+        result = lock_account(username, 1)
+        if result == False:
+            res = jsonify('Failed')
+        else:
+            res = jsonify('Passed')
+    elif lock_or_unlock[0] == 'u':
+        result = unlock_account(username)
+        if result == False:
+            res = jsonify('Failed')
+        else:
+            res = jsonify('Passed')
+    return(res)
 
 
 # Endpoint that takes a username via post request in from {'user': <username>}
