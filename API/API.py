@@ -1,14 +1,34 @@
-from pickle import NONE
 import queue
-import re
-import bcrypt
 import datetime
 import requests
 import json
-from sre_parse import SPECIAL_CHARS
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text
+from helpers import *
+
+
+# Function to get a new ebay client token
+# DEFINE EBAY TOKEN DETAILS
+TOKEN_URL = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"
+EBAY_TOKEN = ""
+EXPIRES = datetime.datetime.now()
+def new_token():
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": "Basic Q2hhc2VHdW4tVHJ1Y2tCdXgtU0JYLWIzM2MxM2I3Mi00YTA4ODc2OTpTQlgtMzNjMTNiNzJhYmEwLWMyNWMtNGNkNi04NWIzLWRlZmU="
+    }
+    body = {
+        "grant_type": "client_credentials",
+        "scope": "https://api.ebay.com/oauth/api_scope"
+    }
+
+    resp = requests.post(TOKEN_URL, headers=headers, data=body)
+    data = json.loads(resp.content)
+    global EBAY_TOKEN
+    EBAY_TOKEN = data['access_token']
+    global EXPIRES
+    EXPIRES = datetime.datetime.now() + datetime.timedelta(seconds=7200)
 
 
 # DEFINE THE DATABASE CREDENTIALS
@@ -19,11 +39,6 @@ DBPORT = 3306
 DB = 'TruckBux'
 
 PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special character'
-
-# DEFINE EBAY TOKEN DETAILS
-TOKEN_URL = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"
-EBAY_TOKEN = ""
-EXPIRES = datetime.datetime.now()
 
 
 app = Flask(__name__)
@@ -43,136 +58,6 @@ def get_connection():
 
 db_connection = get_connection()
 
-# Function to get a new ebay client token
-
-
-def new_token():
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Basic Q2hhc2VHdW4tVHJ1Y2tCdXgtU0JYLWIzM2MxM2I3Mi00YTA4ODc2OTpTQlgtMzNjMTNiNzJhYmEwLWMyNWMtNGNkNi04NWIzLWRlZmU="
-    }
-    body = {
-        "grant_type": "client_credentials",
-        "scope": "https://api.ebay.com/oauth/api_scope"
-    }
-
-    resp = requests.post(TOKEN_URL, headers=headers, data=body)
-    data = json.loads(resp.content)
-    global EBAY_TOKEN
-    EBAY_TOKEN = data['access_token']
-    global EXPIRES
-    EXPIRES = datetime.datetime.now() + datetime.timedelta(seconds=7200)
-
-# Function that takes a cleartext password and returns
-# a bcrypt hash of that password
-# @return bytestring salted bcrypt hash
-
-
-def hash_password(password):
-    hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-    return hash
-
-
-# Function that takes a username
-# and checks that the username is already present in the database
-# @return bools False if taken | True if not taken in result field
-def check_username(username):
-    # Parameterized queries protect against sqli
-    query = text('select * from Users where username = :x')
-    param = {'x': username}
-
-    qresult = db_connection.execute(query, param)
-
-    if (qresult.one_or_none() != None):
-        return False
-    else:
-        return True
-
-
-def check_password(password):
-    good_len = True
-    has_cap = False
-    has_spec = False
-    if len(password) < 8:
-        good_len = False
-
-    for letter in password:
-        if letter.isupper():
-            has_cap = True
-        if letter in SPECIAL_CHARS:
-            has_spec = True
-
-    if good_len and has_spec and has_cap:
-        return True
-    else:
-        return False
-
-
-def check_email(email):
-    if re.match(".+@.+\....", email) == None:
-        return False
-    else:
-        return True
-
-
-def check_sponsor_name(name):
-    # Parameterized queries protect against sqli
-    query = text('select * from Sponsors where sponsorName = :x')
-    param = {'x': name}
-
-    qresult = db_connection.execute(query, param)
-
-    if (qresult.one_or_none() != None):
-        return False
-    else:
-        return True
-
-
-# Function to insert record of login instance into loginLog Table
-# Username must be valid
-# Returns bool True or False
-def log(username, logresult):
-    if check_username(username) == False:
-        query = text(
-            "INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()}
-        db_connection.execute(query, param)
-        return True
-    else:
-        return False
-
-
-#Helper Funtion to add years to a datetime
-def add_years(start_date, years):
-    try:
-        return start_date.replace(year=start_date.year + years)
-    except ValueError:
-        return start_date.replace(year=start_date.year + years, day=28)
-
-
-#Function to Lock Account based on username and number of years to lock
-def lock_account(username, years):
-    date_1 = datetime.datetime.now()
-    date_2 = add_years(date_1, years)
-    if check_username(username) == False:
-        query = 'UPDATE TruckBux.Users SET lockedUntil = :u WHERE username = :x'
-        param = {'x': username, 'u': date_2}
-        db_connection.execute(text(query), param)
-        return True
-    else:
-        return False
-
-
-# Function to Unlock Account based on username
-def unlock_account(username):
-    if check_username(username) == False:
-        query = 'UPDATE TruckBux.Users SET lockedUntil = NULL WHERE username = :x'
-        param = {'x': username}
-        db_connection.execute(text(query), param)
-        return True
-    else:
-        return False
-
 
 #Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
 @app.route('/lockeduntil', methods=['POST'])
@@ -183,13 +68,13 @@ def lockeduntil():
     res = jsonify('error, no result')
     if lock_or_unlock[0] == 'l':
         #currently only locks account by incriments of 1 year.
-        result = lock_account(username, 1)
+        result = lock_account(db_connection, username, 1)
         if result == False:
             res = jsonify('Failed')
         else:
             res = jsonify('Passed')
     elif lock_or_unlock[0] == 'u':
-        result = unlock_account(username)
+        result = unlock_account(db_connection, username)
         if result == False:
             res = jsonify('Failed')
         else:
@@ -252,7 +137,7 @@ def register():
     resp = {'error': 'False'}
 
     # Check for valid data
-    if check_username(username) == False:
+    if check_username(db_connection, username) == False:
         resp['error'] = 'True'
         resp['username'] = 'username taken'
     if check_password(password) == False:
@@ -290,7 +175,7 @@ def create_sponsor():
     name = request.json['name']
     rate = request.json['rate']
 
-    if (check_sponsor_name(name) == False):
+    if (check_sponsor_name(db_connection, name) == False):
         resp['error'] = 'True'
         resp['reason'] = 'Name Taken'
     else:
@@ -435,7 +320,7 @@ def user_login():
     username = request.json['user']
     result = {'result': 'Success'}
     # Checks to see if username is valid
-    if (check_username(username) == False):
+    if (check_username(db_connection, username) == False):
         # Checks to see if too many failed login attempts
         query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
         param = {'x': username, 'n': 'Failure', 't': 'Success'}
@@ -460,16 +345,16 @@ def user_login():
                     input_pass = request.json['passwd'].encode()
                 if bcrypt.checkpw(input_pass, pass_hash):
                     result = {'result': 'Success'}
-                    log(username, 'Success')
+                    log(db_connection, username, 'Success')
                 else:
                     result = {'result': 'Invalid Password'}
-                    log(username, 'Failure')
+                    log(db_connection, username, 'Failure')
             else:
                 result = {'result': 'Account Locked'}
-                log(username, 'Failure')
+                log(db_connection, username, 'Failure')
         else:
             result = {'result': 'Too Many Failed Login Attempts!'}
-            log(username, 'Failure')
+            log(db_connection, username, 'Failure')
     else:
         result = {'result': 'Invalid Username'}
     return (jsonify(result))
@@ -587,27 +472,11 @@ def reset_password():
 
     if 'reason' in request.json:
         reason = request.json['reason']
-        log_pass_change(modder, user, reason)
+        log_pass_change(db_connection, modder, user, reason)
     else:
-        log_pass_change(modder, user)
+        log_pass_change(db_connection, modder, user)
 
     return resp
-
-
-def log_pass_change(modder, user, reason=None):
-    change_type = 'password reset'
-
-    if reason == None:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type) VALUES(:x, :y, :z)'
-        param = {'x': modder, 'y': user, 'z': change_type}
-    else:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type, modReason) VALUES(:x, :y, :z, :j)'
-        param = {'x': modder, 'y': user, 'z': change_type, 'j': reason}
-
-    try:
-        db_connection.execute(text(query), param)
-    except:
-        print("Could not log password reset")
 
 
 # Endpoint to retrieve all applications
@@ -623,7 +492,7 @@ def get_all_apps():
     i = 1
     for row in rows:
         apps[i] = dict(row)
-        apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+        apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
         i += 1
 
     return jsonify(apps)
@@ -646,12 +515,12 @@ def get_app_data():
         i = 1
         for row in rows:
             apps[i] = dict(row)
-            apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+            apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
             i += 1
 
     elif 'sponsName' in request.json:
         sponsName = request.json['sponsName']
-        sponsID = get_spons_id(sponsName)
+        sponsID = get_spons_id(db_connection, sponsName)
         query = 'SELECT * FROM TruckBux.Applications where sponsorID = :x'
         param = {'x': sponsID}
 
@@ -666,34 +535,6 @@ def get_app_data():
     return jsonify(apps)
 
 
-# gets sponsor name from sponsID
-def get_spons_name(id):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorID = :x'
-    param = {'x': id}
-
-    row = db_connection.execute(text(query), param).fetchone()
-    return row['sponsorName']
-
-
-# gets sponsorID from sponsName
-def get_spons_id(name):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName = :x'
-    param = {'x': name}
-
-    rows = db_connection.execute(text(query), param).fetchone()
-    return rows['sponsorID']
-
-# gets acctType from username
-
-
-def get_acctType(name):
-    query = 'SELECT * FROM TruckBux.Users WHERE username = :x'
-    param = {'x': name}
-
-    rows = db_connection.execute(text(query), param).fetchone()
-    return rows['acctType']
-
-
 # Endpoint to store application data
 @app.route('/submitapp', methods=['POST'])
 @cross_origin()
@@ -701,7 +542,7 @@ def submit_app():
     user = request.json['user']
     sponsID = request.json['sponsID']
 
-    if not check_dup_app(user, sponsID):
+    if not check_dup_app(db_connection, user, sponsID):
         query = 'INSERT INTO TruckBux.Applications (username, sponsorID) VALUES(:x, :y)'
         param = {'x': user, 'y': sponsID}
 
@@ -714,19 +555,6 @@ def submit_app():
         resp = {'error': 'duplicate application'}
 
     return jsonify(resp)
-
-
-def check_dup_app(user, sponsID):
-    dup = False
-    query = 'SELECT username, sponsorID from TruckBux.Applications WHERE username = :x'
-    param = {'x': user}
-
-    data = db_connection.execute(text(query), param)
-    for row in data.fetchall():
-        if row['sponsorID'] == sponsID:
-            dup = True
-
-    return dup
 
 
 # Endpoint to retrieve all sponsor accounts
@@ -753,12 +581,12 @@ def getsponsors():
 @cross_origin()
 def get_related_drivers():
     accountName = request.json['accountName']
-    acctType = get_acctType(accountName)
+    acctType = get_acctType(db_connection, accountName)
 
     accounts = []
 
     if (acctType == 'S'):
-        sponsID = get_spons_id(accountName)
+        sponsID = get_spons_id(db_connection, accountName)
 
         query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
         param = {'x': sponsID}
