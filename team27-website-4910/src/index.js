@@ -10,7 +10,6 @@ import Register from './pages/Register';
 import LogIn from './pages/LogIn';
 import Profile from './pages/Profile';
 import Catalog from './pages/Catalog';
-import { ManageAccount } from "./components/ManageAccount/ManageAccounts";
 import AccountManagement from "./pages/AccountManagement";
 import Sponsors from './pages/Sponsors';
 import Drivers from './pages/Drivers';

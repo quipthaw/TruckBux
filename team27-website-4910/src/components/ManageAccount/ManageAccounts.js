@@ -1,9 +1,8 @@
-import { Button, Paper, TextField, Stack, Typography, getListSubheaderUtilityClass } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
-import { useNavigate } from 'react-router-dom';
 import { UserList } from './UserList';
 
 export const ManageAccount = () => {
