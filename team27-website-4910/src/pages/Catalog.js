@@ -4,7 +4,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Layout from "../components/Layout";
-import { Button, CircularProgress, Grid } from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogActions, Grid } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -13,10 +13,14 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import { MyCart } from '../components/Catalog/MyCart';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
     const [itemList, setItemList] = React.useState();
+    const [ cart, setCart ] = React.useState(new Array());
+    const [ openCart, setOpenCart ] = React.useState(false);
+    const [ cartButtonMessage, setCartButtonMessage ] = React.useState('');
     const [searchParams, setParams] = React.useState({
         category: "293",
         search: "",
@@ -38,7 +42,39 @@ export default function Catalog() {
     };
 
     const handleCategoryChange = (event) => {
-        setParams({ ...searchParams, ['category']: event.target.value });
+        setParams({ ...searchParams, 'category': event.target.value });
+    };
+
+    const toCart = (item) => {
+        let isNewItem = true;
+        //Check if item already added, if so increment quantity
+        for(let i = 0; i < cart.length; ++i) {
+            if(cart[i].itemId === item.itemId) {
+                cart[i].quantity++;
+                isNewItem = false;
+                break;
+            }
+        }
+
+        //If item isn't in cart, add it to 
+        if(isNewItem) {
+            let newItem = {
+                ...item,
+                'quantity': 1,
+            }
+            cart.push(newItem);
+        }
+
+        setCart(cart);
+        getCartSize();
+    };
+
+    const openMyCart = () => {
+        setOpenCart(true);
+    };
+
+    const closeMyCart = () => {
+        setOpenCart(false);
     };
 
     const getItems = async () => {
@@ -64,9 +100,24 @@ export default function Catalog() {
         setLoading(false);
     };
 
+    const getCartSize = () => { 
+        let size = 0;
+        for(let i = 0; i < cart.length; ++i) {
+            size = size + Number(cart[i].quantity);
+        }
+        const newMessage = `My Cart: ${size}`
+        setCartButtonMessage(newMessage);
+    };
+
+    //Catalog effect management
     React.useEffect(() => {
         getItems();
     }, []);
+
+    //Cart effect management
+    React.useEffect(() => {
+        getCartSize();
+    }, [cart]);
 
     const showCatalog = () => {
         if (loading) {
@@ -98,6 +149,7 @@ export default function Catalog() {
                                             {'TB ' + item.price}
                                         </Typography>
                                     </CardContent>
+                                    <Button variant="contained" onClick={() => toCart(item)}>Add To Cart</Button>
                                 </Card>
                             </Grid>
                         )
@@ -140,6 +192,15 @@ export default function Catalog() {
             <Button variant='contained' onClick={getItems}>
                 Search
             </Button>
+            <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
+            {openCart &&
+                <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
+                    <MyCart cart={cart} setCart={setCart}/>
+                    <DialogActions>
+                        <Button variant="contained" onClick={closeMyCart}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+            }
             {showCatalog()}
         </Layout>
     )

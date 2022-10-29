@@ -1,9 +1,5 @@
-import { Button, Paper, TextField, Stack, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useContext, useState } from 'react';
-import { Container } from '@mui/system';
-import { SessionContext } from '../..';
-import { useNavigate } from 'react-router-dom';
+import { Stack } from '@mui/material';
+import React from 'react';
 import { UserListRow } from './UserListRow';
 
 export const UserList = (props) => {

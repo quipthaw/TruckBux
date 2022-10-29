@@ -1,9 +1,5 @@
-import { Button, Paper, TextField, Stack, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import { Container } from '@mui/system';
-import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
-import { AccountDeactivation } from './AccountDeactivation';
+import { Stack, Typography } from '@mui/material';
+import React from 'react';
 
 export const MySponsors = (props) => {
     const { sponsorList } = props;

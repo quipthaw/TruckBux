@@ -1,4 +1,4 @@
-import React, { useState, useContext, useInsertionEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { SessionContext } from '../..';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Stack } from '@mui/material';
@@ -69,32 +69,6 @@ export const SignInPrompt = (props) => {
         }
     };
 
-    //TODO: This currently checks number of login attempts to lock the account.
-    //Likely want to move this to a system that checks last lockout date
-    const checkLoginAttempts = async () => {
-        //Fetch login attempts to see if locked
-        const lockedData = { user: username };
-        const lockedOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(lockedData)
-        }
-
-        let lockedResponse = await fetch('http://127.0.0.1:5000/loginattempts', lockedOptions);
-
-        lockedResponse = await lockedResponse.json();
-
-        if(lockedResponse.result === 'error, invalid user') {
-            console.log("invalid user");
-            setSignInError(lockedResponse.result);
-            return false;
-        }
-        
-        return true;
-    };
-
     //Used when username and password are submitted. Search DB for combo.
     const authenticate = async (e) => {
         e.preventDefault();
@@ -111,8 +85,6 @@ export const SignInPrompt = (props) => {
         let loginResponse = await fetch('http://127.0.0.1:5000/userlogin', loginOptions);
 
         loginResponse = await loginResponse.json();
-
-        console.log(loginResponse);
 
         if(loginResponse.result === "Success") {
             if(await getUserProfile()) {

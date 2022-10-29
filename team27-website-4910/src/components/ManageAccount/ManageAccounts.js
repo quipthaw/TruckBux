@@ -1,14 +1,13 @@
-import { Button, Paper, TextField, Stack, Typography, getListSubheaderUtilityClass } from '@mui/material';
+import { Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { Container } from '@mui/system';
 import { SessionContext } from '../..';
-import { useNavigate } from 'react-router-dom';
 import { UserList } from './UserList';
 
 export const ManageAccount = () => {
 
-    const { usernameState } = useContext(SessionContext);
+    const { usernameState, sessionState } = useContext(SessionContext);
     const [ userList, setUserList ] = useState(null);
     
     const DisplayUser = () => {
@@ -35,8 +34,10 @@ export const ManageAccount = () => {
     }
 
     useEffect(() => {
-        getRelatedUsers();
-    }, []);
+        if(sessionState !== '0') {
+            getRelatedUsers();
+        }
+    }, [sessionState]);
 
     return (
         <Container sx={{
