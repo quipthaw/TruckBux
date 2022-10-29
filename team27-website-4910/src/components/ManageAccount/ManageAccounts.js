@@ -7,7 +7,7 @@ import { UserList } from './UserList';
 
 export const ManageAccount = () => {
 
-    const { usernameState } = useContext(SessionContext);
+    const { usernameState, sessionState } = useContext(SessionContext);
     const [ userList, setUserList ] = useState(null);
     
     const DisplayUser = () => {
@@ -34,8 +34,10 @@ export const ManageAccount = () => {
     }
 
     useEffect(() => {
-        getRelatedUsers();
-    }, []);
+        if(sessionState !== '0') {
+            getRelatedUsers();
+        }
+    }, [sessionState]);
 
     return (
         <Container sx={{

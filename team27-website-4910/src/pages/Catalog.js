@@ -42,7 +42,7 @@ export default function Catalog() {
     };
 
     const handleCategoryChange = (event) => {
-        setParams({ ...searchParams, ['category']: event.target.value });
+        setParams({ ...searchParams, 'category': event.target.value });
     };
 
     const toCart = (item) => {
@@ -103,9 +103,10 @@ export default function Catalog() {
     const getCartSize = () => { 
         let size = 0;
         for(let i = 0; i < cart.length; ++i) {
-            size = size + cart[i].quantity;
+            size = size + Number(cart[i].quantity);
         }
-        setCartButtonMessage('My Cart: '.concat(size));
+        const newMessage = `My Cart: ${size}`
+        setCartButtonMessage(newMessage);
     };
 
     //Catalog effect management
@@ -193,7 +194,7 @@ export default function Catalog() {
             </Button>
             <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
             {openCart &&
-                <Dialog open={openCart} onClose={closeMyCart}>
+                <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
                     <MyCart cart={cart} setCart={setCart}/>
                     <DialogActions>
                         <Button variant="contained" onClick={closeMyCart}>Close</Button>

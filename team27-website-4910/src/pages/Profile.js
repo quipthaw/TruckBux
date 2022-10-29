@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { ProfileInfo } from '../components/ProfileInfo/ProfileInfo';
 import { SessionContext } from '..';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
+    const navigate = useNavigate();
 
     const {
         sessionState,
@@ -14,6 +16,12 @@ export default function Profile() {
         bioState, setBioState,
         sponsorIDs, setSponsorIDs
     } = useContext(SessionContext);
+
+    useEffect(() => {
+        if(sessionState === '0') {
+            navigate('/');
+        }
+    }, [sessionState, navigate]);
 
     const setProfile = {
         'setFirstname': setFirstnameState,
