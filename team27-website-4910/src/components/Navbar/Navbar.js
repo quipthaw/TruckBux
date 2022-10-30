@@ -15,32 +15,19 @@ import TruckIcon from '../../logos/Trukbux.svg';
 import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
-import { createTheme } from '@mui/material/styles';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { useTheme } from '@mui/material';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
-const Navbar = (props) => {
+export default function Navbar({ handleColorModeChange }) {
+    const theme = useTheme();
 
-    const darkTheme = createTheme(
-        {
-            palette: {
-                mode: 'dark',
-            }
-        }
-    )
-
-    const lightTheme = createTheme(
-        {
-            palette: {
-                primary: {
-                    main: '#1F8F1D',
-                },
-                secondary: {
-                    main: '#8F13A3'
-                }
-            }
-        }
-    )
+    const setParentColor = () => {
+        const mode = theme.palette.mode === 'dark' ? 'light' : 'dark';
+        handleColorModeChange(mode);
+    }
 
     const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
 
@@ -187,13 +174,14 @@ const Navbar = (props) => {
                             ))}
                         </Menu>
                     </Box>
-
                     <Box sx={{ p: 2, flexGrow: 0 }}>
                         {sessionState != '0' && <Typography>{usernameState}</Typography>}
                     </Box>
+                    <IconButton sx={{ ml: 1 }} onClick={setParentColor} color="inherit">
+                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                    </IconButton>
                 </Toolbar>
             </Container>
         </AppBar>
     );
 };
-export default Navbar;

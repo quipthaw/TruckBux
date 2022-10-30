@@ -2,6 +2,7 @@ import queue
 import datetime
 import requests
 import json
+import math
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text
@@ -13,6 +14,8 @@ from helpers import *
 TOKEN_URL = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"
 EBAY_TOKEN = ""
 EXPIRES = datetime.datetime.now()
+
+
 def new_token():
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -59,7 +62,7 @@ def get_connection():
 db_connection = get_connection()
 
 
-#Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
+# Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
 @app.route('/lockeduntil', methods=['POST'])
 @cross_origin()
 def lockeduntil():
@@ -67,7 +70,7 @@ def lockeduntil():
     lock_or_unlock = request.json['action']
     res = jsonify('error, no result')
     if lock_or_unlock[0] == 'l':
-        #currently only locks account by incriments of 1 year.
+        # currently only locks account by incriments of 1 year.
         result = lock_account(db_connection, username, 1)
         if result == False:
             res = jsonify('Failed')
@@ -79,7 +82,7 @@ def lockeduntil():
             res = jsonify('Failed')
         else:
             res = jsonify('Passed')
-    return(res)
+    return (res)
 
 
 # Endpoint that takes a username via post request in from {'user': <username>}
@@ -252,7 +255,7 @@ def get_catalog():
         if item['adultOnly'] == False:
             itemObject["itemId"] = item["itemId"]
             itemObject["title"] = item["title"]
-            itemObject["price"] = item["price"]["value"]
+            itemObject["price"] = str(math.ceil(float(item["price"]["value"])))
             if "image" in item:
                 itemObject["image"] = item["image"]["imageUrl"]
             else:
@@ -515,7 +518,8 @@ def get_app_data():
         i = 1
         for row in rows:
             apps[i] = dict(row)
-            apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
+            apps[i]['sponsName'] = get_spons_name(
+                db_connection, row['sponsorID'])
             i += 1
 
     elif 'sponsName' in request.json:
