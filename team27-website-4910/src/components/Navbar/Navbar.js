@@ -21,12 +21,12 @@ import { useTheme } from '@mui/material';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
-export default function Navbar({ handleColorModeChange }) {
+export default function Navbar(props) {
     const theme = useTheme();
 
     const setParentColor = () => {
         const mode = theme.palette.mode === 'dark' ? 'light' : 'dark';
-        handleColorModeChange(mode);
+        props.setPageTheme(mode);
     }
 
     const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);

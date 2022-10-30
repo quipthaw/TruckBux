@@ -1,7 +1,7 @@
-import { CssBaseline } from '@mui/material';
+import { Button, CssBaseline } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Container } from '@mui/system';
-import React, { useState } from 'react'
+import React from 'react'
 import Navbar from '../Navbar/Navbar';
 
 const getDesignTokens = (mode) => ({
@@ -17,8 +17,21 @@ const getDesignTokens = (mode) => ({
     },
 });
 
+function useStickyState(defaultValue, key) {
+    const [value, setValue] = React.useState(() => {
+        const stickyValue = window.localStorage.getItem(key);
+        return stickyValue !== null
+            ? JSON.parse(stickyValue)
+            : defaultValue;
+    });
+    React.useEffect(() => {
+        window.localStorage.setItem(key, JSON.stringify(value));
+    }, [key, value]);
+    return [value, setValue];
+}
+
 export default function Layout(props) {
-    const [color, setColor] = useState('dark');
+    const [color, setColor] = useStickyState('dark', 'colorMode');
     const handleColorModeChange = (mode) => {
         setColor(mode);
         console.log('ran');
@@ -29,7 +42,7 @@ export default function Layout(props) {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Navbar setPageTheme={handleColorModeChange} />
+            <Navbar setPageTheme={(mode) => { handleColorModeChange(mode) }} />
             <Container>
                 {props.children}
             </Container>
