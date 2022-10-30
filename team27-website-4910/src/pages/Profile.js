@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { ProfileInfo } from '../components/ProfileInfo/ProfileInfo';
 import { SessionContext } from '..';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ export default function Profile() {
 
     const {
         sessionState,
-        usernameState, 
+        usernameState,
         firstnameState, setFirstnameState,
         lastnameState, setLastnameState,
         emailState, setEmailState,
@@ -18,7 +18,7 @@ export default function Profile() {
     } = useContext(SessionContext);
 
     useEffect(() => {
-        if(sessionState === '0') {
+        if (sessionState === '0') {
             navigate('/');
         }
     }, [sessionState, navigate]);
@@ -45,7 +45,7 @@ export default function Profile() {
     return (
         <div>
             <Layout>
-                <ProfileInfo userInfo={userInfo}/>
+                <ProfileInfo userInfo={userInfo} />
             </Layout>
         </div>
     )
