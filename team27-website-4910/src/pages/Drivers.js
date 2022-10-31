@@ -1,7 +1,7 @@
 import { CircularProgress, Paper, Typography } from '@mui/material';
 import { Container, Stack } from '@mui/system';
 import React, { useEffect } from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 
 export default function Register() {
     const [loading, setLoading] = React.useState(true);

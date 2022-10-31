@@ -1,19 +1,26 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Stack } from '@mui/material';
-import { SessionContext } from '../..';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import { ProfileInfo } from '../ProfileInfo/ProfileInfo';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+    userBio
+} from '../../recoil_atoms';
 
 export const UserListRow = (props) => {
 
-    const {
-        usernameState, 
-        setFirstnameState,
-        setLastnameState,
-        setEmailState,
-        setBioState
-    } = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
+    const [bioState, setBioState] = useRecoilState(userBio);
 
     /* user format:
         acctType
@@ -27,16 +34,16 @@ export const UserListRow = (props) => {
     */
     const { user } = props;
 
-    const [ userType, setUserType ] = useState(user.acctType);
-    const [ username, setUsername ] = useState(user.username);
-    const [ fname, setFname ] = useState(user.fname);
-    const [ lname, setLname ] = useState(user.lname);
-    const [ email, setEmail ] = useState(user.email);
-    const [ bio, setBio ] = useState(user.bio ? user.bio : '');
-    const [ active, setActive ] = useState(user.active);
+    const [acctType, setAcctType] = useState(user.acctType);
+    const [username, setUsername] = useState(user.username);
+    const [fname, setFname] = useState(user.fname);
+    const [lname, setLname] = useState(user.lname);
+    const [email, setEmail] = useState(user.email);
+    const [bio, setBio] = useState(user.bio ? user.bio : '');
+    const [active, setActive] = useState(user.active);
 
-    const [ selected, setSelected ] = useState(false);
-    const [ activeUser, setActiveUser ] = useState(user.username === usernameState);
+    const [selected, setSelected] = useState(false);
+    const [activeUser, setActiveUser] = useState(user.username === usernameState);
 
     //Allows changes when this row is current user's account. Should we display this?
     const setProfile = {
@@ -48,7 +55,7 @@ export const UserListRow = (props) => {
     };
 
     const userInfo = {
-        'userType': userType,
+        'userType': acctType,
         'username': username,
         'firstname': fname,
         'lastname': lname,
@@ -68,10 +75,10 @@ export const UserListRow = (props) => {
 
     return (
         <Stack direction="column" spacing={2}>
-            {!selected && <Button variant="outlined" onClick={openDialog} sx={{width: '100%'}}>{user.username}</Button>}
+            {!selected && <Button variant="outlined" onClick={openDialog} sx={{ width: '100%' }}>{user.username}</Button>}
             {selected &&
                 <Dialog open={selected} onClose={closeDialog}>
-                    <ProfileInfo userInfo={userInfo}/>
+                    <ProfileInfo userInfo={userInfo} />
                     <DialogActions>
                         <Button variant="text" onClick={closeDialog}>Cancel</Button>
                     </DialogActions>

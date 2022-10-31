@@ -13,55 +13,50 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../../logos/Trukbux.svg';
 import { useNavigate } from 'react-router-dom';
-import { SessionContext } from '../..';
 import './Navbar.css';
-import { createTheme } from '@mui/material/styles';
-import { NotificationBell } from '../Notifications/NotificationBell';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { useTheme } from '@mui/material';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+} from '../../recoil_atoms';
 
-const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
+const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
 
-const Navbar = (props) => {
-    const [ gotNotifications, setGotNotifications ] = React.useState(false);
-    const [ userNotifications, setUserNotifications ] = React.useState([]);
+export default function Navbar(props) {
+    const theme = useTheme();
 
     const getNotifications = /*async*/ () => {
         //fetch requests
         setGotNotifications(true);
         setUserNotifications([
-            { 'message': 'Message!'},
+            { 'message': 'Message!' },
             { 'message': 'Second!' },
-            { 'message': 'Your password was changed!'},
+            { 'message': 'Your password was changed!' },
         ])
     }
 
     React.useEffect(() => {
-        if(!gotNotifications) {
+        if (!gotNotifications) {
             getNotifications();
         }
     }, [gotNotifications])
 
-    const darkTheme = createTheme(
-        {
-            palette: {
-                mode: 'dark',
-            }
-        }
-    )
+    const setParentColor = () => {
+        const mode = theme.palette.mode === 'dark' ? 'light' : 'dark';
+        props.setPageTheme(mode);
+    }
 
-    const lightTheme = createTheme(
-        {
-            palette: {
-                primary: {
-                    main: '#1F8F1D',
-                },
-                secondary: {
-                    main: '#8F13A3'
-                }
-            }
-        }
-    )
-
-    const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },
@@ -201,17 +196,18 @@ const Navbar = (props) => {
                             ))}
                         </Menu>
                     </Box>
-
                     <Box sx={{ p: 2, flexGrow: 0 }}>
                         {sessionState !== '0' && <Typography>{usernameState}</Typography>}
                     </Box>
 
                     <Box sx={{ p: 2, flexGrow: 0 }}>
-                        {sessionState !== '0' && <NotificationBell notifications={userNotifications} setUserNotifications={setUserNotifications}/>}
+                        {sessionState !== '0' && <NotificationBell notifications={userNotifications} setUserNotifications={setUserNotifications} />}
                     </Box>
+                    <IconButton sx={{ ml: 1 }} onClick={setParentColor} color="inherit">
+                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                    </IconButton>
                 </Toolbar>
             </Container>
         </AppBar>
     );
 };
-export default Navbar;

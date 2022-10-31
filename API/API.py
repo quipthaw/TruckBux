@@ -2,6 +2,8 @@ import queue
 import datetime
 import requests
 import json
+import math
+import math
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text
@@ -13,6 +15,8 @@ from helpers import *
 TOKEN_URL = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"
 EBAY_TOKEN = ""
 EXPIRES = datetime.datetime.now()
+
+
 def new_token():
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -59,7 +63,7 @@ def get_connection():
 db_connection = get_connection()
 
 
-#Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
+# Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
 @app.route('/lockeduntil', methods=['POST'])
 @cross_origin()
 def lockeduntil():
@@ -67,7 +71,7 @@ def lockeduntil():
     lock_or_unlock = request.json['action']
     res = jsonify('error, no result')
     if lock_or_unlock[0] == 'l':
-        #currently only locks account by incriments of 1 year.
+        # currently only locks account by incriments of 1 year.
         result = lock_account(db_connection, username, 1)
         if result == False:
             res = jsonify('Failed')
@@ -79,7 +83,7 @@ def lockeduntil():
             res = jsonify('Failed')
         else:
             res = jsonify('Passed')
-    return(res)
+    return (res)
 
 
 # Endpoint that takes a username via post request in from {'user': <username>}
@@ -252,7 +256,7 @@ def get_catalog():
         if item['adultOnly'] == False:
             itemObject["itemId"] = item["itemId"]
             itemObject["title"] = item["title"]
-            itemObject["price"] = item["price"]["value"]
+            itemObject["price"] = str(math.ceil(float(item["price"]["value"])))
             if "image" in item:
                 itemObject["image"] = item["image"]["imageUrl"]
             else:
@@ -515,7 +519,8 @@ def get_app_data():
         i = 1
         for row in rows:
             apps[i] = dict(row)
-            apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
+            apps[i]['sponsName'] = get_spons_name(
+                db_connection, row['sponsorID'])
             i += 1
 
     elif 'sponsName' in request.json:
@@ -620,30 +625,31 @@ def points():
 
         query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
         query += 'values(:x, :y, :j, :k)'
-        param = {'x':giver, 'y':receiver, 'j':point_change, 'k':reason}
+        param = {'x': giver, 'y': receiver, 'j': point_change, 'k': reason}
 
         try:
             db_connection.execute(text(query), param)
-            return(jsonify({'result':'success'}))
+            return (jsonify({'result': 'success'}))
         except:
             print('Insert Failed')
-            return(jsonify({'result':'failure'}))
+            return (jsonify({'result': 'failure'}))
     elif request.method == 'GET':
         if 'driver' in request.json:
             driver = request.json['driver']
-        
+
             query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x'
             param = {'x': driver}
-            
+
             results = db_connection.execute(text(query), param).fetchall()
             print(results)
 
             total_points = 0
             for result in results:
                 total_points += result[0]
-            
+
             print(total_points)
-            return(jsonify({'pointTotal':total_points}))
+            return (jsonify({'pointTotal': total_points}))
 
 
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
