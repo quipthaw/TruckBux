@@ -58,7 +58,7 @@ export const AccountDeactivation = (props) => {
             body: JSON.stringify(statusChangeData)
         };
 
-        let statusChangeResponse = await fetch('http://127.0.0.1:5000/updatestatus', statusChangeOptions);
+        let statusChangeResponse = await fetch('https://team27.cpsc4911.com/updatestatus', statusChangeOptions);
 
         statusChangeResponse = await statusChangeResponse.json();
 
