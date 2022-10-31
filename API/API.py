@@ -1,48 +1,20 @@
 import queue
-import re
-import bcrypt
 import datetime
 import requests
 import json
-from sre_parse import SPECIAL_CHARS
+import math
+import math
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text
+from helpers import *
 
 
-# DEFINE THE DATABASE CREDENTIALS
-DBUSER = 'admin'
-DBPASSWORD = 'ChaseNathanManningNick27$'
-DBHOST = 'team-27.cobd8enwsupz.us-east-1.rds.amazonaws.com'
-DBPORT = 3306
-DB = 'TruckBux'
-
-PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special character'
-
+# Function to get a new ebay client token
 # DEFINE EBAY TOKEN DETAILS
 TOKEN_URL = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"
 EBAY_TOKEN = ""
 EXPIRES = datetime.datetime.now()
-
-
-app = Flask(__name__)
-CORS(app, origins=['https://dev.d2g18lgy66c0b0.amplifyapp.com/*','http://127.0.0.1:3000'])
-
-# PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
-# RETURN THE SQLACHEMY ENGINE OBJECT
-
-
-def get_connection():
-    return create_engine(
-        url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
-            DBUSER, DBPASSWORD, DBHOST, DBPORT, DB
-        )
-    )
-
-
-db_connection = get_connection()
-
-# Function to get a new ebay client token
 
 
 def new_token():
@@ -62,82 +34,56 @@ def new_token():
     global EXPIRES
     EXPIRES = datetime.datetime.now() + datetime.timedelta(seconds=7200)
 
-# Function that takes a cleartext password and returns
-# a bcrypt hash of that password
-# @return bytestring salted bcrypt hash
+
+# DEFINE THE DATABASE CREDENTIALS
+DBUSER = 'admin'
+DBPASSWORD = 'ChaseNathanManningNick27$'
+DBHOST = 'team-27.cobd8enwsupz.us-east-1.rds.amazonaws.com'
+DBPORT = 3306
+DB = 'TruckBux'
+
+PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special character'
 
 
-def hash_password(password):
-    hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-    return hash
+app = Flask(__name__)
+CORS(app, origins=['http://127.0.0.1:3000'])
+
+# PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
+# RETURN THE SQLACHEMY ENGINE OBJECT
 
 
-# Function that takes a username
-# and checks that the username is already present in the database
-# @return bools False if taken | True if not taken in result field
-def check_username(username):
-    # Parameterized queries protect against sqli
-    query = text('select * from Users where username = :x')
-    param = {'x': username}
-
-    qresult = db_connection.execute(query, param)
-
-    if (qresult.one_or_none() != None):
-        return False
-    else:
-        return True
+def get_connection():
+    return create_engine(
+        url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
+            DBUSER, DBPASSWORD, DBHOST, DBPORT, DB
+        )
+    )
 
 
-def check_password(password):
-    good_len = True
-    has_cap = False
-    has_spec = False
-    if len(password) < 8:
-        good_len = False
-
-    for letter in password:
-        if letter.isupper():
-            has_cap = True
-        if letter in SPECIAL_CHARS:
-            has_spec = True
-
-    if good_len and has_spec and has_cap:
-        return True
-    else:
-        return False
+db_connection = get_connection()
 
 
-def check_email(email):
-    if re.match(".+@.+\....", email) == None:
-        return False
-    else:
-        return True
-
-
-def check_sponsor_name(name):
-    # Parameterized queries protect against sqli
-    query = text('select * from Sponsors where sponsorName = :x')
-    param = {'x': name}
-
-    qresult = db_connection.execute(query, param)
-
-    if (qresult.one_or_none() != None):
-        return False
-    else:
-        return True
-
-
-#Function to insert record of login instance into loginLog Table
-# Username must be valid
-# Returns bool True or False 
-def log(username, logresult):
-    if check_username(username) == False: 
-        query = text("INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()} 
-        db_connection.execute(query, param)
-        return True
-    else:
-        return False
+# Endpoint to lock or unlock account via post request in from {'user': <username>, 'action': ('l' or 'u')}
+@app.route('/lockeduntil', methods=['POST'])
+@cross_origin()
+def lockeduntil():
+    username = request.json['user']
+    lock_or_unlock = request.json['action']
+    res = jsonify('error, no result')
+    if lock_or_unlock[0] == 'l':
+        # currently only locks account by incriments of 1 year.
+        result = lock_account(db_connection, username, 1)
+        if result == False:
+            res = jsonify('Failed')
+        else:
+            res = jsonify('Passed')
+    elif lock_or_unlock[0] == 'u':
+        result = unlock_account(db_connection, username)
+        if result == False:
+            res = jsonify('Failed')
+        else:
+            res = jsonify('Passed')
+    return (res)
 
 
 # Endpoint that takes a username via post request in from {'user': <username>}
@@ -159,7 +105,6 @@ def get_profile():
         user = []
         user_val = {
             "username": usr_str[0],
-            "password": usr_str[1],
             "email": usr_str[2],
             "fName": usr_str[3],
             "lName": usr_str[4],
@@ -196,7 +141,7 @@ def register():
     resp = {'error': 'False'}
 
     # Check for valid data
-    if check_username(username) == False:
+    if check_username(db_connection, username) == False:
         resp['error'] = 'True'
         resp['username'] = 'username taken'
     if check_password(password) == False:
@@ -234,7 +179,7 @@ def create_sponsor():
     name = request.json['name']
     rate = request.json['rate']
 
-    if (check_sponsor_name(name) == False):
+    if (check_sponsor_name(db_connection, name) == False):
         resp['error'] = 'True'
         resp['reason'] = 'Name Taken'
     else:
@@ -311,7 +256,7 @@ def get_catalog():
         if item['adultOnly'] == False:
             itemObject["itemId"] = item["itemId"]
             itemObject["title"] = item["title"]
-            itemObject["price"] = item["price"]["value"]
+            itemObject["price"] = str(math.ceil(float(item["price"]["value"])))
             if "image" in item:
                 itemObject["image"] = item["image"]["imageUrl"]
             else:
@@ -378,23 +323,25 @@ def update_profile():
 def user_login():
     username = request.json['user']
     result = {'result': 'Success'}
-    #Checks to see if username is valid    
-    if (check_username(username) == False):
-        #Checks to see if too many failed login attempts
+    # Checks to see if username is valid
+    if (check_username(db_connection, username) == False):
+        # Checks to see if too many failed login attempts
         query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
-        param = {'x': username, 'n': 'Failure', 't': 'Success'} 
+        param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
         i = 0
         for row in my_data:
             i = i + 1
         if (i <= 3):
-            #Checks to see if account if timelocked
-            query = text('select * from TruckBux.Users Where username = :x and lockedUntil is NOT NULL') 
+            # Checks to see if account if timelocked
+            query = text(
+                'select * from TruckBux.Users Where username = :x and lockedUntil is NOT NULL')
             param = {'x': username}
             lock_result = db_connection.execute(query, param)
             if (lock_result.one_or_none() == None):
-                #Checks to see if login combo is correct
-                query = text('select username, password from Users where username = :x')
+                # Checks to see if login combo is correct
+                query = text(
+                    'select username, password from Users where username = :x')
                 param = {'x': request.json['user']}
                 row = db_connection.execute(query, param).first()
                 if row != None:
@@ -402,16 +349,16 @@ def user_login():
                     input_pass = request.json['passwd'].encode()
                 if bcrypt.checkpw(input_pass, pass_hash):
                     result = {'result': 'Success'}
-                    log(username, 'Success')
-                else: 
+                    log(db_connection, username, 'Success')
+                else:
                     result = {'result': 'Invalid Password'}
-                    log(username, 'Failure')
+                    log(db_connection, username, 'Failure')
             else:
                 result = {'result': 'Account Locked'}
-                log(username, 'Failure')
-        else: 
+                log(db_connection, username, 'Failure')
+        else:
             result = {'result': 'Too Many Failed Login Attempts!'}
-            log(username, 'Failure')
+            log(db_connection, username, 'Failure')
     else:
         result = {'result': 'Invalid Username'}
     return (jsonify(result))
@@ -529,48 +476,36 @@ def reset_password():
 
     if 'reason' in request.json:
         reason = request.json['reason']
-        log_pass_change(modder, user, reason)
+        log_pass_change(db_connection, modder, user, reason)
     else:
-        log_pass_change(modder, user)
+        log_pass_change(db_connection, modder, user)
 
     return resp
 
 
-def log_pass_change(modder, user, reason=None):
-    change_type = 'password reset'
-
-    if reason == None:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type) VALUES(:x, :y, :z)'
-        param = {'x': modder, 'y': user, 'z': change_type}
-    else:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type, modReason) VALUES(:x, :y, :z, :j)'
-        param = {'x': modder, 'y': user, 'z': change_type, 'j': reason}
-
-    try:
-        db_connection.execute(text(query), param)
-    except:
-        print("Could not log password reset")
-
-
 # Endpoint to retrieve all applications
+# @returns {1: {app1}, 2: {app2}}
 @app.route('/getallapps', methods=['GET'])
 @cross_origin()
 def get_all_apps():
     query = 'SELECT * FROM TruckBux.Applications'
-    
+
     rows = db_connection.execute(text(query)).fetchall()
 
     apps = {}
     i = 1
     for row in rows:
         apps[i] = dict(row)
-        apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+        apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
         i += 1
 
     return jsonify(apps)
 
 
 # Endpoint to retrieve application data
+# if given user=<username> returns all apps associated with that user
+# if given sponsName=<sponsorName> returns all apps associated with that sponsor
+# @returns {1: {app1}, 2: {app2}}
 @app.route('/getappdata', methods=['GET'])
 @cross_origin()
 def get_app_data():
@@ -584,12 +519,13 @@ def get_app_data():
         i = 1
         for row in rows:
             apps[i] = dict(row)
-            apps[i]['sponsName'] = get_spons_name(row['sponsorID'])
+            apps[i]['sponsName'] = get_spons_name(
+                db_connection, row['sponsorID'])
             i += 1
 
     elif 'sponsName' in request.json:
         sponsName = request.json['sponsName']
-        sponsID = get_spons_id(sponsName)
+        sponsID = get_spons_id(db_connection, sponsName)
         query = 'SELECT * FROM TruckBux.Applications where sponsorID = :x'
         param = {'x': sponsID}
 
@@ -604,21 +540,6 @@ def get_app_data():
     return jsonify(apps)
 
 
-def get_spons_name(id):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorID = :x'
-    param = {'x': id}
-
-    row = db_connection.execute(text(query), param).fetchone()
-    return row['sponsorName']
-
-
-def get_spons_id(name):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName = :x'
-    param = {'x': name}
-
-    rows = db_connection.execute(text(query), param).fetchone()
-    return rows['sponsorID']
-
 # Endpoint to store application data
 @app.route('/submitapp', methods=['POST'])
 @cross_origin()
@@ -626,7 +547,7 @@ def submit_app():
     user = request.json['user']
     sponsID = request.json['sponsID']
 
-    if not check_dup_app(user, sponsID):
+    if not check_dup_app(db_connection, user, sponsID):
         query = 'INSERT INTO TruckBux.Applications (username, sponsorID) VALUES(:x, :y)'
         param = {'x': user, 'y': sponsID}
 
@@ -641,17 +562,94 @@ def submit_app():
     return jsonify(resp)
 
 
-def check_dup_app(user, sponsID):
-    dup = False
-    query = 'SELECT username, sponsorID from TruckBux.Applications WHERE username = :x'
-    param = {'x': user}
+# Endpoint to retrieve all sponsor accounts
+# @returns {1: {account1}, 2: {account2}}
+@app.route('/getsponsors', methods=['GET'])
+@cross_origin()
+def getsponsors():
+    query = 'SELECT * FROM TruckBux.Sponsors'
+    rows = db_connection.execute(text(query)).fetchall()
 
-    data = db_connection.execute(text(query), param)
-    for row in data.fetchall():
-        if row['sponsorID'] == sponsID:
-            dup = True
+    sponsors = []
+    i = 0
+    for row in rows:
+        i += 1
+        sponsors.append(dict(row))
 
-    return dup
+    return jsonify({"number": i, "sponsors": sponsors})
+
+
+# Endpoint to retrieve all users associated with a Sponsor
+# takes in sponsName
+# @returns {1: {account1}, 2: {account2}}
+@app.route('/relateddrivers', methods=['POST'])
+@cross_origin()
+def get_related_drivers():
+    accountName = request.json['accountName']
+    acctType = get_acctType(db_connection, accountName)
+
+    accounts = []
+
+    if (acctType == 'S'):
+        sponsID = get_spons_id(db_connection, accountName)
+
+        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
+        param = {'x': sponsID}
+        rows = db_connection.execute(text(query), param)
+
+        for row in rows:
+            accounts.append(dict(row))
+
+    elif (acctType == 'A'):
+        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
+        rows = db_connection.execute(text(query))
+
+        for row in rows:
+            accounts.append(dict(row))
+
+    return jsonify({"accounts": accounts})
+
+
+# Endpoint to insert data into the points table
+# POST request takes in giver, reciever, points, reason
+# returns success or failure
+# GET request takes in driver and returns total points that driver has
+@app.route('/points', methods=['POST', 'GET'])
+@cross_origin()
+def points():
+    if request.method == 'POST':
+        giver = request.json['giver']
+        receiver = request.json['receiver']
+        point_change = request.json['points']
+        reason = request.json['reason']
+
+        query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
+        query += 'values(:x, :y, :j, :k)'
+        param = {'x': giver, 'y': receiver, 'j': point_change, 'k': reason}
+
+        try:
+            db_connection.execute(text(query), param)
+            return (jsonify({'result': 'success'}))
+        except:
+            print('Insert Failed')
+            return (jsonify({'result': 'failure'}))
+    elif request.method == 'GET':
+        if 'driver' in request.json:
+            driver = request.json['driver']
+
+            query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x'
+            param = {'x': driver}
+
+            results = db_connection.execute(text(query), param).fetchall()
+            print(results)
+
+            total_points = 0
+            for result in results:
+                total_points += result[0]
+
+            print(total_points)
+            return (jsonify({'pointTotal': total_points}))
+
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
