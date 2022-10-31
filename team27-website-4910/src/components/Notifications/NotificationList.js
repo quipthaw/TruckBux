@@ -1,25 +1,22 @@
-import { Card, Grid } from '@mui/material';
+import { Card, Stack } from '@mui/material';
 import React from 'react';
 import { NotificationCard } from './NotificationCard';
 
 export const NotificationList = (props) => {
-  const { notifications } = props;
+  const { notifications, setUserNotifications } = props;
 
   const PopulateNotificationList = () => {
-    console.log(notifications);
-    if(notifications === undefined) {
-      return (
-        <Grid item>
-          <Card/>
-        </Grid>
-      )
-    }
   
     const userNotifications = notifications.map((notification) => {
+      const cardColor = (notifications.indexOf(notification) % 2) === 0 ? 'white' : 'lightgrey';
+
       return(
-        <Grid item>
-          <NotificationCard key={notification.message} notification={notification}/>
-        </Grid>
+          <NotificationCard 
+            key={notification.message} 
+            notification={notification} 
+            setUserNotifications={setUserNotifications}
+            cardColor={cardColor}
+          />
       );
     });
 
@@ -27,8 +24,8 @@ export const NotificationList = (props) => {
   };
 
   return (
-    <Grid container>
+    <Stack direction="column">
       <PopulateNotificationList/>
-    </Grid>
+    </Stack>
   )
 };

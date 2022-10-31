@@ -17,7 +17,7 @@ export const MyCart = (props) => {
     };
 
     return (
-        <Stack direction="column">
+        <Stack direction="column" sx={{ width: "100%" }}>
             {cart.map((item) => {
                 return (
                         <MyCartRow key={item.itemId} cart={cart} item={item} setCart={setCart}/>

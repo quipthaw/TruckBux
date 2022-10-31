@@ -27,16 +27,18 @@ const Navbar = (props) => {
     const getNotifications = /*async*/ () => {
         //fetch requests
         setGotNotifications(true);
-        setUserNotifications([{ 
-            'message': 'Message!',
-        }])
+        setUserNotifications([
+            { 'message': 'Message!'},
+            { 'message': 'Second!' },
+            { 'message': 'Your password was changed!'},
+        ])
     }
 
-    console.log(userNotifications);
-
     React.useEffect(() => {
-        getNotifications();
-    }, [])
+        if(!gotNotifications) {
+            getNotifications();
+        }
+    }, [gotNotifications])
 
     const darkTheme = createTheme(
         {
@@ -66,7 +68,8 @@ const Navbar = (props) => {
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
         { 'text': 'Register', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
-        { 'text': 'Account Management', 'path': '/AccountManagement' }
+        { 'text': 'Account Management', 'path': '/AccountManagement' },
+        { 'text': 'Point Management', 'path': '/PointManagement' },
     ];
 
     const navigate = useNavigate();
@@ -100,8 +103,8 @@ const Navbar = (props) => {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out', 'Profile'];
-        const signedInFilter = ['Sign In', 'Register'];
+        const loggedOutFilter = ['Log Out', 'Profile', 'Account Management', 'Point Management',];
+        const signedInFilter = ['Sign In', 'Register',];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
@@ -204,7 +207,7 @@ const Navbar = (props) => {
                     </Box>
 
                     <Box sx={{ p: 2, flexGrow: 0 }}>
-                        {sessionState !== '0' && <NotificationBell notifications={userNotifications}/>}
+                        {sessionState !== '0' && <NotificationBell notifications={userNotifications} setUserNotifications={setUserNotifications}/>}
                     </Box>
                 </Toolbar>
             </Container>
