@@ -1,21 +1,28 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { SignInPrompt } from './SignInPrompt';
-import { SessionContext } from "../..";
 import { Paper, Button, Stack, Typography } from '@mui/material';
 import { Box, Container } from '@mui/system';
 import { UpdatePassword } from "../PasswordRecovery/UpdatePassword";
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+    userBio
+} from '../../recoil_atoms';
 
 //There is currently no endpoint to check valid password/user combos.
 //To test sign in, use username=testuser and password=password
 
 export const SignIn = (props) => {
-    const {
-        sessionState, setSessionState,
-        usernameState,
-        firstnameState,
-        lastnameState,
-        emailState,
-    } = useContext(SessionContext);
+
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
 
     const userInfo = {
         "username": usernameState,
@@ -26,11 +33,11 @@ export const SignIn = (props) => {
 
     const [signingIn, setSigningIn] = useState(true);
     const [signInError, setSignInError] = useState("");
-    
-    const [ updatingPassword, setUpdatingPassword ] = useState(false);
-    
+
+    const [updatingPassword, setUpdatingPassword] = useState(false);
+
     const toggleUpdatingPassword = () => {
-        setUpdatingPassword( updatingPassword ? false : true);
+        setUpdatingPassword(updatingPassword ? false : true);
     };
 
     const handleSignIn = () => {
@@ -74,7 +81,7 @@ export const SignIn = (props) => {
             display: 'flex',
             marginY: '5vh'
         }}>
-            <Paper sx={{ width: '100%' }}> 
+            <Paper sx={{ width: '100%' }}>
                 <Box sx={{
                     height: '100%',
                     width: '100%',
@@ -86,7 +93,7 @@ export const SignIn = (props) => {
                         {!updatingPassword && sessionState != '0' && <DisplaySignOut />}
                         {!updatingPassword && signInError != "" && <Typography align='center' color='red'>{signInError}</Typography>}
                         {!updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Change Password</Button>}
-                        {updatingPassword && <UpdatePassword userInfo={userInfo}/>}
+                        {updatingPassword && <UpdatePassword userInfo={userInfo} />}
                         {updatingPassword && <Button variant="outlined" onClick={(toggleUpdatingPassword)} sx={{ width: '100%' }}>Go Back to Sign In</Button>}
                     </Stack>
                 </Box>
