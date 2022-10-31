@@ -27,7 +27,7 @@ import {
 } from '../../recoil_atoms';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
-const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
+const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }, { 'label': 'Create Sponsor', 'path': '/sponsorcreation' }]
 
 export default function Navbar(props) {
     const theme = useTheme();
