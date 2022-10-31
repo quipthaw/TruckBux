@@ -13,11 +13,18 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TruckIcon from '../../logos/Trukbux.svg';
 import { useNavigate } from 'react-router-dom';
-import { SessionContext } from '../..';
 import './Navbar.css';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+} from '../../recoil_atoms';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
 
@@ -29,7 +36,11 @@ export default function Navbar(props) {
         props.setPageTheme(mode);
     }
 
-    const { sessionState, setSessionState, usernameState } = React.useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },

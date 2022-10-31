@@ -15,7 +15,15 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { SessionContext } from '../..';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+    userBio
+} from '../../recoil_atoms';
 
 const style = {
     position: 'absolute',
@@ -31,7 +39,7 @@ const style = {
 export default function RegForm() {
     const navigate = useNavigate();
 
-    const session = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
 
     //Store and modify form values
     const [values, setValues] = React.useState({
@@ -181,7 +189,7 @@ export default function RegForm() {
     }
 
     const showButtons = () => {
-        if (session.sessionType == 'S') {
+        if (sessionState == 'S') {
             return (
                 <Box textAlign='center'>
                     <Typography variant='h5'>Please Select User Type To Create.</Typography>
@@ -193,7 +201,7 @@ export default function RegForm() {
                 </Box>
             )
         }
-        else if (session.sessionType == 'A') {
+        else if (sessionState == 'A') {
             return (
                 <Box textAlign='center'>
                     <Typography variant='h5'>Please Select User Type To Create.</Typography>
@@ -220,7 +228,7 @@ export default function RegForm() {
     };
 
     const showSponsor = () => {
-        if (values.type === 'S' && session.sessionType == 'A') {
+        if (values.type === 'S' && sessionState == 'A') {
             return (
                 <FormControl fullWidth>
                     <InputLabel id="sponsor-select-label">Sponsor</InputLabel>

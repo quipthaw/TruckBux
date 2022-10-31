@@ -1,28 +1,35 @@
 import React, { useState, useContext } from 'react';
-import { SessionContext } from '../..';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Stack } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+    userBio,
+    userSponsors
+} from '../../recoil_atoms';
 
 export const SignInPrompt = (props) => {
     const navigate = useNavigate();
-    const { 
-        setSessionState, 
-        setUsernameState, 
-        setEmailState, 
-        setFirstnameState, 
-        setLastnameState,
-        setBioState,
-        setSponsorIDs
-    } = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
+    const [bioState, setBioState] = useRecoilState(userBio);
+    const [sponsorIDs, setSponsorIDs] = useRecoilState(userSponsors);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const [ showPasswordState, setShowPasswordState ] = useState(false);
+    const [showPasswordState, setShowPasswordState] = useState(false);
 
     //Toggle show password visibility in textfield
     const handleShowPassword = () => {
@@ -53,7 +60,7 @@ export const SignInPrompt = (props) => {
 
         userResponse = await userResponse.json();
 
-        if(userResponse.user[0].active === '0') {
+        if (userResponse.user[0].active === '0') {
             return false;
         }
         else {
@@ -64,7 +71,7 @@ export const SignInPrompt = (props) => {
             setSessionState(userResponse.user[0].acctType);
             setBioState(userResponse.user[0].bio ? userResponse.user[0].bio : '');
             setSponsorIDs(userResponse.user[0].sponsorID);
-    
+
             return true;
         }
     };
@@ -86,8 +93,8 @@ export const SignInPrompt = (props) => {
 
         loginResponse = await loginResponse.json();
 
-        if(loginResponse.result === "Success") {
-            if(await getUserProfile()) {
+        if (loginResponse.result === "Success") {
+            if (await getUserProfile()) {
                 setSignInError("");
                 setSigningIn(false);
                 navigate('/');
@@ -102,13 +109,13 @@ export const SignInPrompt = (props) => {
     };
 
     return (
-        <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>            
+        <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
             <Stack direction='row' spacing={2}>
-                <TextField 
+                <TextField
                     id="signinUsername"
                     label="username"
                     fullWidth
-                    value={username} 
+                    value={username}
                     onChange={onUsernameChange}
                 />
                 <TextField
@@ -133,7 +140,7 @@ export const SignInPrompt = (props) => {
                     }}
                 />
             </Stack>
-        <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
-    </Stack>
+            <Button variant='outlined' onClick={authenticate} sx={{ width: '100%' }}>Sign In</Button>
+        </Stack>
     );
 };
