@@ -46,7 +46,8 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 
 app = Flask(__name__)
-CORS(app, origins=['http://127.0.0.1:3000'])
+CORS(app, origins=[
+     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
@@ -652,4 +653,4 @@ def points():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
