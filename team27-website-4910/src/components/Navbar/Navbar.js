@@ -25,11 +25,15 @@ import {
     userLName,
     userEmail,
 } from '../../recoil_atoms';
+import { NotificationBell } from '../Notifications/NotificationBell';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
 
 export default function Navbar(props) {
     const theme = useTheme();
+
+    const [gotNotifications, setGotNotifications] = React.useState(false);
+    const [userNotifications, setUserNotifications] = React.useState([]);
 
     const getNotifications = /*async*/ () => {
         //fetch requests
