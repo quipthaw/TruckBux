@@ -17,7 +17,7 @@ const localStorageEffect = key => ({ setSelf, onSet }) => {
 };
 const userType = atom({
     key: 'userType',
-    default: '',
+    default: '0',
     effects: [
         localStorageEffect('userType'),
     ]
