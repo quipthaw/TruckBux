@@ -16,10 +16,29 @@ import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
 import { createTheme } from '@mui/material/styles';
+import { NotificationBell } from '../Notifications/NotificationBell';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
 const Navbar = (props) => {
+    const [ gotNotifications, setGotNotifications ] = React.useState(false);
+    const [ userNotifications, setUserNotifications ] = React.useState([]);
+
+    const getNotifications = /*async*/ () => {
+        //fetch requests
+        setGotNotifications(true);
+        setUserNotifications([
+            { 'message': 'Message!'},
+            { 'message': 'Second!' },
+            { 'message': 'Your password was changed!'},
+        ])
+    }
+
+    React.useEffect(() => {
+        if(!gotNotifications) {
+            getNotifications();
+        }
+    }, [gotNotifications])
 
     const darkTheme = createTheme(
         {
@@ -49,7 +68,8 @@ const Navbar = (props) => {
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
         { 'text': 'Register', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
-        { 'text': 'Account Management', 'path': '/AccountManagement' }
+        { 'text': 'Account Management', 'path': '/AccountManagement' },
+        { 'text': 'Point Management', 'path': '/PointManagement' },
     ];
 
     const navigate = useNavigate();
@@ -83,20 +103,14 @@ const Navbar = (props) => {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out', 'Profile'];
-        const signedInFilter = ['Sign In', 'Register'];
+        const loggedOutFilter = ['Log Out', 'Profile', 'Account Management', 'Point Management',];
+        const signedInFilter = ['Sign In', 'Register',];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
         else {
             return !(signedInFilter.includes(a.text));
         }
-    };
-
-    const DisplayWelcome = () => {
-        return (
-            <p>{usernameState}</p>
-        );
     };
 
     return (
@@ -189,7 +203,11 @@ const Navbar = (props) => {
                     </Box>
 
                     <Box sx={{ p: 2, flexGrow: 0 }}>
-                        {sessionState != '0' && <Typography>{usernameState}</Typography>}
+                        {sessionState !== '0' && <Typography>{usernameState}</Typography>}
+                    </Box>
+
+                    <Box sx={{ p: 2, flexGrow: 0 }}>
+                        {sessionState !== '0' && <NotificationBell notifications={userNotifications} setUserNotifications={setUserNotifications}/>}
                     </Box>
                 </Toolbar>
             </Container>
