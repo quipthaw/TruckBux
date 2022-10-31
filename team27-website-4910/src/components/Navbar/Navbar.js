@@ -19,7 +19,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material';
 
-const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
+const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
 
 export default function Navbar(props) {
     const theme = useTheme();

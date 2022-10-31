@@ -134,16 +134,28 @@ export default function Catalog() {
                                 <Paper sx={{
                                     height: '100%'
                                 }}>
-                                    <Stack m={1}>
-                                        <Box m='auto'>
+                                    <Stack direction='column' alignContent='flex-end' sx={{
+                                        height: '100%'
+                                    }}>
+                                        <Box m='auto' sx={{
+                                            minHeight: 250
+                                        }}>
                                             <img src={item.image} alt={item.title} style={{ width: '200px', height: '200px' }} />
                                         </Box>
-                                        <Typography gutterBottom textAlign='right' variant="h6">
-                                            {item.title}
-                                        </Typography>
-                                        <Typography textAlign='right' variant="subtitle1" color="text.secondary">
-                                            {'TB ' + item.price}
-                                        </Typography>
+                                        <Box sx={{
+                                            minHeight: 100
+                                        }}>
+                                            <Typography gutterBottom textAlign='right' variant="h6">
+                                                {item.title}
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{
+                                            minHeight: 25
+                                        }}>
+                                            <Typography textAlign='right' variant="subtitle1" color="text.secondary">
+                                                {'TB ' + item.price}
+                                            </Typography>
+                                        </Box>
                                         <Button variant="contained" onClick={() => toCart(item)}>Add To Cart</Button>
                                     </Stack>
                                 </Paper>
@@ -175,11 +187,11 @@ export default function Catalog() {
                             }}
                             variant="standard"
                             sx={{
-                                width: '60%'
+                                width: { xs: '80%', md: '60%' }
                             }}
                         />
                         <Button variant='contained' onClick={getItems} sx={{
-                            width: '10%'
+                            width: { xs: '20%', md: '10%' }
                         }}>
                             Search
                         </Button>

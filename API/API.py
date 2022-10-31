@@ -609,4 +609,5 @@ def get_related_drivers():
     return jsonify({"accounts": accounts})
 
 
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -17,7 +17,7 @@ const getDesignTokens = (mode) => ({
     },
 });
 
-function useStickyState(defaultValue, key) {
+const useLocalState = (key, defaultValue) => {
     const [value, setValue] = React.useState(() => {
         const stickyValue = window.localStorage.getItem(key);
         return stickyValue !== null
@@ -31,7 +31,7 @@ function useStickyState(defaultValue, key) {
 }
 
 export default function Layout(props) {
-    const [color, setColor] = useStickyState('dark', 'colorMode');
+    const [color, setColor] = useLocalState('dark', 'colorMode');
     const handleColorModeChange = (mode) => {
         setColor(mode);
         console.log('ran');
