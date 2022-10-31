@@ -3,6 +3,7 @@ import datetime
 import requests
 import json
 import math
+import math
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text

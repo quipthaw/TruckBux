@@ -17,7 +17,6 @@ import './Navbar.css';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material';
-import { NotificationBell } from '../Notifications/NotificationBell';
 import { useRecoilState } from 'recoil';
 import {
     userType,
@@ -31,8 +30,6 @@ const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers',
 
 export default function Navbar(props) {
     const theme = useTheme();
-    const [gotNotifications, setGotNotifications] = React.useState(false);
-    const [userNotifications, setUserNotifications] = React.useState([]);
 
     const getNotifications = /*async*/ () => {
         //fetch requests
