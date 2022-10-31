@@ -8,7 +8,7 @@ export default function Register() {
 
     const [drivers, setDrivers] = React.useState();
     const getDrivers = async () => {
-        const response = await fetch('http://127.0.0.1:5000/relateddrivers', {
+        const response = await fetch('https://team27.cpsc4911.com/relateddrivers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

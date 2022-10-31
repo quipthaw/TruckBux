@@ -10,7 +10,7 @@ export default function Register() {
     const [numSponsors, setNumSponsors] = React.useState();
 
     const getSponsors = async () => {
-        const response = await fetch('http://127.0.0.1:5000/getsponsors');
+        const response = await fetch('https://team27.cpsc4911.com/getsponsors');
         const result = await response.json();
         console.log(result)
         setSponsors(result.sponsors);
