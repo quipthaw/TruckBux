@@ -16,10 +16,27 @@ import { useNavigate } from 'react-router-dom';
 import { SessionContext } from '../..';
 import './Navbar.css';
 import { createTheme } from '@mui/material/styles';
+import { NotificationBell } from '../Notifications/NotificationBell';
 
 const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
 
 const Navbar = (props) => {
+    const [ gotNotifications, setGotNotifications ] = React.useState(false);
+    const [ userNotifications, setUserNotifications ] = React.useState([]);
+
+    const getNotifications = /*async*/ () => {
+        //fetch requests
+        setGotNotifications(true);
+        setUserNotifications([{ 
+            'message': 'Message!',
+        }])
+    }
+
+    console.log(userNotifications);
+
+    React.useEffect(() => {
+        getNotifications();
+    }, [])
 
     const darkTheme = createTheme(
         {
@@ -91,12 +108,6 @@ const Navbar = (props) => {
         else {
             return !(signedInFilter.includes(a.text));
         }
-    };
-
-    const DisplayWelcome = () => {
-        return (
-            <p>{usernameState}</p>
-        );
     };
 
     return (
@@ -189,7 +200,11 @@ const Navbar = (props) => {
                     </Box>
 
                     <Box sx={{ p: 2, flexGrow: 0 }}>
-                        {sessionState != '0' && <Typography>{usernameState}</Typography>}
+                        {sessionState !== '0' && <Typography>{usernameState}</Typography>}
+                    </Box>
+
+                    <Box sx={{ p: 2, flexGrow: 0 }}>
+                        {sessionState !== '0' && <NotificationBell notifications={userNotifications}/>}
                     </Box>
                 </Toolbar>
             </Container>
