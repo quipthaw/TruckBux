@@ -624,30 +624,31 @@ def points():
 
         query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
         query += 'values(:x, :y, :j, :k)'
-        param = {'x':giver, 'y':receiver, 'j':point_change, 'k':reason}
+        param = {'x': giver, 'y': receiver, 'j': point_change, 'k': reason}
 
         try:
             db_connection.execute(text(query), param)
-            return(jsonify({'result':'success'}))
+            return (jsonify({'result': 'success'}))
         except:
             print('Insert Failed')
-            return(jsonify({'result':'failure'}))
+            return (jsonify({'result': 'failure'}))
     elif request.method == 'GET':
         if 'driver' in request.json:
             driver = request.json['driver']
-        
+
             query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x'
             param = {'x': driver}
-            
+
             results = db_connection.execute(text(query), param).fetchall()
             print(results)
 
             total_points = 0
             for result in results:
                 total_points += result[0]
-            
+
             print(total_points)
-            return(jsonify({'pointTotal':total_points}))
+            return (jsonify({'pointTotal': total_points}))
 
 
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

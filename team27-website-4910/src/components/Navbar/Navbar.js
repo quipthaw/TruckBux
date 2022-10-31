@@ -20,7 +20,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
-const pages = [{ 'label': 'Catalog', 'path': '/catalog' }]
+const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }]
 
 export default function Navbar(props) {
     const theme = useTheme();
