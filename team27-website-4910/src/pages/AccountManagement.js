@@ -1,15 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SessionContext } from '..';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { ManageAccount } from '../components/ManageAccount/ManageAccounts';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+} from '../recoil_atoms';
 
 export default function AccountManagement() {
     const navigate = useNavigate();
-    const { sessionState } = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
 
     useEffect(() => {
-        if(sessionState === '0') {
+        if (sessionState === '0') {
             navigate('/');
         }
     }, [sessionState, navigate]);
@@ -17,7 +20,7 @@ export default function AccountManagement() {
     return (
         <div>
             <Layout>
-                <ManageAccount/>
+                <ManageAccount />
             </Layout>
         </div>
     )

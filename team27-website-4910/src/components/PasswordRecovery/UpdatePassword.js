@@ -1,39 +1,44 @@
 import React, { useState, useContext } from 'react';
-import { SessionContext } from '../..';
 import { Button, TextField, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+} from '../../recoil_atoms';
 
 export const UpdatePassword = (props) => {
-    const { sessionState, usernameState } = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
 
     const { username, firstname, lastname, email } = props.userInfo;
 
     const navigate = useNavigate();
 
     //Variables for password recovery when not signed in
-    const [ needVerification, setNeedVerification ] = useState(sessionState === '0' ? true : false)
+    const [needVerification, setNeedVerification] = useState(sessionState === '0' ? true : false)
 
-    const [ recoveryUsername, setRecoveryUsername ] = useState(needVerification ? '' : username);
-    const [ recoveryFirstname, setRecoveryFirstname ] = useState(needVerification ? '' : firstname);
-    const [ recoveryLastname, setRecoveryLastname ] = useState(needVerification ? '' : lastname);
-    const [ recoveryEmail, setRecoveryEmail ] = useState(needVerification ? '' : email);
+    const [recoveryUsername, setRecoveryUsername] = useState(needVerification ? '' : username);
+    const [recoveryFirstname, setRecoveryFirstname] = useState(needVerification ? '' : firstname);
+    const [recoveryLastname, setRecoveryLastname] = useState(needVerification ? '' : lastname);
+    const [recoveryEmail, setRecoveryEmail] = useState(needVerification ? '' : email);
 
     //General password change variables
-    const [ updatingPassword, setUpdatingPassword ] = useState(needVerification ? true : false);
-    const [ updatingPasswordMessage, setUpdatingPasswordMessage ] = useState('');
+    const [updatingPassword, setUpdatingPassword] = useState(needVerification ? true : false);
+    const [updatingPasswordMessage, setUpdatingPasswordMessage] = useState('');
 
-    const [ newPassword, setNewPassword ] = useState("");
-    const [ confirmPassword, setConfirmPassword ] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     //Visibility of password fields
-    const [ showPasswordState, setShowPasswordState ] = useState(false);
+    const [showPasswordState, setShowPasswordState] = useState(false);
 
     const NoPasswordError = '';
-    const [ passwordError, setPasswordError ] = useState(NoPasswordError);
+    const [passwordError, setPasswordError] = useState(NoPasswordError);
 
     //Password recovery when not signed in
     const onUsernameChange = (e) => {
@@ -59,7 +64,7 @@ export const UpdatePassword = (props) => {
         setConfirmPassword('');
         setUpdatingPassword(updatingPassword ? false : true);
     };
-    
+
     const PasswordVisibilityAdornment = () => {
         return (
             <InputAdornment position="end">
@@ -84,7 +89,7 @@ export const UpdatePassword = (props) => {
 
     const handleUpdatePassword = async () => {
 
-        let passwordData = { 
+        let passwordData = {
             modder: usernameState,
             user: recoveryUsername,
             email: recoveryEmail,
@@ -92,8 +97,8 @@ export const UpdatePassword = (props) => {
             lname: recoveryLastname,
             pass: newPassword,
         };
-        if(sessionState !== '0'){
-            passwordData = { 
+        if (sessionState !== '0') {
+            passwordData = {
                 modder: usernameState,
                 user: username,
                 email: email,
@@ -112,16 +117,16 @@ export const UpdatePassword = (props) => {
             body: JSON.stringify(passwordData)
         };
 
-        let passwordResponse = await fetch('http://127.0.0.1:5000/resetpass', passwordOptions);
+        let passwordResponse = await fetch('https://team27.cpsc4911.com/resetpass', passwordOptions);
 
         passwordResponse = await passwordResponse.json();
 
-        if(passwordResponse.error === 'True') {
+        if (passwordResponse.error === 'True') {
             setPasswordError(passwordResponse.reason);
         }
         else {
             setUpdatingPasswordMessage("Successfully Updated Password");
-            if(sessionState === '0') {
+            if (sessionState === '0') {
                 navigate('../login/');
             }
             setPasswordError(NoPasswordError);
@@ -131,7 +136,7 @@ export const UpdatePassword = (props) => {
 
     return (
         <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
-            {needVerification && updatingPassword &&         
+            {needVerification && updatingPassword &&
                 <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
                     <TextField
                         id="username"
@@ -197,7 +202,7 @@ export const UpdatePassword = (props) => {
                     type={showPasswordState ? 'text' : 'password'}
                     InputProps={{
                         endAdornment: (
-                            <PasswordVisibilityAdornment/>
+                            <PasswordVisibilityAdornment />
                         )
                     }}
                 />

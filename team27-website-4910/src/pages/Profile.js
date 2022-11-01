@@ -1,24 +1,31 @@
 import React, { useContext, useEffect } from 'react';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import { ProfileInfo } from '../components/ProfileInfo/ProfileInfo';
-import { SessionContext } from '..';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import {
+    userType,
+    userName,
+    userFName,
+    userLName,
+    userEmail,
+    userBio,
+    userSponsors
+} from '../recoil_atoms';
 
 export default function Profile() {
     const navigate = useNavigate();
 
-    const {
-        sessionState,
-        usernameState, 
-        firstnameState, setFirstnameState,
-        lastnameState, setLastnameState,
-        emailState, setEmailState,
-        bioState, setBioState,
-        sponsorIDs, setSponsorIDs
-    } = useContext(SessionContext);
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
+    const [bioState, setBioState] = useRecoilState(userBio);
+    const [sponsorIDs, setSponsorIDs] = useRecoilState(userSponsors);
 
     useEffect(() => {
-        if(sessionState === '0') {
+        if (sessionState === '0') {
             navigate('/');
         }
     }, [sessionState, navigate]);
@@ -45,7 +52,7 @@ export default function Profile() {
     return (
         <div>
             <Layout>
-                <ProfileInfo userInfo={userInfo}/>
+                <ProfileInfo userInfo={userInfo} />
             </Layout>
         </div>
     )
