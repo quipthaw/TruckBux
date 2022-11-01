@@ -128,31 +128,22 @@ def add_years(start_date, years):
 # Function to insert record of login instance into loginLog Table
 # Username must be valid
 # Returns bool True or False
-def log(db_connection, username, logresult):
-    if check_username(db_connection, username) == False:
-        query = text(
-            "INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()}
-        db_connection.execute(query, param)
-        return True
-    else:
-        return False
-
-    
-def log_pass_change(db_connection, modder, user, reason=None):
-    change_type = 'password reset'
-
+def log(db_connection, username, log_type, logresult=None, modder=None, reason=None):
+    if modder == None:
+        modder = 'N/A'
     if reason == None:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type) VALUES(:x, :y, :z)'
-        param = {'x': modder, 'y': user, 'z': change_type}
-    else:
-        query = 'INSERT INTO TruckBux.AccountModifications (modderName, username, type, modReason) VALUES(:x, :y, :z, :j)'
-        param = {'x': modder, 'y': user, 'z': change_type, 'j': reason}
+        reason = 'default log'
+    if logresult == None:
+        logresult = 'N/A'
+
+    query = 'INSERT INTO TruckBux.Logging (username, log_type, result, mod_reason, modder) '
+    query += 'VALUES(:x, :y, :j, :k, :l)'
+    param ={'x':username, 'y':log_type, 'j':logresult, 'k':reason, 'l':modder}
 
     try:
         db_connection.execute(text(query), param)
     except:
-        print("Could not log password reset")
+        print("failed to store log")
 
 
 # ========================================= ACCOUNT LOCKOUT =============================================

@@ -325,6 +325,7 @@ def user_login():
         query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
         param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
+        log_type = 'login'
         i = 0
         for row in my_data:
             i = i + 1
@@ -345,40 +346,18 @@ def user_login():
                     input_pass = request.json['passwd'].encode()
                 if bcrypt.checkpw(input_pass, pass_hash):
                     result = {'result': 'Success'}
-                    log(db_connection, username, 'Success')
+                    log(db_connection, username, log_type, 'Success')
                 else:
                     result = {'result': 'Invalid Password'}
-                    log(db_connection, username, 'Failure')
+                    log(db_connection, username, log_type, 'Failure')
             else:
                 result = {'result': 'Account Locked'}
-                log(db_connection, username, 'Failure')
+                log(db_connection, username, log_type, 'Failure')
         else:
             result = {'result': 'Too Many Failed Login Attempts!'}
-            log(db_connection, username, 'Failure')
+            log(db_connection, username, log_type, 'Failure')
     else:
         result = {'result': 'Invalid Username'}
-    return (jsonify(result))
-
-
-# Endpoint that takes a username and login result via post request in from {'user': <username>, 'lresult': <login result>}
-# and inserts their login attempt into the database
-# User MUST exist in the User table to be inserted
-# @return 'Success' | 'Failure' in result field
-@app.route('/loginlog', methods=['POST'])
-@cross_origin()
-def log_login():
-    username = request.json['user']
-    logresult = request.json['lresult']
-
-    result = {'result': 'Success'}
-    if check_username(username) == False:
-        query = text(
-            "INSERT INTO TruckBux.loginLog (username, date_time, result) VALUES(:x, :d, :n)")
-        param = {'x': username, 'n': logresult, 'd': datetime.datetime.now()}
-        # Insert record of initial login into loginLog Table
-        db_connection.execute(query, param)
-    else:
-        result = {'result': 'Failure'}
     return (jsonify(result))
 
 
@@ -442,6 +421,7 @@ def reset_password():
     lname = request.json['lname']
     new_pass = request.json['pass']
     user = request.json['user']
+    log_type = 'password change'
 
     query = text('select email, fname, lname from Users where username = :x')
     param = {'x': user}
@@ -471,10 +451,10 @@ def reset_password():
                 resp['reason'] = 'User with that info does not exist'
 
     if 'reason' in request.json:
-        reason = request.json['reason']
-        log_pass_change(db_connection, modder, user, reason)
+        log_reason = request.json['reason']
+        log(db_connection, user, log_type, modder=modder, reason=log_reason)
     else:
-        log_pass_change(db_connection, modder, user)
+        log(db_connection, user, log_type, modder=modder)
 
     return resp
 
@@ -606,9 +586,11 @@ def get_related_drivers():
 
 
 # Endpoint to insert data into the points table
-# POST request takes in giver, reciever, points, reason
-# returns success or failure
-# GET request takes in driver and returns total points that driver has
+# @POST request takes in giver, reciever, points, reason
+# @returns success or failure
+#
+# @GET request takes in driver and 
+# @returns total points that driver has
 @app.route('/points', methods=['POST', 'GET'])
 @cross_origin()
 def points():
