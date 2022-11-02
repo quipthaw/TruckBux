@@ -117,7 +117,7 @@ export const UpdatePassword = (props) => {
             body: JSON.stringify(passwordData)
         };
 
-        let passwordResponse = await fetch('https://team27.cpsc4911.com/resetpass', passwordOptions);
+        let passwordResponse = await fetch('http://127.0.0.1:5000/resetpass', passwordOptions);
 
         passwordResponse = await passwordResponse.json();
 

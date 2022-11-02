@@ -86,7 +86,7 @@ export default function RegForm() {
 
     const [sponsors, setSponsors] = React.useState([]);
     const getSponsors = async () => {
-        const response = await fetch('https://team27.cpsc4911.com/getsponsors');
+        const response = await fetch('http://127.0.0.1:5000/getsponsors');
         const result = await response.json();
         changeSponsors(result.sponsors);
     };
@@ -124,7 +124,7 @@ export default function RegForm() {
         return num;
     };
     const parseResponse = async () => {
-        const response = await fetch('https://team27.cpsc4911.com/register', {
+        const response = await fetch('http://127.0.0.1:5000/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
