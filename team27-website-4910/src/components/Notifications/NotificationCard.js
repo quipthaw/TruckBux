@@ -26,7 +26,7 @@ export const NotificationCard = (props) => {
             <CheckIcon/>
           </CardContent>
           <CardContent sx={{ position: 'relative', left: '0%'}}>
-              <Typography fontSize={12} align="right">{notification.message}</Typography>
+              <Typography fontSize={12} sx={{ fontWeight: "800"}} align="right">{notification.message}</Typography>
           </CardContent>
         </Stack>
       </CardActionArea>
