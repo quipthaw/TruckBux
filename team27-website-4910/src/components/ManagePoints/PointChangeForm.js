@@ -7,7 +7,7 @@ import {
   Stack,
   MenuItem,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const PointChangeForm = (props) => {
   const [ reason, setReason ] = useState('Put your reason for point change here.');
@@ -16,11 +16,19 @@ export const PointChangeForm = (props) => {
   const [ isRecurringPlan, setIsRecurringPlan ] = useState(false);
   
   const recurringOptions = ['Weekly', 'Monthly', 'Yearly'];
-  const [ recurringPeriod, setRecurringPeriod ] = useState(recurringOptions[1]);
+  const [ recurringPeriod, setRecurringPeriod ] = useState('');
+  const [ recurringError, setRecurringError ] = useState('');
 
   const handlePointChange = (e) => {
     setPointChange(e.target.value);
   };
+
+  //Filter Point Value so only integers are used
+  const filterPeriodE = (e) => {
+    if(e.key === 'e' || e.key === '.') {
+      e.preventDefault();
+    }
+  }
 
   const handleReasonChange = (e) => {
     setReason(e.target.value);
@@ -28,14 +36,25 @@ export const PointChangeForm = (props) => {
 
   const handleRecurring = (e) => {
     setIsRecurringPlan(e.target.checked);
-
   };
+
+  useEffect(() => {
+    if(!isRecurringPlan) {
+      setRecurringPeriod('');
+    }
+  }, [isRecurringPlan]);
 
   const handleSubmit = () => {
     console.log(pointChange);
     console.log(reason);
     console.log(isRecurringPlan);
-    console.log(recurringPeriod);
+    if(recurringPeriod === '') {
+      setRecurringError('You must select a recurring period');
+    }
+    else {
+      console.log(recurringPeriod);
+      setRecurringError('');
+    }
   };
 
   const PlanCheckBox = () => {
@@ -68,10 +87,13 @@ export const PointChangeForm = (props) => {
 
     return (
       <TextField
+        error={(recurringPeriod === '' && isRecurringPlan)}
         disabled={!isRecurringPlan}
         select
         id="recurringSelection"
         label="Recurring Period"
+        helperText={recurringError}
+        InputLabelProps={{ shrink: true }}
         value={recurringPeriod}
         onChange={handleSelection}
         sx={{ width: '10%' }}
@@ -88,6 +110,7 @@ export const PointChangeForm = (props) => {
           label="Points"
           type="number"
           value={pointChange}
+          onKeyDown={filterPeriodE}
           onChange={handlePointChange}
           sx={{ width: '10%' }}
         />
