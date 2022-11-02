@@ -9,7 +9,13 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
+//This component is for setting point changes. This component will likely
+//need to be passed Driver(s) to apply the point changes to. This component
+//will also set if a point change is recurring.
 export const PointChangeForm = (props) => {
+  //We can import setPointChange from driver list
+  //const { our props go here } = props;
+
   const [ reason, setReason ] = useState('Put your reason for point change here.');
   const [ pointChange, setPointChange ] = useState(0);
   
@@ -44,6 +50,7 @@ export const PointChangeForm = (props) => {
     }
   }, [isRecurringPlan]);
 
+  //For now this only spits out into console. Use props to set what is needed
   const handleSubmit = () => {
     console.log(pointChange);
     console.log(reason);
