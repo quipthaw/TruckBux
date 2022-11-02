@@ -2,6 +2,7 @@ import { CircularProgress, Paper, Typography, Box, Button } from '@mui/material'
 import { Container, Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
+import { ManagePoints } from '../components/ManagePoints/ManagePoints';
 
 export default function Register() {
     const [loading, setLoading] = React.useState(true);
@@ -32,6 +33,9 @@ export default function Register() {
                 <CircularProgress />
                 :
                 <Stack spacing={2}>
+                    <Typography variant='h3' gutterBottom>Point Changes</Typography>
+                    <ManagePoints/>
+
                     <Typography variant='h3' gutterBottom>Applications</Typography>
                     <Paper>
                         <Container>
