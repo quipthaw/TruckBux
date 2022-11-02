@@ -1,8 +1,6 @@
-import queue
 import datetime
 import requests
 import json
-import math
 import math
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -110,11 +108,10 @@ def get_profile():
             "fName": usr_str[3],
             "lName": usr_str[4],
             "acctType": usr_str[5],
-            "sponsorID": usr_str[6],
-            "dateCreated": usr_str[7],
-            "lockedUntil": usr_str[8],
-            "active": usr_str[9],
-            "bio": usr_str[10]
+            "dateCreated": usr_str[6],
+            "lockedUntil": usr_str[7],
+            "active": usr_str[8],
+            "bio": usr_str[9]
         }
         user.append(user_val)
         return jsonify({"user": user})
@@ -170,31 +167,6 @@ def register():
             return jsonify(resp)
     else:
         return jsonify(resp)
-
-
-# Endpoint to insert sponsor data into the Sponsors table
-@app.route('/createsponsor', methods=['POST'])
-@cross_origin()
-def create_sponsor():
-    resp = {'error': 'False'}
-    name = request.json['name']
-    rate = request.json['rate']
-
-    if (check_sponsor_name(db_connection, name) == False):
-        resp['error'] = 'True'
-        resp['reason'] = 'Name Taken'
-    else:
-        query = text(
-            'INSERT INTO TruckBux.Sponsors(sponsorName, pointConversionRate) VALUES(:x, :y)')
-        param = {'x': name, 'y': rate}
-
-        try:
-            db_connection.execute(query, param)
-        except:
-            resp['error'] = 'True'
-            resp['reason'] = 'Insert Failed'
-
-    return resp
 
 
 # Endpoint that takes a password and username via post request in from {'user': <username>, 'pass': <password>}
@@ -464,139 +436,140 @@ def reset_password():
     return resp
 
 
-# Endpoint to retrieve all applications
-# @returns {1: {app1}, 2: {app2}}
-@app.route('/getallapps', methods=['GET'])
-@cross_origin()
-def get_all_apps():
-    query = 'SELECT * FROM TruckBux.Applications'
-
-    rows = db_connection.execute(text(query)).fetchall()
-
-    apps = {}
-    i = 1
-    for row in rows:
-        apps[i] = dict(row)
-        apps[i]['sponsName'] = get_spons_name(db_connection, row['sponsorID'])
-        i += 1
-
-    return jsonify(apps)
-
-
-# Endpoint to retrieve application data
+# @POST Endpoint to store application data
+#
+# @GET Endpoint to retrieve application information
 # if given user=<username> returns all apps associated with that user
 # if given sponsName=<sponsorName> returns all apps associated with that sponsor
+# if given nothing, returns all applications
 # @returns {1: {app1}, 2: {app2}}
-@app.route('/getappdata', methods=['GET'])
+@app.route('/applications', methods=['POST', 'GET'])
 @cross_origin()
-def get_app_data():
-    if 'user' in request.json:
+def applications():
+    if request.method == 'POST':
         user = request.json['user']
-        query = 'SELECT * FROM TruckBux.Applications where username = :x'
-        param = {'x': user}
+        sponsorName = request.json['sponsName']
 
-        apps = {}
-        rows = db_connection.execute(text(query), param).fetchall()
-        i = 1
-        for row in rows:
-            apps[i] = dict(row)
-            apps[i]['sponsName'] = get_spons_name(
-                db_connection, row['sponsorID'])
-            i += 1
+        if not check_dup_app(db_connection, user, sponsorName):
+            query = 'INSERT INTO TruckBux.Applications (username, sponsorName) VALUES(:x, :y)'
+            param = {'x': user, 'y': sponsorName}
 
-    elif 'sponsName' in request.json:
-        sponsName = request.json['sponsName']
-        sponsID = get_spons_id(db_connection, sponsName)
-        query = 'SELECT * FROM TruckBux.Applications where sponsorID = :x'
-        param = {'x': sponsID}
+            try:
+                db_connection.execute(text(query), param)
+                resp = {'result': 'success'}
+            except:
+                resp = {'result': 'failure'}
+        else:
+            resp = {'error': 'duplicate application'}
 
-        apps = {}
-        rows = db_connection.execute(text(query), param).fetchall()
-        i = 1
-        for row in rows:
-            apps[i] = dict(row)
-            apps[i]['sponsName'] = sponsName
-            i += 1
+        return jsonify(resp)
+    if request.method == 'GET':
+        if 'user' in request.json:
+            user = request.json['user']
+            query = 'SELECT * FROM TruckBux.Applications where username = :x'
+            param = {'x': user}
 
-    return jsonify(apps)
+            apps = {}
+            rows = db_connection.execute(text(query), param).fetchall()
+            i = 1
+            for row in rows:
+                apps[i] = dict(row)
+                i += 1
+
+        elif 'sponsName' in request.json:
+            sponsName = request.json['sponsName']
+            query = 'SELECT * FROM TruckBux.Applications where sponsorName = :x'
+            param = {'x': sponsName}
+
+            apps = {}
+            rows = db_connection.execute(text(query), param).fetchall()
+            i = 1
+            for row in rows:
+                apps[i] = dict(row)
+                i += 1
+        else:
+            query = 'SELECT * FROM TruckBux.Applications'
+
+            rows = db_connection.execute(text(query)).fetchall()
+
+            apps = {}
+            i = 1
+            for row in rows:
+                apps[i] = dict(row)
+                i += 1
+
+        return jsonify(apps)
 
 
-# Endpoint to store application data
-@app.route('/submitapp', methods=['POST'])
-@cross_origin()
-def submit_app():
-    user = request.json['user']
-    sponsID = request.json['sponsID']
-
-    if not check_dup_app(db_connection, user, sponsID):
-        query = 'INSERT INTO TruckBux.Applications (username, sponsorID) VALUES(:x, :y)'
-        param = {'x': user, 'y': sponsID}
-
-        try:
-            db_connection.execute(text(query), param)
-            resp = {'result': 'success'}
-        except:
-            resp = {'result': 'failure'}
-    else:
-        resp = {'error': 'duplicate application'}
-
-    return jsonify(resp)
-
-
-# Endpoint to retrieve all sponsor accounts
+# @POST inserts new sponsor into database
+# @GET if given nothing retrieves all sponsor accounts
+# if given sponsName, returns all drivers associated with that sponsor
 # @returns {1: {account1}, 2: {account2}}
-@app.route('/getsponsors', methods=['GET'])
+@app.route('/sponsors', methods=['POST', 'GET'])
 @cross_origin()
-def getsponsors():
-    query = 'SELECT * FROM TruckBux.Sponsors'
-    rows = db_connection.execute(text(query)).fetchall()
+def sponsors():
+    if request.method == 'POST':
+        resp = {'error': 'False'}
+        name = request.json['name']
+        rate = request.json['rate']
 
-    sponsors = []
-    i = 0
-    for row in rows:
-        i += 1
-        sponsors.append(dict(row))
+        if (check_sponsor_name(db_connection, name) == False):
+            resp['error'] = 'True'
+            resp['reason'] = 'Name Taken'
+        else:
+            query = text(
+                'INSERT INTO TruckBux.Sponsors(sponsorName, pointConversionRate) VALUES(:x, :y)')
+            param = {'x': name, 'y': rate}
 
-    return jsonify({"number": i, "sponsors": sponsors})
+            try:
+                db_connection.execute(query, param)
+            except:
+                resp['error'] = 'True'
+                resp['reason'] = 'Insert Failed'
 
+        return resp
+    elif request.method == 'GET':
+        if 'sponsName' in request.json:
+            sponsorName = request.json['sponsName']
+            acctType = get_acctType(db_connection, sponsorName)
 
-# Endpoint to retrieve all users associated with a Sponsor
-# takes in sponsName
-# @returns {1: {account1}, 2: {account2}}
-@app.route('/relateddrivers', methods=['POST'])
-@cross_origin()
-def get_related_drivers():
-    accountName = request.json['accountName']
-    acctType = get_acctType(db_connection, accountName)
+            accounts = []
 
-    accounts = []
+            if (acctType == 'S'):
+                query = 'SELECT username FROM TruckBux.Sponsorships WHERE sponsorName = :x'
+                param = {'x': sponsorName}
+                rows = db_connection.execute(text(query), param)
 
-    if (acctType == 'S'):
-        sponsID = get_spons_id(db_connection, accountName)
+                for row in rows:
+                    accounts.append(dict(row))
 
-        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users WHERE sponsorID = :x'
-        param = {'x': sponsID}
-        rows = db_connection.execute(text(query), param)
+            elif (acctType == 'A'):
+                query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
+                rows = db_connection.execute(text(query))
 
-        for row in rows:
-            accounts.append(dict(row))
+                for row in rows:
+                    accounts.append(dict(row))
 
-    elif (acctType == 'A'):
-        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
-        rows = db_connection.execute(text(query))
+            return jsonify({"accounts": accounts})
+        else:
+            query = 'SELECT * FROM TruckBux.Sponsors'
+            rows = db_connection.execute(text(query)).fetchall()
 
-        for row in rows:
-            accounts.append(dict(row))
+            sponsors = []
+            i = 0
+            for row in rows:
+                i += 1
+                sponsors.append(dict(row))
 
-    return jsonify({"accounts": accounts})
-
+            return jsonify({"number": i, "sponsors": sponsors})
+    
 
 # Endpoint to insert data into the points table
 # @POST request takes in giver, reciever, points, reason
 # @returns success or failure
 #
 # @GET request takes in driver and 
-# @returns total points that driver has
+# @returns total points that driver has for each sponsor {'<sponsorName>': <point_total>}
 @app.route('/points', methods=['POST', 'GET'])
 @cross_origin()
 def points():
@@ -617,22 +590,30 @@ def points():
             print('Insert Failed')
             return (jsonify({'result': 'failure'}))
     elif request.method == 'GET':
-        if 'driver' in request.json:
-            driver = request.json['driver']
+        driver = request.json['driver']
 
-            query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x'
-            param = {'x': driver}
+        sponsors = []
+        query = 'SELECT sponsorName FROM TruckBux.Sponsorships where username = :x'
+        params = {'x':driver}
 
-            results = db_connection.execute(text(query), param).fetchall()
-            print(results)
+        rows = db_connection.execute(text(query), params).fetchall()
+        for row in rows:
+            sponsors.append(row[0])
 
-            total_points = 0
-            for result in results:
-                total_points += result[0]
+        points_per_sponsor = {}
+        for sponsor in sponsors:
+            point_total = 0
+            query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x AND nameGiver = :y'
+            params = {'x':driver, 'y':sponsor}
 
-            print(total_points)
-            return (jsonify({'pointTotal': total_points}))
+            rows = db_connection.execute(text(query), params).fetchall()
+            for row in rows:
+                point_total += row[0]
+            
+            points_per_sponsor[sponsor] = point_total
+
+        return(jsonify(points_per_sponsor))
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

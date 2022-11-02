@@ -66,37 +66,20 @@ def check_sponsor_name(db_connection, name):
         return True
 
 
-def check_dup_app(db_connection, user, sponsID):
+def check_dup_app(db_connection, user, sponsorName):
     dup = False
-    query = 'SELECT username, sponsorID from TruckBux.Applications WHERE username = :x'
+    query = 'SELECT username, sponsorName from TruckBux.Applications WHERE username = :x'
     param = {'x': user}
 
     data = db_connection.execute(text(query), param)
     for row in data.fetchall():
-        if row['sponsorID'] == sponsID:
+        if row['sponsorName'] == sponsorName:
             dup = True
 
     return dup
 
 
 # ======================= GETTERS =========================================================
-
-# gets sponsor name from sponsID
-def get_spons_name(db_connection, id):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorID = :x'
-    param = {'x': id}
-
-    row = db_connection.execute(text(query), param).fetchone()
-    return row['sponsorName']
-
-
-# gets sponsorID from sponsName
-def get_spons_id(db_connection, name):
-    query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName = :x'
-    param = {'x': name}
-
-    rows = db_connection.execute(text(query), param).fetchone()
-    return rows['sponsorID']
 
 # gets acctType from username
 def get_acctType(db_connection, name):
