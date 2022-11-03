@@ -532,8 +532,8 @@ def sponsors():
 
         return resp
     elif request.method == 'GET':
-        if 'sponsName' in request.json:
-            sponsorName = request.json['sponsName']
+        if 'sponsName' in request.args:
+            sponsorName = request.args['sponsName']
             acctType = get_acctType(db_connection, sponsorName)
 
             accounts = []

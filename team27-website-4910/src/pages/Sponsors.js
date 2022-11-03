@@ -18,7 +18,7 @@ export default function Register() {
     ]
 
     const getSponsors = async () => {
-        const response = await fetch('http://127.0.0.1:5000/getsponsors');
+        const response = await fetch('http://127.0.0.1:5000/sponsors');
         const result = await response.json();
         console.log(result)
         setSponsors(result.sponsors);

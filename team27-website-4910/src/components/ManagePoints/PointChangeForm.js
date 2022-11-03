@@ -16,7 +16,7 @@ export const PointChangeForm = (props) => {
   //We can import setPointChange from driver list
   //const { our props go here } = props;
 
-  const [ reason, setReason ] = useState('Put your reason for point change here.');
+  const [ reason, setReason ] = useState('');
   const [ pointChange, setPointChange ] = useState(0);
   
   const [ isRecurringPlan, setIsRecurringPlan ] = useState(false);
@@ -47,6 +47,9 @@ export const PointChangeForm = (props) => {
   useEffect(() => {
     if(!isRecurringPlan) {
       setRecurringPeriod('');
+    }
+    else {
+      setRecurringPeriod(recurringOptions[1]);
     }
   }, [isRecurringPlan]);
 
@@ -95,7 +98,7 @@ export const PointChangeForm = (props) => {
     return (
       <TextField
         error={(recurringPeriod === '' && isRecurringPlan)}
-        disabled={!isRecurringPlan}
+        disabled
         select
         id="recurringSelection"
         label="Recurring Period"
@@ -123,7 +126,7 @@ export const PointChangeForm = (props) => {
         />
         <TextField
           id="reason"
-          label="Reason"
+          label="Reason for Point Change"
           type="text"
           value={reason}
           onChange={handleReasonChange}

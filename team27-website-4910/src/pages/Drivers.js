@@ -9,6 +9,7 @@ export default function Register() {
 
     const [drivers, setDrivers] = React.useState();
     const getDrivers = async () => {
+        /*
         const response = await fetch('http://127.0.0.1:5000/relateddrivers', {
             method: 'POST',
             headers: {
@@ -18,6 +19,13 @@ export default function Register() {
                 accountName: "AdminTest"
             }),
         });
+        const result = await response.json();
+        setDrivers(result.accounts);
+        setLoading(false);
+        */
+        const getRequestURL = `http://127.0.0.1:5000/sponsors?sponsName=${"AdminTest"}`
+        const response = await fetch(getRequestURL);
+
         const result = await response.json();
         setDrivers(result.accounts);
         setLoading(false);
@@ -35,7 +43,7 @@ export default function Register() {
                 <Stack spacing={2}>
                     <Typography variant='h3' gutterBottom>Point Changes</Typography>
                     <ManagePoints/>
-
+                    
                     <Typography variant='h3' gutterBottom>Applications</Typography>
                     <Paper>
                         <Container>
