@@ -615,5 +615,48 @@ def points():
         return(jsonify(points_per_sponsor))
 
 
+# Endpoint to insert items into the a users cart
+# @POST request takes in a username and Item_ID
+# @returns success or failure
+#
+# @GET request takes in username and 
+# @returns all Item_ID's that user currenly has in cart
+@app.route('/Cart', methods=['POST', 'GET'])
+@cross_origin()
+def update_cart():
+
+    if request.method == 'POST':
+        user = request.json['user']
+        item = request.json['item']
+        
+        # TO EMPTY A CART POST REQUEST WITH USERNAME AND ITEM ID '666'
+        if(item == '666'):
+            query = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x;'
+            param = {'x': user}
+            rows = db_connection.execute(text(query), param)
+            return (jsonify({'result': 'emptied'}))
+
+        query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
+        query += 'values(:x, :y)'
+        param = {'x': user, 'y': item}
+        try:
+            db_connection.execute(text(query), param)
+            return (jsonify({'result': 'success'}))
+        except:
+            print('Insert Failed')
+            return (jsonify({'result': 'failure'}))
+
+    elif request.method == 'GET':
+        user = request.json['user']
+        user_items = []
+        query = 'SELECT Item_ID FROM TruckBux.Wishlist_Items where username = :x'
+        params = {'x':user}
+        rows = db_connection.execute(text(query), params).fetchall()
+        for row in rows:
+            user_items.append(row[0])
+        return(jsonify(user_items))
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
