@@ -44,8 +44,9 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 
 app = Flask(__name__)
-CORS(app, origins=[
-     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
+CORS(app, origins=['http://127.0.0.1:3000'])
+#CORS(app, origins=[
+#     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
@@ -294,12 +295,14 @@ def update_profile():
 @app.route('/userlogin', methods=['POST'])
 @cross_origin()
 def user_login():
+    print("Printing Request")
+    print(request.json)
     username = request.json['user']
     result = {'result': 'Success'}
     # Checks to see if username is valid
     if (check_username(db_connection, username) == False):
         # Checks to see if too many failed login attempts
-        query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
+        query = text('select * from TruckBux.Logging Where username = :x and result = :n and date_time >= (select date_time from TruckBux.Logging WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
         param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
         log_type = 'login'
@@ -348,7 +351,7 @@ def get_login_attempts():
     result = {'result': 'error'}
     username = request.json['user']
     if check_username(username) == False:
-        query = text('select * from TruckBux.loginLog Where username = :x and result = :n and date_time >= (select date_time from TruckBux.loginLog WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
+        query = text('select * from TruckBux.Logging Where username = :x and result = :n and date_time >= (select date_time from TruckBux.Logging WHERE result = :t ORDER BY ABS( DATEDIFF( date_time, NOW() ) ) DESC limit 1)')
         param = {'x': username, 'n': 'Failure', 't': 'Success'}
         my_data = db_connection.execute(query, param)
         i = 0
@@ -529,8 +532,8 @@ def sponsors():
 
         return resp
     elif request.method == 'GET':
-        if 'sponsName' in request.json:
-            sponsorName = request.json['sponsName']
+        if 'sponsName' in request.args:
+            sponsorName = request.args['sponsName']
             acctType = get_acctType(db_connection, sponsorName)
 
             accounts = []

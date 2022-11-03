@@ -38,7 +38,7 @@ export const ManageAccount = () => {
             body: JSON.stringify(relatedUsersData)
         };
 
-        let response = await fetch('https://team27.cpsc4911.com/relateddrivers', relatedUsersOptions);
+        let response = await fetch('http://127.0.0.1:5000/relateddrivers', relatedUsersOptions);
         response = await response.json();
 
         setUserList(response.accounts);

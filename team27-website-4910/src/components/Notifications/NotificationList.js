@@ -8,7 +8,7 @@ export const NotificationList = (props) => {
   const PopulateNotificationList = () => {
   
     const userNotifications = notifications.map((notification) => {
-      const cardColor = (notifications.indexOf(notification) % 2) === 0 ? 'white' : 'lightgrey';
+      const cardColor = (notifications.indexOf(notification) % 2) === 0 ? '' : 'grey';
 
       return(
           <NotificationCard 

@@ -9,8 +9,16 @@ export default function Register() {
     const [sponsors, setSponsors] = React.useState();
     const [numSponsors, setNumSponsors] = React.useState();
 
+    //Mock MySponsors List. This should be populated when getting a driver's
+    //sponsors from the database.
+    const MySponsors = [
+        { 'sponsorName': 'Sponsor01', 'active': 1, 'points': 69 },
+        { 'sponsorName': 'Sponsor02', 'active': 1, 'points': 420 },
+        { 'sponsorName': 'Sponsor03', 'active': 0, 'points': 50 },
+    ]
+
     const getSponsors = async () => {
-        const response = await fetch('https://team27.cpsc4911.com/getsponsors');
+        const response = await fetch('http://127.0.0.1:5000/sponsors');
         const result = await response.json();
         console.log(result)
         setSponsors(result.sponsors);

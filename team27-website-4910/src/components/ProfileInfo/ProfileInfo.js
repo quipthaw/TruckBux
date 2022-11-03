@@ -61,7 +61,7 @@ export const ProfileInfo = (props) => {
             body: JSON.stringify(profileData)
         };
 
-        let profileResponse = await fetch('https://team27.cpsc4911.com/updateprof', profileOptions);
+        let profileResponse = await fetch('http://127.0.0.1:5000/updateprof', profileOptions);
 
         profileResponse = await profileResponse.json();
 

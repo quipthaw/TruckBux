@@ -2,13 +2,15 @@ import { CircularProgress, Paper, Typography, Box, Button } from '@mui/material'
 import { Container, Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
+import { ManagePoints } from '../components/ManagePoints/ManagePoints';
 
 export default function Register() {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
     const getDrivers = async () => {
-        const response = await fetch('https://team27.cpsc4911.com/relateddrivers', {
+        /*
+        const response = await fetch('http://127.0.0.1:5000/relateddrivers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -17,6 +19,13 @@ export default function Register() {
                 accountName: "AdminTest"
             }),
         });
+        const result = await response.json();
+        setDrivers(result.accounts);
+        setLoading(false);
+        */
+        const getRequestURL = `http://127.0.0.1:5000/sponsors?sponsName=${"AdminTest"}`
+        const response = await fetch(getRequestURL);
+
         const result = await response.json();
         setDrivers(result.accounts);
         setLoading(false);
@@ -32,6 +41,9 @@ export default function Register() {
                 <CircularProgress />
                 :
                 <Stack spacing={2}>
+                    <Typography variant='h3' gutterBottom>Point Changes</Typography>
+                    <ManagePoints/>
+                    
                     <Typography variant='h3' gutterBottom>Applications</Typography>
                     <Paper>
                         <Container>
