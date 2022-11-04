@@ -11,7 +11,7 @@ import {
 export const AccountDeactivation = (props) => {
     const navigate = useNavigate();
 
-    const { userInfo } = props;
+    const userInfo = props;
 
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);

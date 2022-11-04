@@ -15,7 +15,7 @@ export const UpdatePassword = (props) => {
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);
 
-    const { username, firstname, lastname, email } = props.userInfo;
+    const { username, firstname, lastname, email } = props;
 
     const navigate = useNavigate();
 

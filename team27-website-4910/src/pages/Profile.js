@@ -16,6 +16,9 @@ import {
 export default function Profile() {
     const navigate = useNavigate();
 
+    const [usernameState, setUsernameState ] = useRecoilState(userName);
+
+    /*
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);
     const [firstnameState, setFirstnameState] = useRecoilState(userFName);
@@ -23,7 +26,9 @@ export default function Profile() {
     const [emailState, setEmailState] = useRecoilState(userEmail);
     const [bioState, setBioState] = useRecoilState(userBio);
     const [sponsorIDs, setSponsorIDs] = useRecoilState(userSponsors);
+    */
 
+    /*
     useEffect(() => {
         if (sessionState === '0') {
             navigate('/');
@@ -48,11 +53,12 @@ export default function Profile() {
         'active': 1,
         'sponsorIDs': sponsorIDs,
     };
+    */
 
     return (
         <div>
             <Layout>
-                <ProfileInfo userInfo={userInfo} />
+                <ProfileInfo username={usernameState} />
             </Layout>
         </div>
     )
