@@ -129,6 +129,19 @@ def log(db_connection, username, log_type, logresult=None, modder=None, reason=N
         print("failed to store log")
 
 
+#Helper to store notification
+def notif_log(db_connection, username, message):
+    query = 'INSERT INTO TruckBux.Notifications (username, message, seen) '
+    query += 'VALUES(:x, :y, :j)'
+    param ={'x':username, 'y': message, 'j':0 }
+    try:
+        db_connection.execute(text(query), param)
+    except:
+        print("failed to store notif log")
+
+
+
+
 # ========================================= ACCOUNT LOCKOUT =============================================
 
 #Function to Lock Account based on username and number of years to lock
