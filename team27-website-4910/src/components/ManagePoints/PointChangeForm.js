@@ -8,22 +8,23 @@ import {
   MenuItem,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { userName } from '../../recoil_atoms';
 
-//This component is for setting point changes. This component will likely
-//need to be passed Driver(s) to apply the point changes to. This component
-//will also set if a point change is recurring.
 export const PointChangeForm = (props) => {
-  //We can import setPointChange from driver list
-  //const { our props go here } = props;
+  const { selectedDrivers, drivers } = props;
 
   const [ reason, setReason ] = useState('');
   const [ pointChange, setPointChange ] = useState(0);
+  const [ usernameState, setUsernameState ] = useRecoilState(userName);
   
   const [ isRecurringPlan, setIsRecurringPlan ] = useState(false);
   
   const recurringOptions = ['Weekly', 'Monthly', 'Yearly'];
   const [ recurringPeriod, setRecurringPeriod ] = useState('');
   const [ recurringError, setRecurringError ] = useState('');
+
+  const { refresh, setRefresh } = props;
 
   const handlePointChange = (e) => {
     setPointChange(e.target.value);
@@ -54,16 +55,41 @@ export const PointChangeForm = (props) => {
   }, [isRecurringPlan]);
 
   //For now this only spits out into console. Use props to set what is needed
-  const handleSubmit = () => {
-    console.log(pointChange);
-    console.log(reason);
-    console.log(isRecurringPlan);
-    if(recurringPeriod === '') {
-      setRecurringError('You must select a recurring period');
-    }
-    else {
-      console.log(recurringPeriod);
-      setRecurringError('');
+  const handleSubmit = async () => {
+    if(Number(pointChange) !== 0 && selectedDrivers.length !== 0) {
+      
+      let receivers = selectedDrivers.map((driver) => {
+        return (
+          driver.username
+        );
+      });
+      
+      if(selectedDrivers.length === drivers.length) {
+        receivers = ['all'];
+      }
+
+      console.log(receivers);
+
+      const data = {
+        giver: usernameState,
+        receivers: receivers,
+        points: pointChange,
+        reason: reason,
+      }
+
+      const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      };
+
+      const response = await fetch('http://127.0.0.1:5000/points', options);
+      const result = await response.json();
+      console.log(result);
+
+      setRefresh(refresh ? false : true);
     }
   };
 
@@ -72,7 +98,7 @@ export const PointChangeForm = (props) => {
       <FormGroup>
         <FormControlLabel
           control={<Checkbox checked={isRecurringPlan} onChange={handleRecurring}/>} 
-          label="Reccuring Plan" 
+          label="Recurring Plan" 
         />
       </FormGroup>
     );
