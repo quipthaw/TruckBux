@@ -2,7 +2,9 @@ import React from 'react';
 import { PointChangeForm } from './PointChangeForm';
 
 export const ManagePoints = (props) => {
+  const { refresh, setRefresh } = props;
+
   return (
-    <PointChangeForm/>
+    <PointChangeForm refresh={refresh} setRefresh={setRefresh}/>
   );
 };

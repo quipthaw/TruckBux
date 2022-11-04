@@ -7,10 +7,12 @@ import { DriversUserRow } from '../components/ManageAccount/UserList/UserListRow
 import { UserList } from '../components/ManageAccount/UserList/UserList';
 import { ManagePoints } from '../components/ManagePoints/ManagePoints';
 
-export default function Register() {
+export default function Drivers() {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
+
+    const [ refresh, setRefresh ] = React.useState(false);
 
     //List of drivers that PointChangeForm will send to backend
     const [selectedDrivers, setSelectedDrivers ] = React.useState([]);
@@ -78,10 +80,10 @@ export default function Register() {
                     <DriverApplicationsList/>
 
                     <Typography variant='h3' gutterBottom>Point Change</Typography>
-                    <ManagePoints/>
+                    <ManagePoints refresh={refresh} setRefresh={setRefresh}/>
 
                     <Typography variant='h3' gutterBottom>My Drivers</Typography>
-                    <UserList userList={drivers}/>
+                    <UserList refresh={refresh} setRefresh={setRefresh} userList={drivers}/>
                 </Stack>
             }
         </Layout>

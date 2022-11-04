@@ -1,16 +1,15 @@
 import { Stack } from '@mui/material';
 import React from 'react';
-import { DriversUserRow } from './UserListRow';
-//import { UserListRow } from './UserListRow';
+import { UserListRow } from './UserListRow';
 
 export const UserList = (props) => {
 
-    const { userList } = props;
+    const { userList, refresh, setRefresh } = props;
 
     const renderUserList = () => {
         const userListRows = userList.map((user) => {
             return (
-                <DriversUserRow key={user.username} driver={user}/>
+                <UserListRow refresh={refresh} setRefresh={setRefresh} key={user.username} driver={user}/>
             );
         });
 

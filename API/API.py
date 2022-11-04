@@ -618,11 +618,14 @@ def points():
     
     #get sponsor's points by driver
     elif request.method == 'GET':
-        driver = request.json['driver']
+        driver = request.args['driver']
+        user_items = []
         query = 'SELECT nameGiver, SUM(pointChange) FROM TruckBux.Points WHERE nameReceiver = :x GROUP BY nameGiver;'
         params = {'x':driver}
         rows = db_connection.execute(text(query), params).fetchall()
-        return(jsonify(str(rows)))
+        for row in rows:
+            user_items.append({'sponsorName': row[0], 'points': row[1]})
+        return(jsonify(user_items))
 
 
 
