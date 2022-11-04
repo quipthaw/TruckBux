@@ -663,7 +663,37 @@ def update_cart():
             user_items.append(row[0])
         return(jsonify(user_items))
 
+# Endpoint to let a user purchase items
+# @POST request takes in a username
+# Purchases iemts currently in users cart then removes items from cart  
+# @returns bought
+#
+# @GET request takes in username and 
+# @returns all Item_ID's that user has purchased
+@app.route('/purchase', methods=['POST', 'GET'])
+@cross_origin()
+def user_purchase():
 
+    if request.method == 'POST':
+        user = request.json['user']
+        query = 'UPDATE TruckBux.Wishlist_Items SET Date_Time = :d WHERE username = :x ;' 
+        query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Wishlist_Items WHERE username = :x ;'
+        query3 = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x ;'
+        param = {'x': user, 'd': datetime.datetime.now()}
+        db_connection.execute(text(query), param)
+        db_connection.execute(text(query2), param)
+        db_connection.execute(text(query3), param)
+        return (jsonify({'result': 'Bought'}))
+    
+    elif request.method == 'GET':
+        user = request.json['user']
+        user_items = []
+        query = 'SELECT Item_ID FROM TruckBux.Purchases where username = :x'
+        params = {'x':user}
+        rows = db_connection.execute(text(query), params).fetchall()
+        for row in rows:
+            user_items.append(row[0])
+        return(jsonify(user_items))
 
 if __name__ == '__main__':
     app.run(debug=True)
