@@ -1,6 +1,7 @@
 import { Stack } from '@mui/material';
 import React from 'react';
-import { UserListRow } from './UserListRow';
+import { DriversUserRow } from './UserListRow';
+//import { UserListRow } from './UserListRow';
 
 export const UserList = (props) => {
 
@@ -9,7 +10,7 @@ export const UserList = (props) => {
     const renderUserList = () => {
         const userListRows = userList.map((user) => {
             return (
-                <UserListRow key={user.username} user={user}/>
+                <DriversUserRow key={user.username} driver={user}/>
             );
         });
 
@@ -18,7 +19,7 @@ export const UserList = (props) => {
 
     return (
         <Stack direction='column' spacing={2}>
-            {renderUserList()}    
+            {renderUserList()}
         </Stack>
     );
 };

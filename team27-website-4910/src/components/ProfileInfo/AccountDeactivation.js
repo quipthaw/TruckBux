@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Button, Stack, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,8 @@ import {
 export const AccountDeactivation = (props) => {
     const navigate = useNavigate();
 
-    const { userInfo } = props;
+    const userInfo = props;
+    console.log(userInfo)
 
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);
@@ -20,8 +21,8 @@ export const AccountDeactivation = (props) => {
     const [finalConfirmation, setFinalConfirmation] = useState(false);
     const [systemMessage, setSystemMessage] = useState('');
 
-    const [buttonMessage, setButtonMessage] = useState(userInfo.active ? "Deactivate Account" : "Activate Account");
-    const [buttonColor, setButtonColor] = useState(userInfo.active ? "error" : "success");
+    const [buttonMessage, setButtonMessage] = useState("Deactivate Account");
+    const [buttonColor, setButtonColor] = useState("error");
 
     const toggleDeactivating = () => {
         setSystemMessage('');
@@ -35,15 +36,20 @@ export const AccountDeactivation = (props) => {
     };
 
     const toggleButton = () => {
-        setButtonMessage(userInfo.active === 0 ? "Deactivate Account" : "Activate Account");
-        setButtonColor(userInfo.active === 0 ? "error" : "success");
+        setButtonMessage(Number(userInfo.active) === 0 ? "Deactivate Account" : "Activate Account");
+        setButtonColor(Number(userInfo.active) === 0 ? "error" : "success");
     }
+
+    useEffect(() => {
+        setButtonColor((userInfo.active === '1') ? "error" : "success");
+        setButtonMessage((userInfo.active === '1') ? "Deactivate Account" : "Activate Account");
+    }, [userInfo])
 
     const toggleActivation = async () => {
         //Need logging in the future
         //const modder = usernameState;
         const target = userInfo.username;
-        const newActive = userInfo.active ? 0 : 1;
+        const newActive = (userInfo.active === '1') ? 0 : 1;
 
         const statusChangeData = {
             user: target,
@@ -62,17 +68,22 @@ export const AccountDeactivation = (props) => {
 
         statusChangeResponse = await statusChangeResponse.json();
 
+        console.log(statusChangeResponse)
+
         if (statusChangeResponse.response === 'Success') {
             //Kick the user to homepage if they deactivate own account
             if (userInfo.username === usernameState) {
                 setSessionState('0')
                 navigate('/');
             }
-            userInfo.setProfile.setActive(userInfo.active ? 0 : 1);
-            console.log(userInfo.active);
+            userInfo.setProfileInfo((prevInfo) => {
+                const newProfileInfo = {...prevInfo};
+
+                newProfileInfo.active = (userInfo.active === '1') ? '0' : '1';
+
+                return newProfileInfo;
+            })
             toggleButton();
-            console.log(buttonColor);
-            console.log(buttonMessage);
             setDeactivating(false);
             setFinalConfirmation(false);
         }

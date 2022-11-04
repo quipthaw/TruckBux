@@ -1,192 +1,266 @@
 import { Button, Paper, TextField, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container } from '@mui/system';
 import { UpdatePassword } from '../PasswordRecovery/UpdatePassword';
 import { AccountDeactivation } from './AccountDeactivation';
-import { MySponsors } from './MySponsors';
 
 export const ProfileInfo = (props) => {
+  const { username } = props;
+  const [ updatingProfile, setUpdatingProfile ] = useState(false);
+  const [ updatingError, setUpdatingError ] = useState('');
 
-    const { userInfo } = props;
+  //Information of the user. This information is not 
+  //changed until the user confirms account changes.
+  const [ profileInfo, setProfileInfo ] = useState({
+    //acctType: ''
+    //active: '1'
+    //bio: ''
+    //dateCreated: ''
+    //email: ''
+    //fName: ''
+    //lName: ''
+    //lockedUntil: ''
+    //username: ''
+  });
 
-    const [updatingProfile, setUpdatingProfile] = useState(false);
+  //Information that is displayed on the profile page. 
+  //This changes as input is given by the user.
+  const [ editProfileInfo, setEditProfileInfo ] = useState({
+    //acctType: ''
+    //active: '1'
+    //bio: ''
+    //dateCreated: ''
+    //email: ''
+    //fName: ''
+    //lName: ''
+    //lockedUntil: ''
+    //username: ''
+  })
 
-    const [profileUsername, setProfileUsername] = useState(userInfo.username);
-    const [profileFirstname, setProfileFirstname] = useState(userInfo.firstname);
-    const [profileLastname, setProfileLastname] = useState(userInfo.lastname);
-    const [profileEmail, setProfileEmail] = useState(userInfo.email);
-    const [profileBio, setProfileBio] = useState(userInfo.bio);
+  const assignProfile = (result) => {
+    const newProfileInfo = {...result.user[0]};
 
-    const [profileUpdateError, setProfileUpdateError] = useState("");
+    setProfileInfo(newProfileInfo);
+    setEditProfileInfo(newProfileInfo);
+  };
 
-    //On changes for profile-specific variables - we do not change context here
-    const onEmailChange = (e) => {
-        setProfileEmail(e.target.value);
+  const getProfileInformation = async () => {
+    const profileData = { user: username };
+    const profileOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData)
     };
 
-    const onFirstnameChange = (e) => {
-        setProfileFirstname(e.target.value);
+    const profileResponse = await fetch('http://127.0.0.1:5000/getprofile', profileOptions);
+    const result = await profileResponse.json();
+
+    assignProfile(result);
+  }
+
+  const requestProfileUpdate = async () => {
+    const data = {
+      user: editProfileInfo.username,
+      email: editProfileInfo.email,
+      fname: editProfileInfo.fName,
+      lname: editProfileInfo.lName,
+      bio: editProfileInfo.bio,
+    }
+
+    const options = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
     };
 
-    const onLastnameChange = (e) => {
-        setProfileLastname(e.target.value);
-    };
+    const response = await fetch('http://127.0.0.1:5000/updateprof', options);
+    const result = await response.json();
 
-    const onUserBioChange = (e) => {
-        setProfileBio(e.target.value);
-    };
+    if(result.error === "False") {
+      setProfileInfo(() => {
+        const newProfileInfo = {...editProfileInfo};
+        return newProfileInfo;
+      });
+      setUpdatingError('');
+      updatingProfileOff();
+    }
+    else {
+      if ('email' in result) {
+        setUpdatingError(result.email);
+      }
+      else {
+        setUpdatingError("We were unable to update your profile");
+      }
+    }
+  }
 
-    const toggleUpdatingProfile = () => {
-        setUpdatingProfile(updatingProfile ? false : true);
-    };
+  useEffect(() => {
+    getProfileInformation();
+  }, [])
 
-    const handleUpdateProfileInformation = async (e) => {
-        e.preventDefault();
+  const resetEditProfileInfo = () => {
+    setEditProfileInfo(() => {
+      const newEditProfileInfo = {...profileInfo};
 
-        //Send update request to server.
-        const profileData = {
-            user: profileUsername,
-            email: profileEmail,
-            fname: profileFirstname,
-            lname: profileLastname,
-            bio: profileBio
-        };
+      return newEditProfileInfo;
+    })
+  }
 
-        const profileOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(profileData)
-        };
+  const updatingProfileOn = () => {
+    setUpdatingProfile(true);
+  }
 
-        let profileResponse = await fetch('http://127.0.0.1:5000/updateprof', profileOptions);
+  const updatingProfileOff = () => {
+    resetEditProfileInfo();
+    setUpdatingProfile(false);
+  }
 
-        profileResponse = await profileResponse.json();
+  const onEmailChange = (e) => {
+    setEditProfileInfo((prevEditInfo) => {
+      const newEditProfileInfo = {...prevEditInfo};
+      newEditProfileInfo.email = e.target.value;
+      
+      return newEditProfileInfo;
+    })
+  };
 
-        if (profileResponse.error === "False") {
-            userInfo.setProfile.setEmail(profileEmail);
-            userInfo.setProfile.setFirstname(profileFirstname);
-            userInfo.setProfile.setLastname(profileLastname);
-            userInfo.setProfile.setBio(profileBio);
-            setProfileUpdateError("");
-            toggleUpdatingProfile();
-        }
-        else {
-            if ('email' in profileResponse) {
-                setProfileUpdateError(profileResponse.email);
-            }
-            else {
-                setProfileUpdateError("We were unable to update your profile");
-            }
-        }
-    };
+  const onFirstnameChange = (e) => {
+    setEditProfileInfo((prevEditInfo) => {
+      const newEditProfileInfo = {...prevEditInfo};
+      newEditProfileInfo.fName = e.target.value;
+      
+      return newEditProfileInfo;
+    })
+  };
 
-    const DisplayUserType = () => {
-        let userTypeMessage = 'Account Type: ';
+  const onLastnameChange = (e) => {
+    setEditProfileInfo((prevEditInfo) => {
+      const newEditProfileInfo = {...prevEditInfo};
+      newEditProfileInfo.lName = e.target.value;
+      
+      return newEditProfileInfo;
+    })
+  };
 
-        if (userInfo.userType === 'A') {
-            userTypeMessage = userTypeMessage.concat('Admin');
-        }
-        else if (userInfo.userType === 'S') {
-            userTypeMessage = userTypeMessage.concat('Sponsor');
-        }
-        else {
-            userTypeMessage = userTypeMessage.concat('Driver');
-        }
+  const onBioChange = (e) => {
+    setEditProfileInfo((prevEditInfo) => {
+      const newEditProfileInfo = {...prevEditInfo};
+      newEditProfileInfo.bio = e.target.value;
+      
+      return newEditProfileInfo;
+    })
+  };
 
-        return (
-            <Typography align='center'>{userTypeMessage}</Typography>
-        );
-    };
-
-
+  const EditButtons = () => {
     return (
-        <Container sx={{
-            width: '90% ',
-            display: 'flex',
-            marginY: '5vh'
-        }}>
-            <Paper sx={{ width: '100%' }}>
-                <Box sx={{
-                    height: '100%',
-                    width: '100%',
-                    padding: '25px'
-                }}>
-                    <Stack direction='column' spacing={2} justifyContent='center' alignItems='stretch' alignContent='center'>
-                        <DisplayUserType />
-                        <Stack direction='row' spacing={2}>
-                            <TextField
-                                id="username"
-                                label="Username"
-                                value={userInfo.username}
-                                fullWidth
-                                inputProps={
-                                    { disabled: true, }
-                                }
-                            />
-                            <TextField
-                                id="email"
-                                label="Email"
-                                value={updatingProfile ? profileEmail : userInfo.email}
-                                onChange={(onEmailChange)}
-                                fullWidth
-                                variant={updatingProfile ? 'filled' : 'outlined'}
-                                inputProps={
-                                    updatingProfile ? { disabled: false } : { disabled: true, }
-                                }
-                            />
-                        </Stack>
-                        <Stack direction='row' spacing={2}>
-                            <TextField
-                                id="firstname"
-                                label="First Name"
-                                value={updatingProfile ? profileFirstname : userInfo.firstname}
-                                onChange={(onFirstnameChange)}
-                                fullWidth
-                                variant={updatingProfile ? 'filled' : 'outlined'}
-                                inputProps={
-                                    updatingProfile ? { disabled: false } : { disabled: true, }
-                                }
-                            />
-                            <TextField
-                                id="lastname"
-                                label="Last Name"
-                                value={updatingProfile ? profileLastname : userInfo.lastname}
-                                onChange={(onLastnameChange)}
-                                fullWidth
-                                variant={updatingProfile ? 'filled' : 'outlined'}
-                                inputProps={
-                                    updatingProfile ? { disabled: false } : { disabled: true, }
-                                }
-                            />
-                        </Stack>
-                        <Stack direction='row' spacing={2}>
-                            <TextField
-                                id="userbio"
-                                label="Bio"
-                                value={updatingProfile ? profileBio : userInfo.bio}
-                                onChange={(onUserBioChange)}
-                                fullWidth
-                                variant={updatingProfile ? 'filled' : 'outlined'}
-                                inputProps={
-                                    updatingProfile ? { disabled: false } : { disabled: true, }
-                                }
-                            />
-                        </Stack>
-                        {updatingProfile && profileUpdateError !== '' && <Typography color='red'>{profileUpdateError}</Typography>}
-                        {!updatingProfile && <Button variant="text" onClick={(toggleUpdatingProfile)} sx={{ width: '100%' }}>Update Profile</Button>}
-                        {updatingProfile && <Button variant="text" onClick={(handleUpdateProfileInformation)} sx={{ width: '100%' }}>Confirm Changes</Button>}
-
-                        <UpdatePassword userInfo={userInfo} updatingProfile={updatingProfile} setUpdatingProfile={setUpdatingProfile} />
-
-                        <MySponsors sponsorList={userInfo.sponsorIDs} />
-
-                        {<AccountDeactivation userInfo={userInfo} />}
-                    </Stack>
-                </Box>
-            </Paper>
-        </Container>
+      <Stack direction="row" spacing={2}>
+        {!updatingProfile && <Button variant="text" onClick={(updatingProfileOn)} sx={{ width: '100%' }}>Update Profile</Button>}
+        {updatingProfile && <Button variant="text" onClick={(requestProfileUpdate)} sx={{ width: '50%' }}>Confirm Changes</Button>}
+        {updatingProfile && <Button variant="text" onClick={(updatingProfileOff)} sx={{ width: '50%' }}>Cancel Changes</Button>}
+      </Stack>
     );
+  };
+
+  const DisplayUserType = () => {
+    let acctType = "Driver";
+
+    if(profileInfo.acctType === 'A') {
+      acctType = "Admin";
+    }
+    else if(profileInfo.acctType === 'S') {
+      acctType = "Sponsor"
+    }
+
+    const userTypeMessage = `Account Type: ${acctType}`;
+    return (
+        <Typography align='center'>{userTypeMessage}</Typography>
+    );
+  };
+
+  return (
+    <Container sx={{ width: '90% ', display: 'flex', marginY: '5vh' }}>
+      <Paper sx={{ width: '100%' }}>
+        <Box sx={{ height: '100%', width: '100%', padding: '25px' }}>
+          <Stack direction="column" spacing={2}>
+            
+            <DisplayUserType />
+            
+            <Stack direction="row" spacing={2}>
+
+              <TextField
+                disabled
+                id="username"
+                label="Username"
+                value={editProfileInfo.username}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                disabled={!updatingProfile}
+                id="email"
+                label="Email"
+                value={updatingProfile ? editProfileInfo.email : profileInfo.email}
+                onChange={(onEmailChange)}
+                fullWidth
+                variant={updatingProfile ? 'filled' : 'outlined'}
+                InputLabelProps={{ shrink: true }}
+              />
+
+            </Stack>
+
+            <Stack direction="row" spacing={2}>
+              <TextField
+                disabled={!updatingProfile}
+                id="firstname"
+                label="First Name"
+                value={updatingProfile ? editProfileInfo.fName : profileInfo.fName}
+                onChange={(onFirstnameChange)}
+                fullWidth
+                variant={updatingProfile ? 'filled' : 'outlined'}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                disabled={!updatingProfile}
+                id="lastname"
+                label="Last Name"
+                value={updatingProfile ? editProfileInfo.lName : profileInfo.lName}
+                onChange={(onLastnameChange)}
+                fullWidth
+                variant={updatingProfile ? 'filled' : 'outlined'}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
+
+            <Stack direction='row' spacing={2}>
+              <TextField
+                disabled={!updatingProfile}
+                id="userbio"
+                label="Bio"
+                value={updatingProfile ? editProfileInfo.bio : profileInfo.bio}
+                onChange={(onBioChange)}
+                fullWidth
+                variant={updatingProfile ? 'filled' : 'outlined'}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
+
+            {updatingProfile && updatingError !== '' && <Typography align="center" color='red'>{updatingError}</Typography>}
+            <EditButtons/>
+            <UpdatePassword 
+              username={profileInfo.username}
+              firstname={profileInfo.fName}
+              lastname={profileInfo.lName}
+              email={profileInfo.email}
+            />
+            <AccountDeactivation active={profileInfo.active} username={profileInfo.username} setProfileInfo={setProfileInfo}/>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
+  );
 };

@@ -2,7 +2,7 @@ import { Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { Container } from '@mui/system';
-import { UserList } from './UserList';
+import { UserList } from './UserList/UserList';
 import { useRecoilState } from 'recoil';
 import {
     userType,
@@ -28,6 +28,7 @@ export const ManageAccount = () => {
     }
 
     const getRelatedUsers = async () => {
+        /*
         const relatedUsersData = { accountName: usernameState };
 
         const relatedUsersOptions = {
@@ -39,9 +40,12 @@ export const ManageAccount = () => {
         };
 
         let response = await fetch('http://127.0.0.1:5000/relateddrivers', relatedUsersOptions);
-        response = await response.json();
+        */
+        const responseURL = `http://127.0.0.1:5000/sponsors?sponsName=${usernameState}`;
+        const response = await fetch(responseURL);
+        const result = await response.json();
 
-        setUserList(response.accounts);
+        setUserList(result.accounts);
     }
 
     useEffect(() => {

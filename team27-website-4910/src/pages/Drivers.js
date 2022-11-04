@@ -1,29 +1,22 @@
-import { CircularProgress, Paper, Typography, Box, Button } from '@mui/material';
+import { CircularProgress, Paper, Typography, Box, Button, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import { Container, Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
+import { DriverApplicationsList } from '../components/ManageAccount/DriverApplicationsList';
+import { DriversUserRow } from '../components/ManageAccount/UserList/UserListRow';
+import { UserList } from '../components/ManageAccount/UserList/UserList';
 import { ManagePoints } from '../components/ManagePoints/ManagePoints';
 
 export default function Register() {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
+
+    //List of drivers that PointChangeForm will send to backend
+    const [selectedDrivers, setSelectedDrivers ] = React.useState([]);
+
     const getDrivers = async () => {
-        /*
-        const response = await fetch('http://127.0.0.1:5000/relateddrivers', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                accountName: "AdminTest"
-            }),
-        });
-        const result = await response.json();
-        setDrivers(result.accounts);
-        setLoading(false);
-        */
-        const getRequestURL = `http://127.0.0.1:5000/sponsors?sponsName=${"AdminTest"}`
+        const getRequestURL = `http://127.0.0.1:5000/sponsors?sponsName=${"Adidas"}`
         const response = await fetch(getRequestURL);
 
         const result = await response.json();
@@ -35,51 +28,60 @@ export default function Register() {
         getDrivers()
     }, []);
 
+    console.log(drivers);
+
+    const UserSelectionCheckbox = (props) => {
+        const { driver, setSelectedDrivers } = props;
+        const [ isSelected, setIsSelected ] = React.useState(false);
+
+        const handleSelection = (e) => {
+            setIsSelected(e.target.checked);
+
+            setSelectedDrivers((prevSelectedDrivers) => {
+                const newSelectedDrivers = [...prevSelectedDrivers];
+            
+                if(e.target.checked) {
+                    const selectedDriver = {
+                    ...driver,
+                    'selected': e.target.checked,
+                    }
+
+                    newSelectedDrivers.push(selectedDriver);
+                }
+                else {
+                    const deleteIndex = newSelectedDrivers.indexOf(driver);
+                    if(deleteIndex > -1) {
+                        newSelectedDrivers.splice(deleteIndex, 1);
+                    }
+                }
+
+                return newSelectedDrivers;
+            });
+        };
+
+        return (
+            <FormGroup  sx={{ width: '5%'}}>
+                <FormControlLabel
+                    control={<Checkbox checked={isSelected} onChange={handleSelection}/>}
+                />
+            </FormGroup>
+        );
+    };
+
     return (
         <Layout>
             {loading ?
                 <CircularProgress />
                 :
-                <Stack spacing={2}>
-                    <Typography variant='h3' gutterBottom>Point Changes</Typography>
-                    <ManagePoints/>
-                    
+                <Stack direction="column" spacing={2}>       
                     <Typography variant='h3' gutterBottom>Applications</Typography>
-                    <Paper>
-                        <Container>
-                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                <Box>
-                                    <Typography variant='h6'>Static Test</Typography>
-                                    <Typography>{"Username: " + 'StaticUser_CHANGE'}</Typography>
-                                    <Typography>{"Application Date: " + '10/31/2022'}</Typography>
-                                </Box>
-                                <Box>
-                                    <Button>Accept</Button>
-                                    <Button>Deny</Button>
-                                </Box>
-                            </Stack>
-                        </Container>
-                    </Paper>
-                    <Typography variant='h3' gutterBottom>My Drivers</Typography>
-                    {drivers.map((driver) => {
-                        return (
-                            <Paper>
-                                <Container>
-                                    <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                        <Box>
-                                            <Typography variant='h6'>{driver.fname + " " + driver.lname}</Typography>
-                                            <Typography>{"Username: " + driver.username}</Typography>
-                                            <Typography>{"Type: " + driver.acctType}</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Button>Drop</Button>
-                                        </Box>
-                                    </Stack>
+                    <DriverApplicationsList/>
 
-                                </Container>
-                            </Paper>
-                        )
-                    })}
+                    <Typography variant='h3' gutterBottom>Point Change</Typography>
+                    <ManagePoints/>
+
+                    <Typography variant='h3' gutterBottom>My Drivers</Typography>
+                    <UserList userList={drivers}/>
                 </Stack>
             }
         </Layout>
