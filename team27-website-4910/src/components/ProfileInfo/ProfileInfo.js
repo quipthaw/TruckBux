@@ -257,7 +257,7 @@ export const ProfileInfo = (props) => {
               lastname={profileInfo.lName}
               email={profileInfo.email}
             />
-            <AccountDeactivation active={profileInfo.active} username={profileInfo.username}/>
+            <AccountDeactivation active={profileInfo.active} username={profileInfo.username} setProfileInfo={setProfileInfo}/>
           </Stack>
         </Box>
       </Paper>

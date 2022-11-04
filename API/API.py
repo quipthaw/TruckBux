@@ -375,7 +375,7 @@ def update_status():
     status = request.json['status']
     param = {'u': username, 'x': status}
     resp = {'response': 'Success'}
-    if check_username(username) == False:
+    if check_username(db_connection, username) == False:
         query_one = 'SELECT active FROM TruckBux.Users WHERE username = :u'
         origStatus = db_connection.execute(text(query_one), param).first()
         if origStatus[0] == status:

@@ -28,11 +28,11 @@ export default function Register() {
         getDrivers()
     }, []);
 
+    console.log(drivers);
+
     const UserSelectionCheckbox = (props) => {
         const { driver, setSelectedDrivers } = props;
         const [ isSelected, setIsSelected ] = React.useState(false);
-
-        console.log(isSelected)
 
         const handleSelection = (e) => {
             setIsSelected(e.target.checked);

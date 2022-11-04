@@ -18,10 +18,7 @@ export const ProfileEditButton = (props) => {
     const { usernameState } = useRecoilState(userName);
     const { user } = props;
 
-    console.log(user)
-
     const [selected, setSelected] = useState(false);
-    const [activeUser, setActiveUser] = useState(user.username === usernameState);
 
     const openDialog = () => {
         setSelected(true);
