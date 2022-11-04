@@ -568,58 +568,66 @@ def sponsors():
     
 
 # Endpoint to insert data into the points table
-# @POST request takes in giver, reciever, points, reason
+# @POST request takes in giver, reciever[], points, reason
+# reciever must be an array of drivers (strings)
 # @returns success or failure
+# TO POST TO ALL OF A SPONSORS DRIVERS MAKE recievers[0] = 'all'
 #
 # @GET request takes in driver and 
 # @returns total points that driver has for each sponsor {'<sponsorName>': <point_total>}
 @app.route('/points', methods=['POST', 'GET'])
 @cross_origin()
 def points():
+    
     if request.method == 'POST':
         giver = request.json['giver']
-        receiver = request.json['receiver']
+        receivers = request.json['receivers']
         point_change = request.json['points']
         reason = request.json['reason']
 
-        query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
-        query += 'values(:x, :y, :j, :k)'
-        param = {'x': giver, 'y': receiver, 'j': point_change, 'k': reason}
-
-        try:
-            db_connection.execute(text(query), param)
-            return (jsonify({'result': 'success'}))
-        except:
-            print('Insert Failed')
-            return (jsonify({'result': 'failure'}))
+        #insert points for all of a sponsor's drivers
+        if receivers[0] == 'all':
+            param = {'x': giver}
+            query = 'SELECT username FROM Sponsorships WHERE sponsorName = :x '
+            my_data = db_connection.execute(text(query),param).fetchall()
+            if my_data != None:
+                for row in my_data:
+                    notif_log(db_connection, row[0], 'points')
+                    query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
+                    query += 'values(:x, :y, :j, :k)'
+                    param = {'x': giver, 'y': row[0], 'j': point_change, 'k': reason}
+                    try:
+                        db_connection.execute(text(query), param)
+                    except:
+                        print('Insert Failed')
+                        return(jsonify({'result': 'failure'}))
+            return(jsonify({'result': 'success'}))
+        
+        #insert points for a given list of drivers
+        for i in range(0, (len(receivers))):
+            notif_log(db_connection, receivers[i], 'points')
+            query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
+            query += 'values(:x, :y, :j, :k)'
+            param = {'x': giver, 'y': receivers[i], 'j': point_change, 'k': reason}
+            try:
+                db_connection.execute(text(query), param)
+            except:
+                print('Insert Failed')
+                return(jsonify({'result': 'failure'}))
+        return(jsonify({'result': 'success'}))
+    
+    #get sponsor's points by driver
     elif request.method == 'GET':
         driver = request.json['driver']
-
-        sponsors = []
-        query = 'SELECT sponsorName FROM TruckBux.Sponsorships where username = :x'
+        query = 'SELECT nameGiver, SUM(pointChange) FROM TruckBux.Points WHERE nameReceiver = :x GROUP BY nameGiver;'
         params = {'x':driver}
-
         rows = db_connection.execute(text(query), params).fetchall()
-        for row in rows:
-            sponsors.append(row[0])
+        return(jsonify(str(rows)))
 
-        points_per_sponsor = {}
-        for sponsor in sponsors:
-            point_total = 0
-            query = 'SELECT pointChange FROM TruckBux.Points WHERE nameReceiver = :x AND nameGiver = :y'
-            params = {'x':driver, 'y':sponsor}
-
-            rows = db_connection.execute(text(query), params).fetchall()
-            for row in rows:
-                point_total += row[0]
-            
-            points_per_sponsor[sponsor] = point_total
-
-        return(jsonify(points_per_sponsor))
 
 
 # Endpoint to insert items into the a users cart
-# @POST request takes in a username and Item_ID
+# @POST request takes in a username and Item_ID and Number of Items
 # @returns success or failure
 #
 # @GET request takes in username and 
@@ -631,6 +639,7 @@ def update_cart():
     if request.method == 'POST':
         user = request.json['user']
         item = request.json['item']
+        num = request.json['num']
         
         # TO EMPTY A CART POST REQUEST WITH USERNAME AND ITEM ID '666'
         if(item == '666'):
@@ -638,16 +647,19 @@ def update_cart():
             param = {'x': user}
             rows = db_connection.execute(text(query), param)
             return (jsonify({'result': 'emptied'}))
-
-        query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
-        query += 'values(:x, :y)'
-        param = {'x': user, 'y': item}
-        try:
-            db_connection.execute(text(query), param)
-            return (jsonify({'result': 'success'}))
-        except:
-            print('Insert Failed')
-            return (jsonify({'result': 'failure'}))
+        
+        for i in range(1,num): 
+            foo = jsonify({'result': 'not yet'})
+            query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
+            query += 'values(:x, :y)'
+            param = {'x': user, 'y': item}
+            try:
+                db_connection.execute(text(query), param)
+                foo = jsonify({'result': 'success'})
+            except:
+                print('Insert Failed')
+                foo = jsonify({'result': 'failure'})
+        return(foo)
 
     elif request.method == 'GET':
         user = request.json['user']
@@ -658,6 +670,69 @@ def update_cart():
         for row in rows:
             user_items.append(row[0])
         return(jsonify(user_items))
+
+
+
+# Endpoint to let a user purchase items
+# @POST request takes in a username
+# Purchases iemts currently in users cart then removes items from cart  
+# @returns bought
+#
+# @GET request takes in username and 
+# @returns all Item_ID's that user has purchased
+@app.route('/purchase', methods=['POST', 'GET'])
+@cross_origin()
+def user_purchase():
+
+    if request.method == 'POST':
+        user = request.json['user']
+        query = 'UPDATE TruckBux.Wishlist_Items SET Date_Time = :d WHERE username = :x ;' 
+        query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Wishlist_Items WHERE username = :x ;'
+        query3 = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x ;'
+        param = {'x': user, 'd': datetime.datetime.now()}
+        db_connection.execute(text(query), param)
+        db_connection.execute(text(query2), param)
+        db_connection.execute(text(query3), param)
+        return (jsonify({'result': 'Bought'}))
+    
+    elif request.method == 'GET':
+        user = request.json['user']
+        user_items = []
+        query = 'SELECT Item_ID FROM TruckBux.Purchases where username = :x'
+        params = {'x':user}
+        rows = db_connection.execute(text(query), params).fetchall()
+        for row in rows:
+            user_items.append(row[0])
+        return(jsonify(user_items))
+
+
+
+# Endpoint to show user notifications
+# @POST request takes in a username  
+# @returns all notifications that have not yet been seen then sets them to seen
+#
+# @GET request takes in username and 
+# @returns all previous Notifications of that user
+@app.route('/notifications', methods=['POST', 'GET'])
+@cross_origin()
+def notif():
+
+    if request.method == 'POST':
+        user = request.json['user']
+        query = 'SELECT message, dateCreated FROM TruckBux.Notifications WHERE username = :x AND seen = 0'
+        query2 = 'UPDATE Notifications SET seen = 1 WHERE username = :x AND seen = 0;'
+        param = {'x': user,}
+        unseen = db_connection.execute(text(query), param).fetchall()
+        db_connection.execute(text(query2), param)
+        return (jsonify(str(unseen)))
+
+    elif request.method == 'GET':
+        user = request.json['user']
+        messages = []
+        query = 'SELECT message, dateCreated FROM TruckBux.Notifications where username = :x'
+        params = {'x':user}
+        rows = db_connection.execute(text(query), params).fetchall()
+        return(jsonify(str(rows)))
 
 
 
