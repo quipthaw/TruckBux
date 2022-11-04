@@ -619,7 +619,7 @@ def points():
 
 
 # Endpoint to insert items into the a users cart
-# @POST request takes in a username and Item_ID
+# @POST request takes in a username and Item_ID and Number of Items
 # @returns success or failure
 #
 # @GET request takes in username and 
@@ -631,6 +631,7 @@ def update_cart():
     if request.method == 'POST':
         user = request.json['user']
         item = request.json['item']
+        num = request.json['num']
         
         # TO EMPTY A CART POST REQUEST WITH USERNAME AND ITEM ID '666'
         if(item == '666'):
@@ -638,16 +639,19 @@ def update_cart():
             param = {'x': user}
             rows = db_connection.execute(text(query), param)
             return (jsonify({'result': 'emptied'}))
-
-        query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
-        query += 'values(:x, :y)'
-        param = {'x': user, 'y': item}
-        try:
-            db_connection.execute(text(query), param)
-            return (jsonify({'result': 'success'}))
-        except:
-            print('Insert Failed')
-            return (jsonify({'result': 'failure'}))
+        
+        for i in range(1,num): 
+            foo = jsonify({'result': 'not yet'})
+            query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
+            query += 'values(:x, :y)'
+            param = {'x': user, 'y': item}
+            try:
+                db_connection.execute(text(query), param)
+                foo = jsonify({'result': 'success'})
+            except:
+                print('Insert Failed')
+                foo = jsonify({'result': 'failure'})
+        return(foo)
 
     elif request.method == 'GET':
         user = request.json['user']
