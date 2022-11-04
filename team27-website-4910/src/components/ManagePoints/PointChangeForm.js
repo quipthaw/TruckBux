@@ -11,12 +11,8 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { userName } from '../../recoil_atoms';
 
-//This component is for setting point changes. This component will likely
-//need to be passed Driver(s) to apply the point changes to. This component
-//will also set if a point change is recurring.
 export const PointChangeForm = (props) => {
-  //We can import setPointChange from driver list
-  //const { our props go here } = props;
+  const { selectedDrivers, drivers } = props;
 
   const [ reason, setReason ] = useState('');
   const [ pointChange, setPointChange ] = useState(0);
@@ -60,12 +56,23 @@ export const PointChangeForm = (props) => {
 
   //For now this only spits out into console. Use props to set what is needed
   const handleSubmit = async () => {
-    if(Number(pointChange) !== 0) {
-      const selections = ['all'];
+    if(Number(pointChange) !== 0 && selectedDrivers.length !== 0) {
+      
+      let receivers = selectedDrivers.map((driver) => {
+        return (
+          driver.username
+        );
+      });
+      
+      if(selectedDrivers.length === drivers.length) {
+        receivers = ['all'];
+      }
+
+      console.log(receivers);
 
       const data = {
         giver: usernameState,
-        receivers: selections,
+        receivers: receivers,
         points: pointChange,
         reason: reason,
       }

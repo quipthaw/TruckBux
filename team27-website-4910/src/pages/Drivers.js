@@ -1,9 +1,8 @@
-import { CircularProgress, Paper, Typography, Box, Button, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
-import { Container, Stack } from '@mui/system';
+import { CircularProgress,  Typography } from '@mui/material';
+import { Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import { DriverApplicationsList } from '../components/ManageAccount/DriverApplicationsList';
-import { DriversUserRow } from '../components/ManageAccount/UserList/UserListRow';
 import { UserList } from '../components/ManageAccount/UserList/UserList';
 import { ManagePoints } from '../components/ManagePoints/ManagePoints';
 
@@ -30,45 +29,14 @@ export default function Drivers() {
         getDrivers()
     }, []);
 
-    console.log(drivers);
-
-    const UserSelectionCheckbox = (props) => {
-        const { driver, setSelectedDrivers } = props;
-        const [ isSelected, setIsSelected ] = React.useState(false);
-
-        const handleSelection = (e) => {
-            setIsSelected(e.target.checked);
-
-            setSelectedDrivers((prevSelectedDrivers) => {
-                const newSelectedDrivers = [...prevSelectedDrivers];
-            
-                if(e.target.checked) {
-                    const selectedDriver = {
-                    ...driver,
-                    'selected': e.target.checked,
-                    }
-
-                    newSelectedDrivers.push(selectedDriver);
-                }
-                else {
-                    const deleteIndex = newSelectedDrivers.indexOf(driver);
-                    if(deleteIndex > -1) {
-                        newSelectedDrivers.splice(deleteIndex, 1);
-                    }
-                }
-
-                return newSelectedDrivers;
-            });
-        };
-
-        return (
-            <FormGroup  sx={{ width: '5%'}}>
-                <FormControlLabel
-                    control={<Checkbox checked={isSelected} onChange={handleSelection}/>}
-                />
-            </FormGroup>
-        );
-    };
+    const selectAllDrivers = ()  => {
+        if(drivers.length === selectedDrivers.length) {
+            setSelectedDrivers([]);
+        } 
+        else {
+            setSelectedDrivers([...drivers]);   
+        }
+    }
 
     return (
         <Layout>
@@ -80,10 +48,17 @@ export default function Drivers() {
                     <DriverApplicationsList/>
 
                     <Typography variant='h3' gutterBottom>Point Change</Typography>
-                    <ManagePoints refresh={refresh} setRefresh={setRefresh}/>
+                    <ManagePoints drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh}/>
 
                     <Typography variant='h3' gutterBottom>My Drivers</Typography>
-                    <UserList refresh={refresh} setRefresh={setRefresh} userList={drivers}/>
+                    <UserList 
+                        selectAllDrivers={selectAllDrivers}
+                        selectedDrivers={selectedDrivers}
+                        setSelectedDrivers={setSelectedDrivers}
+                        refresh={refresh} 
+                        setRefresh={setRefresh} 
+                        userList={drivers}
+                    />
                 </Stack>
             }
         </Layout>
