@@ -6,7 +6,7 @@ api_host = '127.0.0.1:5000'
 
 def test_post():
     try:
-        result = requests.post(f'http://{api_host}/sponsors', json={'name':'NicksTest', 'rate':'7'})
+        result = requests.post(f'http://{api_host}/sponsors', json={'name':'nickstest5', 'rate':'7'})
         print(result.json())
     except:
         print('test failed' + result.json())
