@@ -54,16 +54,18 @@ def check_email(email):
 
 
 def check_sponsor_name(db_connection, name):
+    result = True
     # Parameterized queries protect against sqli
-    query = text('select * from Sponsors where sponsorName = :x')
+    query = text('select sponsorName from Sponsors')
     param = {'x': name}
 
-    qresult = db_connection.execute(query, param)
+    rows = db_connection.execute(query, param).fetchall()
+    
+    for row in rows:
+        if name.upper() == row[0].upper():
+            result = False
 
-    if (qresult.one_or_none() != None):
-        return False
-    else:
-        return True
+    return result
 
 
 def check_dup_app(db_connection, user, sponsorName):

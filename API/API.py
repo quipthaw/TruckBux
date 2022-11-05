@@ -467,8 +467,8 @@ def applications():
 
         return jsonify(resp)
     if request.method == 'GET':
-        if 'user' in request.json:
-            user = request.json['user']
+        if 'user' in request.args:
+            user = request.args['user']
             query = 'SELECT * FROM TruckBux.Applications where username = :x'
             param = {'x': user}
 
@@ -479,8 +479,8 @@ def applications():
                 apps[i] = dict(row)
                 i += 1
 
-        elif 'sponsName' in request.json:
-            sponsName = request.json['sponsName']
+        elif 'sponsName' in request.args:
+            sponsName = request.args['sponsName']
             query = 'SELECT * FROM TruckBux.Applications where sponsorName = :x'
             param = {'x': sponsName}
 
@@ -505,8 +505,10 @@ def applications():
 
 
 # @POST inserts new sponsor into database
-# @GET if given nothing retrieves all sponsor accounts
-# if given sponsName, returns all drivers associated with that sponsor
+# @GET 
+# if given user, if acctType is S returns all users associated with that sponsor
+# if acctType is A, returns all users
+# if given nothing, returns all Sponsor accounts
 # @returns {1: {account1}, 2: {account2}}
 @app.route('/sponsors', methods=['POST', 'GET'])
 @cross_origin()
@@ -532,15 +534,15 @@ def sponsors():
 
         return resp
     elif request.method == 'GET':
-        if 'sponsName' in request.args:
-            sponsorName = request.args['sponsName']
-            acctType = get_acctType(db_connection, sponsorName)
+        if 'user' in request.args:
+            user = request.args['user']
+            acctType = get_acctType(db_connection, user)
 
             accounts = []
 
             if (acctType == 'S'):
                 query = 'SELECT username FROM TruckBux.Sponsorships WHERE sponsorName = :x'
-                param = {'x': sponsorName}
+                param = {'x': user}
                 rows = db_connection.execute(text(query), param)
 
                 for row in rows:
@@ -565,8 +567,8 @@ def sponsors():
                 sponsors.append(dict(row))
 
             return jsonify({"number": i, "sponsors": sponsors})
-    
 
+        
 # Endpoint to insert data into the points table
 # @POST request takes in giver, reciever[], points, reason
 # reciever must be an array of drivers (strings)
@@ -578,7 +580,6 @@ def sponsors():
 @app.route('/points', methods=['POST', 'GET'])
 @cross_origin()
 def points():
-    
     if request.method == 'POST':
         giver = request.json['giver']
         receivers = request.json['receivers']
@@ -665,7 +666,7 @@ def update_cart():
         return(foo)
 
     elif request.method == 'GET':
-        user = request.json['user']
+        user = request.args['user']
         user_items = []
         query = 'SELECT Item_ID FROM TruckBux.Wishlist_Items where username = :x'
         params = {'x':user}
@@ -699,7 +700,7 @@ def user_purchase():
         return (jsonify({'result': 'Bought'}))
     
     elif request.method == 'GET':
-        user = request.json['user']
+        user = request.args['user']
         user_items = []
         query = 'SELECT Item_ID FROM TruckBux.Purchases where username = :x'
         params = {'x':user}
@@ -730,7 +731,7 @@ def notif():
         return (jsonify(str(unseen)))
 
     elif request.method == 'GET':
-        user = request.json['user']
+        user = request.args['user']
         messages = []
         query = 'SELECT message, dateCreated FROM TruckBux.Notifications where username = :x'
         params = {'x':user}

@@ -13,7 +13,7 @@ def test_post():
 
 def test_get():
     try:
-        result = requests.get(f'http://{api_host}/applications', json={})
+        result = requests.get(f'http://{api_host}/applications', params={'sponsName':'adidas'})
         print(result.json())
     except:
         print('test failed')
