@@ -12,7 +12,7 @@ import { useRecoilState } from 'recoil';
 import { userName } from '../../recoil_atoms';
 
 export const PointChangeForm = (props) => {
-  const { selectedDrivers, drivers } = props;
+  const { selectedDrivers, drivers, user } = props;
 
   const [ reason, setReason ] = useState('');
   const [ pointChange, setPointChange ] = useState(0);
@@ -71,7 +71,7 @@ export const PointChangeForm = (props) => {
       console.log(receivers);
 
       const data = {
-        giver: usernameState,
+        giver: user,
         receivers: receivers,
         points: pointChange,
         reason: reason,
