@@ -16,6 +16,8 @@ export default function ManageAccounts(props) {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
+    const [sponsors, setSponsors ] = React.useState();
+    const [admins, setAdmins ] = React.useState();
 
     const [ refresh, setRefresh ] = React.useState(false);
 
@@ -29,10 +31,20 @@ export default function ManageAccounts(props) {
         const result = await response.json();
 
         if(userType === 'A') {
-            const filteredAccounts = result.accounts.filter((account) => {
-                return (account.acctType === 'S')
-            })
-            setDrivers(filteredAccounts);
+            const filteredSponsors = result.accounts.filter((account) => {
+                return (account.acctType === 'S');
+            });
+            setSponsors(filteredSponsors);
+
+            const filteredDrivers = result.accounts.filter((account) => {
+                return (account.acctType === 'D');
+            });
+            setDrivers(filteredDrivers);
+
+            const filteredAdmins = result.accounts.filter((account) => {
+                return (account.acctType === 'A');
+            });
+            setAdmins(filteredAdmins);
         }
         else {
             setDrivers(result.accounts);
@@ -65,7 +77,22 @@ export default function ManageAccounts(props) {
                     {userType === 'S' && <Typography variant='h3' gutterBottom>Point Change</Typography>}
                     {userType === 'S' && <ManagePoints user={user} drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh}/>}
 
-                    <Typography variant='h3' gutterBottom>My Drivers</Typography>
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>}
+                    {userType === 'A' && 
+                        <UserList
+                            user={user}
+                            userType={userType}
+                            selectAllDrivers={selectAllDrivers}
+                            selectedDrivers={selectedDrivers}
+                            setSelectedDrivers={setSelectedDrivers}
+                            refresh={refresh} 
+                            setRefresh={setRefresh} 
+                            userList={sponsors}
+                        />
+                    }
+
+                    {userType === 'S' && <Typography variant='h3' gutterBottom>My Drivers</Typography>}
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Driver Accounts</Typography>}
                     <UserList
                         user={user}
                         userType={userType}
@@ -76,6 +103,20 @@ export default function ManageAccounts(props) {
                         setRefresh={setRefresh} 
                         userList={drivers}
                     />
+                    
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
+                    {userType === 'A' && 
+                        <UserList
+                            user={user}
+                            userType={userType}
+                            selectAllDrivers={selectAllDrivers}
+                            selectedDrivers={selectedDrivers}
+                            setSelectedDrivers={setSelectedDrivers}
+                            refresh={refresh} 
+                            setRefresh={setRefresh} 
+                            userList={admins}
+                        />
+                    }
                 </Stack>
             }
         </Container>

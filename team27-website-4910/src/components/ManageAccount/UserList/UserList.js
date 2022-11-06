@@ -12,6 +12,7 @@ export const UserList = (props) => {
         selectedDrivers, setSelectedDrivers 
     } = props;
 
+    const disableSelections = userType === 'A' ? true : false;
     const [ isSelected, setIsSelected ] = React.useState(false);
     
     const handleSelection = (e) => {
@@ -43,7 +44,7 @@ export const UserList = (props) => {
 
     return (
         <Stack direction='column' spacing={2}>
-            {userType === 'S' &&
+            {!disableSelections &&
                 <Paper>
                     <Container>
                         <Stack direction='row' alignItems='center'>
