@@ -20,7 +20,6 @@ export default function AccountManagement() {
     return (
         <div>
             <Layout>
-                <ManageAccount />
             </Layout>
         </div>
     )

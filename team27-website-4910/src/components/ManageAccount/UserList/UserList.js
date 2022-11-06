@@ -4,12 +4,15 @@ import { UserListRow } from './UserListRow';
 
 export const UserList = (props) => {
     const { 
+        user,
+        userType,
         selectAllDrivers,
         userList, 
         refresh, setRefresh, 
         selectedDrivers, setSelectedDrivers 
     } = props;
 
+    const disableSelections = userType === 'A' ? true : false;
     const [ isSelected, setIsSelected ] = React.useState(false);
     
     const handleSelection = (e) => {
@@ -21,15 +24,17 @@ export const UserList = (props) => {
     }, [selectedDrivers]);
 
     const renderUserList = () => {
-        const userListRows = userList.map((user) => {
+        const userListRows = userList.map((driver) => {
             return (
-                <UserListRow 
+                <UserListRow
+                    user={user}
+                    userType={userType}
                     selectedDrivers={selectedDrivers}
                     setSelectedDrivers={setSelectedDrivers}
                     refresh={refresh} 
                     setRefresh={setRefresh} 
-                    key={user.username} 
-                    driver={user}
+                    key={driver.username} 
+                    driver={driver}
                 />
             );
         });
@@ -39,20 +44,22 @@ export const UserList = (props) => {
 
     return (
         <Stack direction='column' spacing={2}>
-            <Paper>
-                <Container>
-                    <Stack direction='row' alignItems='center'>
-                        <Box sx={{ width: '10%'}} align="center">
-                            <Typography>Select All</Typography>
-                            <FormGroup  sx={{ width: '5%'}}>
-                                <FormControlLabel
-                                control={<Checkbox checked={isSelected} onChange={handleSelection}/>}
-                                />
-                            </FormGroup>
-                        </Box>
-                    </Stack>
-                </Container>
-            </Paper>
+            {!disableSelections &&
+                <Paper>
+                    <Container>
+                        <Stack direction='row' alignItems='center'>
+                            <Box sx={{ width: '10%'}} align="center">
+                                <Typography>Select All</Typography>
+                                <FormGroup  sx={{ width: '5%'}}>
+                                    <FormControlLabel
+                                    control={<Checkbox checked={isSelected} onChange={handleSelection}/>}
+                                    />
+                                </FormGroup>
+                            </Box>
+                        </Stack>
+                    </Container>
+                </Paper>
+            }
             {renderUserList()}
         </Stack>
     );

@@ -555,6 +555,14 @@ def sponsors():
                 for row in rows:
                     accounts.append(dict(row))
 
+            else:
+                query = 'SELECT sponsorName FROM TruckBux.Sponsorships WHERE active = 1 AND username = :x'
+                param = {'x': user}
+                rows = db_connection.execute(text(query),param)
+
+                for row in rows:
+                    accounts.append(dict(row))
+
             return jsonify({"accounts": accounts})
         else:
             query = 'SELECT * FROM TruckBux.Sponsors'

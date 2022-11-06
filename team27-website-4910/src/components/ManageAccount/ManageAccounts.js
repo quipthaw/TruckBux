@@ -1,78 +1,124 @@
-import { Paper, Stack, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useContext, useEffect, useState } from 'react';
-import { Container } from '@mui/system';
-import { UserList } from './UserList/UserList';
+import { CircularProgress,  Container,  Typography } from '@mui/material';
+import { Stack } from '@mui/system';
+import React, { useEffect } from 'react';
+import { ManagePoints } from '../ManagePoints/ManagePoints';
 import { useRecoilState } from 'recoil';
-import {
-    userType,
-    userName,
-    userFName,
-    userLName,
-    userEmail
-} from '../../recoil_atoms';
+import { DriverApplicationsList } from './DriverApplicationsList';
+import { UserList } from './UserList/UserList';
 
-export const ManageAccount = () => {
+export default function ManageAccounts(props) {
+    const { user, userType } = props;
 
-    const [sessionState, setSessionState] = useRecoilState(userType);
-    const [usernameState, setUsernameState] = useRecoilState(userName);
-    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
-    const [lastnameState, setLastnameState] = useRecoilState(userLName);
-    const [emailState, setEmailState] = useRecoilState(userEmail);
-    const [userList, setUserList] = useState(null);
+    console.log(user);
+    console.log(userType);
+    //const [ usernameState, setUsernameState ] = useRecoilState(userName);
+    //const [ sessionState, setSessionState ] = useRecoilState(userType);
+    const [loading, setLoading] = React.useState(true);
 
-    const DisplayUser = () => {
-        return (
-            <Typography align='center'>{usernameState}</Typography>
-        );
-    }
+    const [drivers, setDrivers] = React.useState();
+    const [sponsors, setSponsors ] = React.useState();
+    const [admins, setAdmins ] = React.useState();
 
-    const getRelatedUsers = async () => {
-        /*
-        const relatedUsersData = { accountName: usernameState };
+    const [ refresh, setRefresh ] = React.useState(false);
 
-        const relatedUsersOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(relatedUsersData)
-        };
+    //List of drivers that PointChangeForm will send to backend
+    const [selectedDrivers, setSelectedDrivers ] = React.useState([]);
 
-        let response = await fetch('http://127.0.0.1:5000/relateddrivers', relatedUsersOptions);
-        */
-        const responseURL = `http://127.0.0.1:5000/sponsors?sponsName=${usernameState}`;
-        const response = await fetch(responseURL);
+    const getDrivers = async () => {
+        const getRequestURL = `http://127.0.0.1:5000/sponsors?user=${user}`
+        const response = await fetch(getRequestURL);
+
         const result = await response.json();
 
-        setUserList(result.accounts);
-    }
+        if(userType === 'A') {
+            const filteredSponsors = result.accounts.filter((account) => {
+                return (account.acctType === 'S');
+            });
+            setSponsors(filteredSponsors);
+
+            const filteredDrivers = result.accounts.filter((account) => {
+                return (account.acctType === 'D');
+            });
+            setDrivers(filteredDrivers);
+
+            const filteredAdmins = result.accounts.filter((account) => {
+                return (account.acctType === 'A');
+            });
+            setAdmins(filteredAdmins);
+        }
+        else {
+            setDrivers(result.accounts);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        if (sessionState !== '0') {
-            getRelatedUsers();
+        getDrivers()
+    }, []);
+
+    const selectAllDrivers = ()  => {
+        if(drivers.length === selectedDrivers.length) {
+            setSelectedDrivers([]);
+        } 
+        else {
+            setSelectedDrivers([...drivers]);   
         }
-    }, [sessionState]);
+    }
 
     return (
-        <Container sx={{
-            width: '90% ',
-            display: 'flex',
-            marginY: '5vh'
-        }}>
-            <Paper sx={{ width: '100%' }}>
-                <Box sx={{
-                    height: '100%',
-                    width: '100%',
-                    padding: '25px'
-                }}>
-                    <Stack direction='column' spacing={2}>
-                        <DisplayUser />
-                        {/*<UserSearch/>*/}
-                        {userList && <UserList userList={userList} />}
-                    </Stack>
-                </Box>
-            </Paper>
+        <Container>
+            {loading ?
+                <CircularProgress />
+                :
+                <Stack direction="column" spacing={2}>       
+                    {userType === 'S' && <Typography variant='h3' gutterBottom>Applications</Typography>}
+                    {userType === 'S' && <DriverApplicationsList/>}
+
+                    {userType === 'S' && <Typography variant='h3' gutterBottom>Point Change</Typography>}
+                    {userType === 'S' && <ManagePoints user={user} drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh}/>}
+
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>}
+                    {userType === 'A' && 
+                        <UserList
+                            user={user}
+                            userType={userType}
+                            selectAllDrivers={selectAllDrivers}
+                            selectedDrivers={selectedDrivers}
+                            setSelectedDrivers={setSelectedDrivers}
+                            refresh={refresh} 
+                            setRefresh={setRefresh} 
+                            userList={sponsors}
+                        />
+                    }
+
+                    {userType === 'S' && <Typography variant='h3' gutterBottom>My Drivers</Typography>}
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Driver Accounts</Typography>}
+                    <UserList
+                        user={user}
+                        userType={userType}
+                        selectAllDrivers={selectAllDrivers}
+                        selectedDrivers={selectedDrivers}
+                        setSelectedDrivers={setSelectedDrivers}
+                        refresh={refresh} 
+                        setRefresh={setRefresh} 
+                        userList={drivers}
+                    />
+                    
+                    {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
+                    {userType === 'A' && 
+                        <UserList
+                            user={user}
+                            userType={userType}
+                            selectAllDrivers={selectAllDrivers}
+                            selectedDrivers={selectedDrivers}
+                            setSelectedDrivers={setSelectedDrivers}
+                            refresh={refresh} 
+                            setRefresh={setRefresh} 
+                            userList={admins}
+                        />
+                    }
+                </Stack>
+            }
         </Container>
-    );
-};
+    )
+}
