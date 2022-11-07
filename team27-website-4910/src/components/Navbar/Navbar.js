@@ -32,17 +32,29 @@ const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers',
 export default function Navbar(props) {
     const theme = useTheme();
 
+    const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
+
     const [gotNotifications, setGotNotifications] = React.useState(false);
     const [userNotifications, setUserNotifications] = React.useState([]);
 
-    const getNotifications = /*async*/ () => {
-        //fetch requests
+    const getNotifications = async () => {
+        const data = {user: usernameState };
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        }
+        
+        const response = await fetch('http://127.0.0.1:5000/notifications', options)
+        const result = await response.json();
         setGotNotifications(true);
-        setUserNotifications([
-            { 'message': 'Message!' },
-            { 'message': 'Second!' },
-            { 'message': 'Your password was changed!' },
-        ])
+        setUserNotifications(result);
     }
 
     React.useEffect(() => {
@@ -55,12 +67,6 @@ export default function Navbar(props) {
         const mode = theme.palette.mode === 'dark' ? 'light' : 'dark';
         props.setPageTheme(mode);
     }
-
-    const [sessionState, setSessionState] = useRecoilState(userType);
-    const [usernameState, setUsernameState] = useRecoilState(userName);
-    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
-    const [lastnameState, setLastnameState] = useRecoilState(userLName);
-    const [emailState, setEmailState] = useRecoilState(userEmail);
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },
