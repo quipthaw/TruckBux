@@ -756,6 +756,38 @@ def notif():
         return(jsonify(str(rows)))
 
 
+# Endpoint to retrieve logs with a given filter
+# @param {filter: (<field>: <value>)}
+# @returns [{<log_row1>}, {log_row2}]
+@app.route('/logfilter', methods=['POST'])
+@cross_origin()
+def log_filter():
+    filt = request.json['filter']
+
+    query = 'SELECT * FROM TruckBux.Logging '
+    match filt[0]:
+        case 'username':
+            query += 'WHERE username = :x'
+            params = {'x': filt[1]}
+            rows = db_connection.execute(text(query), params).fetchall()
+        case 'log_type':
+            query += 'WHERE log_type = :x'
+            params = {'x': filt[1]}
+            rows = db_connection.execute(text(query), params).fetchall()
+        case 'date_time':
+            query += 'ORDER BY date_time'
+            rows = db_connection.execute(text(query)).fetchall()
+        case 'modder':
+            query += 'WHERE modder = :x'
+            params = {'x': filt[1]}
+            rows = db_connection.execute(text(query), params).fetchall()
+    
+    data = []
+    for row in rows:
+        data.append(dict(row))
+
+    return(jsonify(data))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
