@@ -729,14 +729,23 @@ def user_purchase():
 @cross_origin()
 def notif():
 
+    #Query 2 may need to be it's own call. Issues with React rendering.
     if request.method == 'POST':
         user = request.json['user']
         query = 'SELECT message, dateCreated FROM TruckBux.Notifications WHERE username = :x AND seen = 0'
-        query2 = 'UPDATE Notifications SET seen = 1 WHERE username = :x AND seen = 0;'
+        #query2 = 'UPDATE Notifications SET seen = 0 WHERE username = :x AND seen = 1;'
         param = {'x': user,}
-        unseen = db_connection.execute(text(query), param).fetchall()
-        db_connection.execute(text(query2), param)
-        return (jsonify(str(unseen)))
+        rows = db_connection.execute(text(query), param).fetchall()
+        #db_connection.execute(text(query2), param)
+
+        unseenNotifications = []
+        i = 0
+        for row in rows:
+            print(row)
+            i += 1
+            unseenNotifications.append({'message': row[0], 'date': row[1]})
+
+        return (jsonify(unseenNotifications))
 
     elif request.method == 'GET':
         user = request.args['user']

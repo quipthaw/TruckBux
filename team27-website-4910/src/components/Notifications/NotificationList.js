@@ -12,7 +12,7 @@ export const NotificationList = (props) => {
 
       return(
           <NotificationCard 
-            key={notification.message} 
+            key={notification.date} 
             notification={notification} 
             setUserNotifications={setUserNotifications}
             cardColor={cardColor}
