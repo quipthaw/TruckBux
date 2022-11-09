@@ -45,7 +45,7 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 app = Flask(__name__)
 CORS(app, origins=['http://127.0.0.1:3000'])
-#CORS(app, origins=[
+# CORS(app, origins=[
 #     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
@@ -505,7 +505,7 @@ def applications():
 
 
 # @POST inserts new sponsor into database
-# @GET 
+# @GET
 # if given user, if acctType is S returns all users associated with that sponsor
 # if acctType is A, returns all users
 # if given nothing, returns all Sponsor accounts
@@ -558,7 +558,7 @@ def sponsors():
             else:
                 query = 'SELECT sponsorName FROM TruckBux.Sponsorships WHERE active = 1 AND username = :x'
                 param = {'x': user}
-                rows = db_connection.execute(text(query),param)
+                rows = db_connection.execute(text(query), param)
 
                 for row in rows:
                     accounts.append(dict(row))
@@ -576,14 +576,14 @@ def sponsors():
 
             return jsonify({"number": i, "sponsors": sponsors})
 
-        
+
 # Endpoint to insert data into the points table
 # @POST request takes in giver, reciever[], points, reason
 # reciever must be an array of drivers (strings)
 # @returns success or failure
 # TO POST TO ALL OF A SPONSORS DRIVERS MAKE recievers[0] = 'all'
 #
-# @GET request takes in driver and 
+# @GET request takes in driver and
 # @returns total points that driver has for each sponsor {'<sponsorName>': <point_total>}
 @app.route('/points', methods=['POST', 'GET'])
 @cross_origin()
@@ -594,55 +594,56 @@ def points():
         point_change = request.json['points']
         reason = request.json['reason']
 
-        #insert points for all of a sponsor's drivers
+        # insert points for all of a sponsor's drivers
         if receivers[0] == 'all':
             param = {'x': giver}
             query = 'SELECT username FROM Sponsorships WHERE sponsorName = :x '
-            my_data = db_connection.execute(text(query),param).fetchall()
+            my_data = db_connection.execute(text(query), param).fetchall()
             if my_data != None:
                 for row in my_data:
                     notif_log(db_connection, row[0], 'points')
                     query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
                     query += 'values(:x, :y, :j, :k)'
-                    param = {'x': giver, 'y': row[0], 'j': point_change, 'k': reason}
+                    param = {'x': giver, 'y': row[0],
+                             'j': point_change, 'k': reason}
                     try:
                         db_connection.execute(text(query), param)
                     except:
                         print('Insert Failed')
-                        return(jsonify({'result': 'failure'}))
-            return(jsonify({'result': 'success'}))
-        
-        #insert points for a given list of drivers
+                        return (jsonify({'result': 'failure'}))
+            return (jsonify({'result': 'success'}))
+
+        # insert points for a given list of drivers
         for i in range(0, (len(receivers))):
             notif_log(db_connection, receivers[i], 'points')
             query = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) '
             query += 'values(:x, :y, :j, :k)'
-            param = {'x': giver, 'y': receivers[i], 'j': point_change, 'k': reason}
+            param = {'x': giver,
+                     'y': receivers[i], 'j': point_change, 'k': reason}
             try:
                 db_connection.execute(text(query), param)
             except:
                 print('Insert Failed')
-                return(jsonify({'result': 'failure'}))
-        return(jsonify({'result': 'success'}))
-    
-    #get sponsor's points by driver
+                return (jsonify({'result': 'failure'}))
+        return (jsonify({'result': 'success'}))
+
+    # get sponsor's points by driver
     elif request.method == 'GET':
         driver = request.args['driver']
         user_items = []
         query = 'SELECT nameGiver, SUM(pointChange) FROM TruckBux.Points WHERE nameReceiver = :x GROUP BY nameGiver;'
-        params = {'x':driver}
+        params = {'x': driver}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
             user_items.append({'sponsorName': row[0], 'points': row[1]})
-        return(jsonify(user_items))
-
+        return (jsonify(user_items))
 
 
 # Endpoint to insert items into the a users cart
 # @POST request takes in a username and Item_ID and Number of Items
 # @returns success or failure
 #
-# @GET request takes in username and 
+# @GET request takes in username and
 # @returns all Item_ID's that user currenly has in cart
 @app.route('/Cart', methods=['POST', 'GET'])
 @cross_origin()
@@ -652,15 +653,15 @@ def update_cart():
         user = request.json['user']
         item = request.json['item']
         num = request.json['num']
-        
+
         # TO EMPTY A CART POST REQUEST WITH USERNAME AND ITEM ID '666'
-        if(item == '666'):
+        if (item == '666'):
             query = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x;'
             param = {'x': user}
             rows = db_connection.execute(text(query), param)
             return (jsonify({'result': 'emptied'}))
-        
-        for i in range(1,num): 
+
+        for i in range(1, num):
             foo = jsonify({'result': 'not yet'})
             query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
             query += 'values(:x, :y)'
@@ -671,26 +672,25 @@ def update_cart():
             except:
                 print('Insert Failed')
                 foo = jsonify({'result': 'failure'})
-        return(foo)
+        return (foo)
 
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
         query = 'SELECT Item_ID FROM TruckBux.Wishlist_Items where username = :x'
-        params = {'x':user}
+        params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
             user_items.append(row[0])
-        return(jsonify(user_items))
-
+        return (jsonify(user_items))
 
 
 # Endpoint to let a user purchase items
 # @POST request takes in a username
-# Purchases iemts currently in users cart then removes items from cart  
+# Purchases iemts currently in users cart then removes items from cart
 # @returns bought
 #
-# @GET request takes in username and 
+# @GET request takes in username and
 # @returns all Item_ID's that user has purchased
 @app.route('/purchase', methods=['POST', 'GET'])
 @cross_origin()
@@ -698,7 +698,7 @@ def user_purchase():
 
     if request.method == 'POST':
         user = request.json['user']
-        query = 'UPDATE TruckBux.Wishlist_Items SET Date_Time = :d WHERE username = :x ;' 
+        query = 'UPDATE TruckBux.Wishlist_Items SET Date_Time = :d WHERE username = :x ;'
         query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Wishlist_Items WHERE username = :x ;'
         query3 = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x ;'
         param = {'x': user, 'd': datetime.datetime.now()}
@@ -706,35 +706,34 @@ def user_purchase():
         db_connection.execute(text(query2), param)
         db_connection.execute(text(query3), param)
         return (jsonify({'result': 'Bought'}))
-    
+
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
         query = 'SELECT Item_ID FROM TruckBux.Purchases where username = :x'
-        params = {'x':user}
+        params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
             user_items.append(row[0])
-        return(jsonify(user_items))
-
+        return (jsonify(user_items))
 
 
 # Endpoint to show user notifications
-# @POST request takes in a username  
+# @POST request takes in a username
 # @returns all notifications that have not yet been seen then sets them to seen
 #
-# @GET request takes in username and 
+# @GET request takes in username and
 # @returns all previous Notifications of that user
 @app.route('/notifications', methods=['POST', 'GET'])
 @cross_origin()
 def notif():
 
-    #Query 2 may need to be it's own call. Issues with React rendering.
+    # Query 2 may need to be it's own call. Issues with React rendering.
     if request.method == 'POST':
         user = request.json['user']
         query = 'SELECT message, dateCreated FROM TruckBux.Notifications WHERE username = :x AND seen = 0'
         #query2 = 'UPDATE Notifications SET seen = 0 WHERE username = :x AND seen = 1;'
-        param = {'x': user,}
+        param = {'x': user, }
         rows = db_connection.execute(text(query), param).fetchall()
         #db_connection.execute(text(query2), param)
 
@@ -751,42 +750,85 @@ def notif():
         user = request.args['user']
         messages = []
         query = 'SELECT message, dateCreated FROM TruckBux.Notifications where username = :x'
-        params = {'x':user}
+        params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
-        return(jsonify(str(rows)))
+        return (jsonify(str(rows)))
 
 
 # Endpoint to retrieve logs with a given filter
 # @param {filter: (<field>: <value>)}
 # @returns [{<log_row1>}, {log_row2}]
-@app.route('/logfilter', methods=['POST'])
+@app.route('/logs', methods=['GET'])
 @cross_origin()
 def log_filter():
-    filt = request.json['filter']
+    query = 'SELECT * FROM TruckBux.Logging'
+    params = {}
+    if len(request.args) > 0:
+        numFiltersAdded = 0
+        query += ' WHERE'
+        if 'username' in request.args:
+            query += ' username = :x'
+            params['x'] = request.args.get('username')
+            numFiltersAdded += 1
+        if 'log_type' in request.args:
+            if numFiltersAdded > 0:
+                query += ' AND'
+            query += ' log_type = :y'
+            params['y'] = request.args.get('log_type')
+            numFiltersAdded += 1
+        if 'modder' in request.args:
+            if numFiltersAdded > 0:
+                query += ' AND'
+            query += ' modder = :z'
+            params['z'] = request.args.get('modder')
+            numFiltersAdded += 1
+        if 'start_date' in request.args:
+            if numFiltersAdded > 0:
+                query += ' AND'
+            query += ' date_time >= :a'
+            params['a'] = request.args.get('start_date')
+            numFiltersAdded += 1
+        if 'end_date' in request.args:
+            if numFiltersAdded > 0:
+                query += ' AND'
+            query += ' date_time <= :b'
+            params['b'] = request.args.get('end_date')
+            numFiltersAdded += 1
 
-    query = 'SELECT * FROM TruckBux.Logging '
-    match filt[0]:
-        case 'username':
-            query += 'WHERE username = :x'
-            params = {'x': filt[1]}
-            rows = db_connection.execute(text(query), params).fetchall()
-        case 'log_type':
-            query += 'WHERE log_type = :x'
-            params = {'x': filt[1]}
-            rows = db_connection.execute(text(query), params).fetchall()
-        case 'date_time':
-            query += 'ORDER BY date_time'
-            rows = db_connection.execute(text(query)).fetchall()
-        case 'modder':
-            query += 'WHERE modder = :x'
-            params = {'x': filt[1]}
-            rows = db_connection.execute(text(query), params).fetchall()
-    
+    rows = db_connection.execute(text(query), params).fetchall()
+
     data = []
     for row in rows:
         data.append(dict(row))
 
-    return(jsonify(data))
+    return (jsonify({'number': len(data), 'logs': data}))
+
+# Endpoint to retrieve drivers based on requesting user
+
+
+@app.route('/drivers', methods=['GET'])
+@cross_origin()
+def drivers_request():
+    user = request.args['user']
+    acctType = get_acctType(db_connection, user)
+
+    params = {}
+    query = 'SELECT username FROM TruckBux.Users'
+    if acctType == 'D':
+        query += ' WHERE username = :x'
+        params['x'] = request.args.get('user')
+#-------------------- CHANGE THIS ONCE WE TALK ABOUT SPONSORS BEING SPNSORED BY THEMSELEVES ----------------------#
+    elif acctType == 'S':
+        query += ' WHERE username = :x'
+        params['x'] = request.args.get('user')
+
+    rows = db_connection.execute(text(query), params).fetchall()
+
+    data = []
+    for row in rows:
+        data.append(dict(row))
+
+    return (jsonify({'number': len(data), 'drivers': data}))
 
 
 if __name__ == '__main__':

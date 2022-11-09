@@ -15,6 +15,7 @@ import AccountManagement from "./pages/AccountManagement";
 import Sponsors from './pages/Sponsors';
 import Drivers from './pages/Drivers';
 import SponsorCreation from "./pages/SponsorCreation";
+import Logs from './pages/Logs';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "sponsorcreation/",
     element: <SponsorCreation />,
+  },
+  {
+    path: "logs/",
+    element: <Logs />,
   },
 ]);
 
