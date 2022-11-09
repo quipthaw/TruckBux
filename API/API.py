@@ -766,7 +766,7 @@ def log_filter():
     if len(request.args) > 0:
         numFiltersAdded = 0
         query += ' WHERE'
-        if 'username' in request.args:
+        if 'username' in request.args and request.args.get('username') != '':
             query += ' username = :x'
             params['x'] = request.args.get('username')
             numFiltersAdded += 1
