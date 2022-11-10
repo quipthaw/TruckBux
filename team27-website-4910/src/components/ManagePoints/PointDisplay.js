@@ -7,7 +7,6 @@ export const PointDisplay = (props) => {
   const { driver, refresh, user } = props;
   const [ usernameState, setUsernameState ] = useRecoilState(userName);
   const [ points, setPoints ] = useState(0);
-  console.log(driver)
   
   const getPoints = async () => {
     const getRequestURL = `http://127.0.0.1:5000/points?driver=${driver.username}`;
