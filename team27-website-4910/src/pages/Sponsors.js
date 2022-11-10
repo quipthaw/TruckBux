@@ -17,27 +17,18 @@ export default function Register() {
     //sponsors from the database.
     const [ mySponsors, setMySponsors ] = React.useState([]);
 
-    const getMySponsors = async () => {
+    const getSponsors = async () => {
         const responseURL = `http://127.0.0.1:5000/sponsors?user=${usernameState}`
         const response = await fetch(responseURL);
         const result = await response.json();
 
-        setMySponsors(result.accounts);
-        setNumSponsors(result.accounts.length);
-    };
-
-    const getSponsors = async () => {
-        const responseURL = `http://127.0.0.1:5000/sponsors`
-        const response = await fetch(responseURL);
-        const result = await response.json();
-
-        setSponsors(result.sponsors);
-        setNumSponsors(result.number);
+        setMySponsors(result.relatedSponsors);
+        setSponsors(result.otherSponsors);
         setLoading(false);
     };
 
     useEffect(() => {
-        getMySponsors();
+        //getMySponsors();
         getSponsors();
     }, []);
 

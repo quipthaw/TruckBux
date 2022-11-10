@@ -11,18 +11,18 @@ export const MySponsorListRow = (props) => {
 
   const driver = {'username': usernameState};
 
-  console.log(driver)
-
   return (
     <Paper>
       <Container>
           <Stack direction='row' justifyContent='space-between'>
-              <Box>
+               
+                <Box>
                   <Typography variant='h6' gutterBottom>{sponsor.sponsorName}</Typography>
                   <Typography>{"ID: " + sponsor.sponsorID}</Typography>
                   <Typography>{"Conversion Rate: " + sponsor.pointConversionRate}</Typography>
-              </Box>
-              <Button>Apply</Button>
+                </Box>
+              
+              {!showPoints && <Button>Apply</Button>}
               <Box>
                 {showPoints && <PointDisplay driver={driver} user={sponsor.sponsorName}/>}
               </Box>
