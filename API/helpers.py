@@ -60,7 +60,7 @@ def check_sponsor_name(db_connection, name):
     param = {'x': name}
 
     rows = db_connection.execute(query, param).fetchall()
-    
+
     for row in rows:
         if name.upper() == row[0].upper():
             result = False
@@ -91,6 +91,16 @@ def get_acctType(db_connection, name):
     rows = db_connection.execute(text(query), param).fetchone()
     return rows['acctType']
 
+# get the name of the sponsor organization attached to the sponsor account
+
+
+def get_sponsName(db_connection, user):
+    query = "SELECT a.username, b.sponsorName FROM TruckBux.Users AS a INNER JOIN TruckBux.Sponsorships AS b ON a.username = b.username WHERE a.username = :x"
+    param = {'x': user}
+
+    rows = db_connection.execute(text(query), param).fetchone()
+    return rows['sponsorName']
+
 
 # Function that takes a cleartext password and returns
 # a bcrypt hash of that password
@@ -100,7 +110,7 @@ def hash_password(password):
     return hash
 
 
-#Helper Funtion to add years to a datetime
+# Helper Funtion to add years to a datetime
 def add_years(start_date, years):
     try:
         return start_date.replace(year=start_date.year + years)
@@ -123,7 +133,8 @@ def log(db_connection, username, log_type, logresult=None, modder=None, reason=N
 
     query = 'INSERT INTO TruckBux.Logging (username, log_type, result, mod_reason, modder) '
     query += 'VALUES(:x, :y, :j, :k, :l)'
-    param ={'x':username, 'y':log_type, 'j':logresult, 'k':reason, 'l':modder}
+    param = {'x': username, 'y': log_type,
+             'j': logresult, 'k': reason, 'l': modder}
 
     try:
         db_connection.execute(text(query), param)
@@ -131,22 +142,20 @@ def log(db_connection, username, log_type, logresult=None, modder=None, reason=N
         print("failed to store log")
 
 
-#Helper to store notification
+# Helper to store notification
 def notif_log(db_connection, username, message):
     query = 'INSERT INTO TruckBux.Notifications (username, message, seen) '
     query += 'VALUES(:x, :y, :j)'
-    param ={'x':username, 'y': message, 'j':0 }
+    param = {'x': username, 'y': message, 'j': 0}
     try:
         db_connection.execute(text(query), param)
     except:
         print("failed to store notif log")
 
 
-
-
 # ========================================= ACCOUNT LOCKOUT =============================================
 
-#Function to Lock Account based on username and number of years to lock
+# Function to Lock Account based on username and number of years to lock
 def lock_account(db_connection, username, years):
     date_1 = datetime.datetime.now()
     date_2 = add_years(date_1, years)

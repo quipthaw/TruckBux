@@ -29,7 +29,7 @@ export default function Logs() {
         setStartTime(moment(newValue).format('YYYY-MM-DD'));
     };
     const handleETChange = (newValue) => {
-        setStartTime(moment(newValue).format('YYYY-MM-DD'));
+        setEndTime(moment(newValue).format('YYYY-MM-DD'));
     };
 
     const getUsers = async () => {
