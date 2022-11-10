@@ -538,43 +538,38 @@ def sponsors():
             user = request.args['user']
             acctType = get_acctType(db_connection, user)
 
-            accounts = []
+            relatedSponsors = []
+            otherSponsors = []
 
             if (acctType == 'S'):
-                query = 'SELECT username FROM TruckBux.Sponsorships WHERE sponsorName = :x'
-                param = {'x': user}
+                # sponsors will get only other sponsors
+                sponsName = get_sponsName(db_connection, user)
+                query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName != :x'
+                param = {'x': sponsName}
                 rows = db_connection.execute(text(query), param)
-
                 for row in rows:
-                    accounts.append(dict(row))
-
+                    otherSponsors.append(dict(row))
             elif (acctType == 'A'):
-                query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
+                # admins will get all sponsors
+                query = 'SELECT * FROM TruckBux.Sponsors'
                 rows = db_connection.execute(text(query))
-
                 for row in rows:
-                    accounts.append(dict(row))
-
+                    otherSponsors.append(dict(row))
             else:
-                query = 'SELECT sponsorName FROM TruckBux.Sponsorships WHERE active = 1 AND username = :x'
+                # get related sponsors
+                query = f"SELECT sponsors.* FROM TruckBux.Sponsors AS sponsors INNER JOIN TruckBux.Sponsorships AS sponsorships ON sponsors.sponsorName = sponsorships.sponsorName WHERE sponsorships.username = :x"
                 param = {'x': user}
-                rows = db_connection.execute(text(query), param)
-
+                rows = db_connection.execute(text(query), param).fetchall()
                 for row in rows:
-                    accounts.append(dict(row))
+                    relatedSponsors.append(dict(row))
+                # get other sponsors that are not in applications
+                query = f"SELECT * FROM TruckBux.Sponsors WHERE sponsorName NOT IN (SELECT sponsorName FROM TruckBux.Applications WHERE username = :x)"
+                param = {'x': user}
+                rows = db_connection.execute(text(query), param).fetchall()
+                for row in rows:
+                    otherSponsors.append(dict(row))
 
-            return jsonify({"accounts": accounts})
-        else:
-            query = 'SELECT * FROM TruckBux.Sponsors'
-            rows = db_connection.execute(text(query)).fetchall()
-
-            sponsors = []
-            i = 0
-            for row in rows:
-                i += 1
-                sponsors.append(dict(row))
-
-            return jsonify({"number": i, "sponsors": sponsors})
+            return jsonify({"relatedSponsors": relatedSponsors, "otherSponsors": otherSponsors})
 
 
 # Endpoint to insert data into the points table
@@ -806,29 +801,38 @@ def log_filter():
 # Endpoint to retrieve drivers based on requesting user
 
 
-@app.route('/drivers', methods=['GET'])
+@app.route('/users', methods=['GET'])
 @cross_origin()
 def drivers_request():
     user = request.args['user']
     acctType = get_acctType(db_connection, user)
 
     params = {}
-    query = 'SELECT username FROM TruckBux.Users'
     if acctType == 'D':
-        query += ' WHERE username = :x'
+        query = 'SELECT username, email, fname, lname, bio, acctType FROM TruckBux.Users WHERE username = :x'
         params['x'] = request.args.get('user')
-#-------------------- CHANGE THIS ONCE WE TALK ABOUT SPONSORS BEING SPNSORED BY THEMSELEVES ----------------------#
+        rows = db_connection.execute(text(query), params).fetchall()
     elif acctType == 'S':
-        query += ' WHERE username = :x'
-        params['x'] = request.args.get('user')
+        sponsName = get_sponsName(db_connection, user)
+        query = f'SELECT users.username, users.email, users.fname, users.lname, users.bio, users.acctType FROM TruckBux.Users AS users INNER JOIN TruckBux.Sponsorships AS sponsorships ON users.username = sponsorships.username WHERE sponsorships.sponsorName = "{sponsName}" AND sponsorships.active = "1" AND users.active = "1"'
+        rows = db_connection.execute(text(query)).fetchall()
+    else:
+        query = 'SELECT username, email, fname, lname, bio, active, dateCreated, acctType FROM TruckBux.Users'
+        rows = db_connection.execute(text(query)).fetchall()
 
-    rows = db_connection.execute(text(query), params).fetchall()
+    drivers = []
+    sponsors = []
+    admins = []
 
-    data = []
     for row in rows:
-        data.append(dict(row))
+        if row['acctType'] == 'D':
+            drivers.append(dict(row))
+        elif row['acctType'] == 'S':
+            sponsors.append(dict(row))
+        else:
+            admins.append(dict(row))
 
-    return (jsonify({'number': len(data), 'drivers': data}))
+    return (jsonify({"admins": admins, "sponsors": sponsors,  "drivers": drivers}))
 
 
 if __name__ == '__main__':
