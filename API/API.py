@@ -653,19 +653,31 @@ def update_cart():
         user = request.json['user']
         item = request.json['item']
         num = request.json['num']
-
-        # TO EMPTY A CART POST REQUEST WITH USERNAME AND ITEM ID '666'
-        if (item == '666'):
-            query = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x;'
+        cost = request.json['cost']  
+        type = request.json['type']
+        
+        #Empty cart use type 'E'
+        if type == 'E': 
+            new_num =  0 - int(item)
+            query = 'DELETE FROM TruckBux.Cart WHERE username = :x'
             param = {'x': user}
             rows = db_connection.execute(text(query), param)
             return (jsonify({'result': 'emptied'}))
 
+        #Remove item from cartuse type 'R'
+        #Post request with username and negative of normal Item_ID
+        if type == 'R': 
+            query = 'DELETE FROM TruckBux.Cart WHERE username = :x AND Item_ID = :y'
+            param = {'x': user, 'y': item}
+            rows = db_connection.execute(text(query), param)
+            return (jsonify({'result': 'removed'}))
+
+        #Add To Cart use type 'A'
         for i in range(1, num):
             foo = jsonify({'result': 'not yet'})
-            query = 'INSERT INTO TruckBux.Wishlist_Items (username, Item_ID) '
-            query += 'values(:x, :y)'
-            param = {'x': user, 'y': item}
+            query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
+            query += 'values(:x, :y, :z)'
+            param = {'x': user, 'y': item, 'z':cost }
             try:
                 db_connection.execute(text(query), param)
                 foo = jsonify({'result': 'success'})
@@ -677,7 +689,7 @@ def update_cart():
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
-        query = 'SELECT Item_ID FROM TruckBux.Wishlist_Items where username = :x'
+        query = 'SELECT Item_ID FROM TruckBux.Cart where username = :x'
         params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
@@ -687,7 +699,7 @@ def update_cart():
 
 # Endpoint to let a user purchase items
 # @POST request takes in a username
-# Purchases iemts currently in users cart then removes items from cart
+# Purchases itemts currently in users cart then removes items from cart
 # @returns bought
 #
 # @GET request takes in username and
@@ -698,13 +710,26 @@ def user_purchase():
 
     if request.method == 'POST':
         user = request.json['user']
-        query = 'UPDATE TruckBux.Wishlist_Items SET Date_Time = :d WHERE username = :x ;'
-        query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Wishlist_Items WHERE username = :x ;'
-        query3 = 'DELETE FROM TruckBux.Wishlist_Items WHERE username = :x ;'
         param = {'x': user, 'd': datetime.datetime.now()}
+        ps = 'SELECT sum(pointChange) FROM TruckBux.Points where nameReceiver = :x ;'
+        pointsum = db_connection.execute(text(ps), param).fetchone()
+        cs = 'SELECT sum(cost) FROM TruckBux.Cart where username = :x ;'
+        cartsum = db_connection.execute(text(cs), param).fetchone()
+        
+        ## NEITHER Can be null
+        if pointsum[0] < cartsum[0]:
+            return(jsonify('not enough points'))
+        
+        param = {'x': user, 'd': datetime.datetime.now(), 'p': (0-cartsum[0]), 'o': 'purchase'}
+        query = 'UPDATE TruckBux.Cart SET Date_Time = :d WHERE username = :x ;'
+        query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Cart WHERE username = :x ;'
+        query3 = 'DELETE FROM TruckBux.Cart WHERE username = :x ;'
+        query4 = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) VALUES(:o, :x, :p, :o);'
+
         db_connection.execute(text(query), param)
         db_connection.execute(text(query2), param)
         db_connection.execute(text(query3), param)
+        db_connection.execute(text(query4), param)
         return (jsonify({'result': 'Bought'}))
 
     elif request.method == 'GET':
