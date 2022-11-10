@@ -3,7 +3,6 @@ import { FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 
 export const PointChangeSelectionBox = (props) => {
     const { driver, selectedDrivers, setSelectedDrivers } = props;
-    //const [ isSelected, setIsSelected ] = React.useState(false);
 
     const handleSelection = (e) => {
 
@@ -34,8 +33,6 @@ export const PointChangeSelectionBox = (props) => {
     };
 
     const isSelected = () => {
-      console.log(selectedDrivers)
-      console.log(driver);
       const selectionExists = selectedDrivers.some((selectedDriver) => {
         return selectedDriver.username === driver.username;
       });
