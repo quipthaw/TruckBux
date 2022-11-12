@@ -1,4 +1,4 @@
-import { Card, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import React from 'react';
 import { NotificationCard } from './NotificationCard';
 
@@ -24,7 +24,7 @@ export const NotificationList = (props) => {
   };
 
   return (
-    <Stack direction="column">
+    <Stack direction="column" spacing={.5}>
       <PopulateNotificationList/>
     </Stack>
   )

@@ -73,8 +73,6 @@ export default function Navbar(props) {
         { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
         { 'text': 'Register', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
-        { 'text': 'Account Management', 'path': '/AccountManagement' },
-        { 'text': 'Point Management', 'path': '/PointManagement' },
     ];
 
     const navigate = useNavigate();
@@ -108,7 +106,7 @@ export default function Navbar(props) {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out', 'Profile', 'Account Management', 'Point Management',];
+        const loggedOutFilter = ['Log Out', 'Profile',];
         const signedInFilter = ['Sign In', 'Register',];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
