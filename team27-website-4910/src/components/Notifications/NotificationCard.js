@@ -1,5 +1,5 @@
 import { Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import CheckIcon from '@mui/icons-material/Check';
 
 export const NotificationCard = (props) => {
