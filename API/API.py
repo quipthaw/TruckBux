@@ -469,39 +469,32 @@ def applications():
     if request.method == 'GET':
         if 'user' in request.args:
             user = request.args['user']
-            query = 'SELECT * FROM TruckBux.Applications where username = :x'
-            param = {'x': user}
+            acctType = get_acctType(db_connection, user)
 
-            apps = {}
-            rows = db_connection.execute(text(query), param).fetchall()
-            i = 1
+            if acctType == 'D':
+                query = 'SELECT * FROM TruckBux.Applications where username = :x'
+                param = {'x': user}
+
+            elif acctType == 'S':
+                sponsName = get_sponsName(db_connection, user)
+                query = 'SELECT users.username, users.fName, users.lName, apps.`date`, apps.`status` FROM TruckBux.Applications as apps INNER JOIN TruckBux.Users as users ON apps.username = users.username WHERE apps.sponsorName = :x'
+                param = {'x': sponsName}
+
+            else:
+                query = 'SELECT * FROM TruckBux.Applications'
+                param = {}
+
+            apps = []
+
+            if param != {}:
+                rows = db_connection.execute(text(query), param).fetchall()
+            else:
+                rows = db_connection.execute(text(query)).fetchall()
+
             for row in rows:
-                apps[i] = dict(row)
-                i += 1
+                apps.append(dict(row))
 
-        elif 'sponsName' in request.args:
-            sponsName = request.args['sponsName']
-            query = 'SELECT * FROM TruckBux.Applications where sponsorName = :x'
-            param = {'x': sponsName}
-
-            apps = {}
-            rows = db_connection.execute(text(query), param).fetchall()
-            i = 1
-            for row in rows:
-                apps[i] = dict(row)
-                i += 1
-        else:
-            query = 'SELECT * FROM TruckBux.Applications'
-
-            rows = db_connection.execute(text(query)).fetchall()
-
-            apps = {}
-            i = 1
-            for row in rows:
-                apps[i] = dict(row)
-                i += 1
-
-        return jsonify(apps)
+        return jsonify({"apps": apps})
 
 
 # @POST inserts new sponsor into database
@@ -646,42 +639,42 @@ def update_cart():
 
     if request.method == 'POST':
         user = request.json['user']
-        items = request.json['items']
-        foo = jsonify({'result': 'didnt finish'})
-        #GET DATA FROM LIST
-        for i in range(len(items)):
-            dataList = [items[i]]
-            for index in range(len(dataList)):
-                for key in dataList[index]:
-                    if key == 'cost': 
-                        cost = dataList[index][key]
-                    if key == 'item':
-                        item = dataList[index][key]
-                    if key == 'num':
-                        num = dataList[index][key]
-            #ADD TO CART
-            for i in range(num):
-                foo = jsonify({'result': 'not yet'})
-                query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
-                query += 'values(:x, :y, :z);'
-                param = {'x': user, 'y': str(item), 'z':str(cost) }
-                print(user)
-                print(item)
-                print(cost)
-                try:
-                    db_connection.execute(text(query), param)
-                    foo = jsonify({'result': 'success'})
-                except:
-                    print('Insert Failed')
-                    foo = jsonify({'result': 'failure'})
-            #EMPTY CART
-            if item == '-666': 
-                query = 'DELETE FROM TruckBux.Cart WHERE username = :x'
-                param = {'x': user}
-                rows = db_connection.execute(text(query), param)
+        item = request.json['item']
+        num = request.json['num']
+        cost = request.json['cost']
+        type = request.json['type']
+
+        # Empty cart use type 'E'
+        if type == 'E':
+            new_num = 0 - int(item)
+            query = 'DELETE FROM TruckBux.Cart WHERE username = :x'
+            param = {'x': user}
+            rows = db_connection.execute(text(query), param)
+            return (jsonify({'result': 'emptied'}))
+
+        # Remove item from cartuse type 'R'
+        # Post request with username and negative of normal Item_ID
+        if type == 'R':
+            query = 'DELETE FROM TruckBux.Cart WHERE username = :x AND Item_ID = :y'
+            param = {'x': user, 'y': item}
+            rows = db_connection.execute(text(query), param)
+            return (jsonify({'result': 'removed'}))
+
+        # Add To Cart use type 'A'
+        for i in range(1, num):
+            foo = jsonify({'result': 'not yet'})
+            query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
+            query += 'values(:x, :y, :z)'
+            param = {'x': user, 'y': item, 'z': cost}
+            try:
+                db_connection.execute(text(query), param)
+                foo = jsonify({'result': 'success'})
+            except:
+                print('Insert Failed')
+                foo = jsonify({'result': 'failure'})
         return (foo)
 
-    #GET ALL ITEMS CURRENTLY IN USERS CART
+    # GET ALL ITEMS CURRENTLY IN USERS CART
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
@@ -711,12 +704,13 @@ def user_purchase():
         pointsum = db_connection.execute(text(ps), param).fetchone()
         cs = 'SELECT sum(cost) FROM TruckBux.Cart where username = :x ;'
         cartsum = db_connection.execute(text(cs), param).fetchone()
-        
-        ## NEITHER Can be null
+
+        # NEITHER Can be null
         if pointsum[0] < cartsum[0]:
-            return(jsonify('not enough points'))
-        
-        param = {'x': user, 'd': datetime.datetime.now(), 'p': (0-cartsum[0]), 'o': 'purchase'}
+            return (jsonify('not enough points'))
+
+        param = {'x': user, 'd': datetime.datetime.now(), 'p': (
+            0-cartsum[0]), 'o': 'purchase'}
         query = 'UPDATE TruckBux.Cart SET Date_Time = :d WHERE username = :x ;'
         query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Cart WHERE username = :x ;'
         query3 = 'DELETE FROM TruckBux.Cart WHERE username = :x ;'
