@@ -27,16 +27,27 @@ import {
 } from '../../recoil_atoms';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
-const pages = [{ 'label': 'Catalog', 'path': '/catalog' }, { 'label': 'Drivers', 'path': '/drivers' }, { 'label': 'Sponsors', 'path': '/sponsors' }, { 'label': 'Create Sponsor', 'path': '/sponsorcreation' }]
+const alwaysPages = [
+    { 'label': 'Catalog', 'path': '/catalog' },
+]
+
+const pages = [
+    { 'label': 'Catalog', 'path': '/catalog' }, 
+    { 'label': 'Drivers', 'path': '/drivers' }, 
+    { 'label': 'Sponsors', 'path': '/sponsors' }, 
+    { 'label': 'Create Sponsor', 'path': '/sponsorcreation' }
+];
+
+const driverPages = [
+    { 'label': 'Catalog', 'path': '/catalog' },
+    { 'label': 'Sponsors', 'path': '/sponsors' },
+];
 
 export default function Navbar(props) {
     const theme = useTheme();
 
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);
-    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
-    const [lastnameState, setLastnameState] = useRecoilState(userLName);
-    const [emailState, setEmailState] = useRecoilState(userEmail);
 
     const [gotNotifications, setGotNotifications] = React.useState(false);
     const [userNotifications, setUserNotifications] = React.useState([]);
@@ -116,6 +127,38 @@ export default function Navbar(props) {
         }
     };
 
+    const displayUserPageOptions = () => {
+        let myPages = [];
+
+        switch(sessionState) {
+            case 'A':
+                myPages = [...pages];
+                break;
+            case 'S':
+                myPages = [...pages];
+                break;
+            case 'D':
+                myPages = [...driverPages];
+                break;
+            default:
+                myPages = [...alwaysPages];
+        }
+
+        return (
+            myPages.map((page) => {
+            return (
+                <Button
+                    key={page.label}
+                    onClick={(e) => { redirect(e, page.path) }}
+                    sx={{ my: 2, color: 'white', display: 'block' }}
+                 >
+                    {page.label}
+                </Button>
+            )             
+            })
+        );
+    };
+
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
@@ -158,15 +201,7 @@ export default function Navbar(props) {
                         </Menu>
                     </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
-                            <Button
-                                key={page.label}
-                                onClick={(e) => { redirect(e, page.path) }}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                {page.label}
-                            </Button>
-                        ))}
+                        {displayUserPageOptions()}
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }}>
@@ -205,7 +240,7 @@ export default function Navbar(props) {
                         </Menu>
                     </Box>
                     <Box sx={{ p: 2, flexGrow: 0 }}>
-                        {sessionState !== '0' && <Typography>{usernameState}</Typography>}
+                        <Typography>{sessionState !== '0' ? usernameState : "Guest"}</Typography>
                     </Box>
 
                     <Box sx={{ p: 2, flexGrow: 0 }}>

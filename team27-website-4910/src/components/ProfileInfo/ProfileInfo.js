@@ -88,6 +88,7 @@ export const ProfileInfo = (props) => {
       });
       setUpdatingError('');
       updatingProfileOff();
+      getProfileInformation();
     }
     else {
       if ('email' in result) {
