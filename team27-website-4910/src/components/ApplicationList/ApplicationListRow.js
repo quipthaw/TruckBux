@@ -1,8 +1,7 @@
 import React from 'react';
 import { Paper, Container, Stack, Box, Typography, Button } from '@mui/material';
-import { PointDisplay } from '../../ManagePoints/PointDisplay';
 import { useRecoilState } from 'recoil';
-import { userName, userType } from '../../../recoil_atoms';
+import { userName, userType } from '../../recoil_atoms';
 
 export const ApplicationListRow = (props) => {
     const { app } = props;

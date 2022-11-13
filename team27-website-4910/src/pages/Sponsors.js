@@ -5,6 +5,7 @@ import Layout from '../components/Layout/Layout';
 import { useRecoilState } from 'recoil';
 import { userName, userType } from '../recoil_atoms';
 import { MySponsorList } from '../components/ManageAccount/MySponsorList/MySponsorList';
+import { ApplicationList } from '../components/ApplicationList/ApplicationList';
 
 
 export default function Register() {
@@ -15,6 +16,8 @@ export default function Register() {
     const [sponsors, setSponsors] = React.useState();
     const [mySponsors, setMySponsors] = React.useState([]);
 
+    const [applications, setApplications] = React.useState();
+
     const getSponsors = async () => {
         const responseURL = sessionState === '0' ? `http://127.0.0.1:5000/sponsors` : `http://127.0.0.1:5000/sponsors?user=${usernameState}`;
         const response = await fetch(responseURL);
@@ -22,11 +25,24 @@ export default function Register() {
 
         setMySponsors(result.relatedSponsors);
         setSponsors(result.otherSponsors);
+    };
+
+    const getApps = async () => {
+        const getRequestURL = `http://127.0.0.1:5000/applications?user=${usernameState}`
+        const response = await fetch(getRequestURL);
+        const result = await response.json();
+
+        setApplications(result.apps);
+    };
+
+    const getPageInfo = async () => {
+        await getApps();
+        await getSponsors();
         setLoading(false);
     };
 
     useEffect(() => {
-        getSponsors();
+        getPageInfo();
     }, []);
 
     const renderList = () => {
@@ -34,17 +50,20 @@ export default function Register() {
             return (
                 <Stack spacing={2}>
                     <Typography variant='h3' gutterBottom>My Sponsors</Typography>
-                    <MySponsorList getSponsors={getSponsors} sponsorList={mySponsors} showPoints={true} />
+                    <MySponsorList getSponsors={getPageInfo} sponsorList={mySponsors} showPoints={true} />
+
+                    <Typography variant='h3' gutterBottom>My Applications</Typography>
+                    <ApplicationList getApps={getPageInfo} appList={applications} />
 
                     <Typography variant='h3' gutterBottom>Other Sponsors</Typography>
-                    <MySponsorList getSponsors={getSponsors} sponsorList={sponsors} showPoints={false} />
+                    <MySponsorList getSponsors={getPageInfo} sponsorList={sponsors} showPoints={false} />
                 </Stack>
             )
         } else {
             return (
                 <Stack spacing={2}>
                     <Typography variant='h3' gutterBottom>Sponsors</Typography>
-                    <MySponsorList getSponsors={getSponsors} sponsorList={sponsors} showPoints={false} />
+                    <MySponsorList getSponsors={getPageInfo} sponsorList={sponsors} showPoints={false} />
                 </Stack>
             )
 
