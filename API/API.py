@@ -477,7 +477,7 @@ def applications():
 
             elif acctType == 'S':
                 sponsName = get_sponsName(db_connection, user)
-                query = 'SELECT users.username, users.fName, users.lName, apps.`date`, apps.`status`, apps.sponsorName FROM TruckBux.Applications as apps INNER JOIN TruckBux.Users as users ON apps.username = users.username WHERE apps.sponsorName = :x'
+                query = 'SELECT users.username, users.fName, users.lName, apps.`date`, apps.`status`, apps.sponsorName, apps.applicationID FROM TruckBux.Applications as apps INNER JOIN TruckBux.Users as users ON apps.username = users.username WHERE apps.sponsorName = :x'
                 param = {'x': sponsName}
 
             else:
