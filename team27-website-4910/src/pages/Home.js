@@ -1,10 +1,13 @@
 import React from 'react';
-import Layout from '../components/Layout/Layout';
+import HeroSection from '../components/HeroSection/HeroSection';
+import Layout from '../components/Layout/HomeLayout';
 
 export default function Home() {
     return (
         <div>
-            <Layout />
+            <Layout>
+                <HeroSection />
+            </Layout>
         </div>
     )
 }

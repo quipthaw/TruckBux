@@ -526,22 +526,27 @@ def sponsors():
                 resp['reason'] = 'Insert Failed'
 
         return resp
+
     elif request.method == 'GET':
+
+        relatedSponsors = []
+        otherSponsors = []
+
         if 'user' in request.args:
             user = request.args['user']
             acctType = get_acctType(db_connection, user)
 
-            relatedSponsors = []
-            otherSponsors = []
-
             if (acctType == 'S'):
                 # sponsors will get only other sponsors
                 sponsName = get_sponsName(db_connection, user)
-                query = 'SELECT * FROM TruckBux.Sponsors WHERE sponsorName != :x'
+                query = 'SELECT * FROM TruckBux.Sponsors'
                 param = {'x': sponsName}
                 rows = db_connection.execute(text(query), param)
                 for row in rows:
-                    otherSponsors.append(dict(row))
+                    if row['sponsorName'] == sponsName:
+                        relatedSponsors.append(dict(row))
+                    else:
+                        otherSponsors.append(dict(row))
             elif (acctType == 'A'):
                 # admins will get all sponsors
                 query = 'SELECT * FROM TruckBux.Sponsors'
@@ -562,7 +567,13 @@ def sponsors():
                 for row in rows:
                     otherSponsors.append(dict(row))
 
-            return jsonify({"relatedSponsors": relatedSponsors, "otherSponsors": otherSponsors})
+        else:
+            query = 'SELECT sponsorName FROM TruckBux.Sponsors'
+            rows = db_connection.execute(text(query))
+            for row in rows:
+                otherSponsors.append(dict(row))
+
+        return jsonify({"relatedSponsors": relatedSponsors, "otherSponsors": otherSponsors})
 
 
 # Endpoint to insert data into the points table

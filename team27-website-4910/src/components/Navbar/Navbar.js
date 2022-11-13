@@ -24,6 +24,7 @@ import {
     userFName,
     userLName,
     userEmail,
+    userBio,
 } from '../../recoil_atoms';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
@@ -37,12 +38,13 @@ export default function Navbar(props) {
     const [firstnameState, setFirstnameState] = useRecoilState(userFName);
     const [lastnameState, setLastnameState] = useRecoilState(userLName);
     const [emailState, setEmailState] = useRecoilState(userEmail);
+    const [bioState, setBioState] = useRecoilState(userBio);
 
     const [gotNotifications, setGotNotifications] = React.useState(false);
     const [userNotifications, setUserNotifications] = React.useState([]);
 
     const getNotifications = async () => {
-        const data = {user: usernameState };
+        const data = { user: usernameState };
         const options = {
             method: 'POST',
             headers: {
@@ -50,7 +52,7 @@ export default function Navbar(props) {
             },
             body: JSON.stringify(data),
         }
-        
+
         const response = await fetch('http://127.0.0.1:5000/notifications', options)
         const result = await response.json();
         setGotNotifications(true);
@@ -70,7 +72,16 @@ export default function Navbar(props) {
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },
-        { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
+        {
+            'text': 'Log Out', 'path': '/', 'onClick': () => {
+                setSessionState('0');
+                setUsernameState('');
+                setFirstnameState('');
+                setLastnameState('');
+                setEmailState('');
+                setBioState('');
+            }
+        },
         { 'text': 'Register', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
         { 'text': 'Account Management', 'path': '/AccountManagement' },
