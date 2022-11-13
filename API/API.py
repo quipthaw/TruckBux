@@ -446,7 +446,7 @@ def reset_password():
 # if given sponsName=<sponsorName> returns all apps associated with that sponsor
 # if given nothing, returns all applications
 # @returns {1: {app1}, 2: {app2}}
-@app.route('/applications', methods=['POST', 'GET'])
+@app.route('/applications', methods=['POST', 'GET', 'PATCH'])
 @cross_origin()
 def applications():
     if request.method == 'POST':
@@ -477,7 +477,7 @@ def applications():
 
             elif acctType == 'S':
                 sponsName = get_sponsName(db_connection, user)
-                query = 'SELECT users.username, users.fName, users.lName, apps.`date`, apps.`status` FROM TruckBux.Applications as apps INNER JOIN TruckBux.Users as users ON apps.username = users.username WHERE apps.sponsorName = :x'
+                query = 'SELECT users.username, users.fName, users.lName, apps.`date`, apps.`status`, apps.sponsorName FROM TruckBux.Applications as apps INNER JOIN TruckBux.Users as users ON apps.username = users.username WHERE apps.sponsorName = :x'
                 param = {'x': sponsName}
 
             else:
@@ -494,15 +494,37 @@ def applications():
             for row in rows:
                 apps.append(dict(row))
 
-        return jsonify({"apps": apps})
+            return jsonify({"apps": apps})
+    if request.method == 'PATCH':
+        username = request.json['user']
+        sponsor = request.json['sponsName']
+        status = request.json['status']
+
+        if status == 'Approved':
+            query = 'DELETE FROM TruckBux.Applications WHERE username = :x AND sponsorName = :y'
+            param = {'x': username, 'y': sponsor}
+            db_connection.execute(text(query), param)
+            query = 'INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES (:x, :y, 1)'
+            param = {'x': username, 'y': sponsor}
+        elif status == 'Denied':
+            query = "UPDATE TruckBux.Applications SET status = 'Denied', statusReason = 'Denied Application', date = NOW() WHERE username = :x AND sponsorName = :y"
+            param = {'x': username, 'y': sponsor}
+        elif status == 'Cancelled':
+            query = 'DELETE FROM TruckBux.Applications WHERE username = :x AND sponsorName = :y'
+            param = {'x': username, 'y': sponsor}
+
+        db_connection.execute(text(query), param)
+
+        return jsonify({"result": "success"})
+
+        # @POST inserts new sponsor into database
+        # @GET
+        # if given user, if acctType is S returns all users associated with that sponsor
+        # if acctType is A, returns all users
+        # if given nothing, returns all Sponsor accounts
+        # @returns {1: {account1}, 2: {account2}}
 
 
-# @POST inserts new sponsor into database
-# @GET
-# if given user, if acctType is S returns all users associated with that sponsor
-# if acctType is A, returns all users
-# if given nothing, returns all Sponsor accounts
-# @returns {1: {account1}, 2: {account2}}
 @app.route('/sponsors', methods=['POST', 'GET'])
 @cross_origin()
 def sponsors():
