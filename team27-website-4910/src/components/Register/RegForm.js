@@ -40,6 +40,7 @@ export default function RegForm() {
     const navigate = useNavigate();
 
     const [sessionState, setSessionState] = useRecoilState(userType);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
 
     //Store and modify form values
     const [values, setValues] = React.useState({
@@ -85,14 +86,15 @@ export default function RegForm() {
     };
 
     const [sponsors, setSponsors] = React.useState([]);
-    const getSponsors = async () => {
-        const response = await fetch('http://127.0.0.1:5000/getsponsors');
-        const result = await response.json();
-        changeSponsors(result.sponsors);
-    };
 
-    const changeSponsors = (values) => {
-        setSponsors(values);
+    const getSponsors = async () => {
+        const response = await fetch(`http://127.0.0.1:5000/sponsors?user=${usernameState}`);
+        const result = await response.json();
+        if (sessionState == 'S') {
+            setSponsors(result.relatedSponsors);
+        } else {
+            setSponsors(result.otherSponsors);
+        }
     };
 
     const checkEmptyFields = () => {
@@ -228,7 +230,7 @@ export default function RegForm() {
     };
 
     const showSponsor = () => {
-        if (values.type === 'S' && sessionState == 'A') {
+        if (values.type === 'S' && (sessionState == 'A' || sessionState == 'S')) {
             return (
                 <FormControl fullWidth>
                     <InputLabel id="sponsor-select-label">Sponsor</InputLabel>
@@ -241,7 +243,9 @@ export default function RegForm() {
                     >
                         {
                             sponsors.map((sponsor) => {
-                                <MenuItem value={sponsor.sponsorID}>{sponsor.sponsorName}</MenuItem>
+                                return (
+                                    <MenuItem value={sponsor.sponsorName}>{sponsor.sponsorName}</MenuItem>
+                                )
                             })
                         }
                     </Select>

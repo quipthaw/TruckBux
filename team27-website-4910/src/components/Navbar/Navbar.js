@@ -24,6 +24,7 @@ import {
     userFName,
     userLName,
     userEmail,
+    userBio,
 } from '../../recoil_atoms';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
@@ -32,9 +33,9 @@ const alwaysPages = [
 ]
 
 const pages = [
-    { 'label': 'Catalog', 'path': '/catalog' }, 
-    { 'label': 'Drivers', 'path': '/drivers' }, 
-    { 'label': 'Sponsors', 'path': '/sponsors' }, 
+    { 'label': 'Catalog', 'path': '/catalog' },
+    { 'label': 'Drivers', 'path': '/drivers' },
+    { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Create Sponsor', 'path': '/sponsorcreation' }
 ];
 
@@ -48,12 +49,16 @@ export default function Navbar(props) {
 
     const [sessionState, setSessionState] = useRecoilState(userType);
     const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [firstnameState, setFirstnameState] = useRecoilState(userFName);
+    const [lastnameState, setLastnameState] = useRecoilState(userLName);
+    const [emailState, setEmailState] = useRecoilState(userEmail);
+    const [bioState, setBioState] = useRecoilState(userBio);
 
     const [gotNotifications, setGotNotifications] = React.useState(false);
     const [userNotifications, setUserNotifications] = React.useState([]);
 
     const getNotifications = async () => {
-        const data = {user: usernameState };
+        const data = { user: usernameState };
         const options = {
             method: 'POST',
             headers: {
@@ -61,7 +66,7 @@ export default function Navbar(props) {
             },
             body: JSON.stringify(data),
         }
-        
+
         const response = await fetch('http://127.0.0.1:5000/notifications', options)
         const result = await response.json();
         setGotNotifications(true);
@@ -81,7 +86,16 @@ export default function Navbar(props) {
 
     const settings = [
         { 'text': 'Sign In', 'path': '/login' },
-        { 'text': 'Log Out', 'path': '/', 'onClick': () => setSessionState('0') },
+        {
+            'text': 'Log Out', 'path': '/', 'onClick': () => {
+                setSessionState('0');
+                setUsernameState('');
+                setFirstnameState('');
+                setLastnameState('');
+                setEmailState('');
+                setBioState('');
+            }
+        },
         { 'text': 'Register', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
     ];
@@ -130,7 +144,7 @@ export default function Navbar(props) {
     const displayUserPageOptions = () => {
         let myPages = [];
 
-        switch(sessionState) {
+        switch (sessionState) {
             case 'A':
                 myPages = [...pages];
                 break;
@@ -146,15 +160,15 @@ export default function Navbar(props) {
 
         return (
             myPages.map((page) => {
-            return (
-                <Button
-                    key={page.label}
-                    onClick={(e) => { redirect(e, page.path) }}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                 >
-                    {page.label}
-                </Button>
-            )             
+                return (
+                    <Button
+                        key={page.label}
+                        onClick={(e) => { redirect(e, page.path) }}
+                        sx={{ my: 2, color: 'white', display: 'block' }}
+                    >
+                        {page.label}
+                    </Button>
+                )
             })
         );
     };

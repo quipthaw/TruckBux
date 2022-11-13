@@ -57,13 +57,6 @@ const userBio = atom({
         localStorageEffect('userBio'),
     ]
 });
-const userSponsors = atom({
-    key: 'userSponsors',
-    default: [],
-    effects: [
-        localStorageEffect('userSponsors'),
-    ]
-});
 
 export {
     userType,
@@ -72,5 +65,4 @@ export {
     userLName,
     userEmail,
     userBio,
-    userSponsors
 };
