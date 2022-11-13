@@ -13,7 +13,6 @@ import {
     userLName,
     userEmail,
     userBio,
-    userSponsors
 } from '../../recoil_atoms';
 
 export const SignInPrompt = (props) => {
@@ -24,7 +23,6 @@ export const SignInPrompt = (props) => {
     const [lastnameState, setLastnameState] = useRecoilState(userLName);
     const [emailState, setEmailState] = useRecoilState(userEmail);
     const [bioState, setBioState] = useRecoilState(userBio);
-    const [sponsorIDs, setSponsorIDs] = useRecoilState(userSponsors);
     const { setSigningIn, setSignInError } = props;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -70,7 +68,6 @@ export const SignInPrompt = (props) => {
             setLastnameState(userResponse.user[0].lName);
             setSessionState(userResponse.user[0].acctType);
             setBioState(userResponse.user[0].bio ? userResponse.user[0].bio : '');
-            setSponsorIDs(userResponse.user[0].sponsorID);
 
             return true;
         }
