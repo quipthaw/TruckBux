@@ -1,8 +1,8 @@
-import { CircularProgress,  Container,  Typography } from '@mui/material';
+import { CircularProgress, Container, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import { ManagePoints } from '../ManagePoints/ManagePoints';
-import { DriverApplicationsList } from './DriverApplicationsList';
+import { ApplicationList } from '../ApplicationList/ApplicationList';
 import { UserList } from './UserList/UserList';
 
 export default function ManageAccounts(props) {
@@ -11,19 +11,21 @@ export default function ManageAccounts(props) {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
-    const [sponsors, setSponsors ] = React.useState();
-    const [admins, setAdmins ] = React.useState();
+    const [sponsors, setSponsors] = React.useState();
+    const [admins, setAdmins] = React.useState();
 
-    const [ refresh, setRefresh ] = React.useState(false);
+    const [applications, setApplications] = React.useState();
 
-    const [selectedDrivers, setSelectedDrivers ] = React.useState([]);
+    const [refresh, setRefresh] = React.useState(false);
+
+    const [selectedDrivers, setSelectedDrivers] = React.useState([]);
 
     const getDrivers = async () => {
         const getRequestURL = `http://127.0.0.1:5000/users?user=${user}`
         const response = await fetch(getRequestURL);
 
         const result = await response.json();
-        
+
         setAdmins(result.admins);
         setSponsors(result.sponsors);
         setDrivers(result.drivers);
@@ -31,16 +33,31 @@ export default function ManageAccounts(props) {
         setLoading(false);
     };
 
+    const getApps = async () => {
+        const getRequestURL = `http://127.0.0.1:5000/applications?user=${user}`
+        const response = await fetch(getRequestURL);
+
+        const result = await response.json();
+
+        setApplications(result.apps);
+    };
+
+    const getPageInfo = async () => {
+        await getApps();
+        await getDrivers();
+        setLoading(false);
+    };
+
     useEffect(() => {
-        getDrivers()
+        getPageInfo()
     }, []);
 
-    const selectAllDrivers = ()  => {
-        if(drivers.length === selectedDrivers.length) {
+    const selectAllDrivers = () => {
+        if (drivers.length === selectedDrivers.length) {
             setSelectedDrivers([]);
-        } 
+        }
         else {
-            setSelectedDrivers([...drivers]);   
+            setSelectedDrivers([...drivers]);
         }
     }
 
@@ -49,23 +66,23 @@ export default function ManageAccounts(props) {
             {loading ?
                 <CircularProgress />
                 :
-                <Stack direction="column" spacing={2}>       
+                <Stack direction="column" spacing={2}>
                     {userType === 'S' && <Typography variant='h3' gutterBottom>Applications</Typography>}
-                    {userType === 'S' && <DriverApplicationsList/>}
+                    {userType === 'S' && <ApplicationList appList={applications} getApps={getPageInfo} />}
 
                     {userType === 'S' && <Typography variant='h3' gutterBottom>Point Change</Typography>}
-                    {userType === 'S' && <ManagePoints user={user} drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh}/>}
+                    {userType === 'S' && <ManagePoints user={user} drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh} />}
 
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>}
-                    {userType === 'A' && 
+                    {userType === 'A' &&
                         <UserList
                             user={user}
                             userType={userType}
                             selectAllDrivers={selectAllDrivers}
                             selectedDrivers={selectedDrivers}
                             setSelectedDrivers={setSelectedDrivers}
-                            refresh={refresh} 
-                            setRefresh={setRefresh} 
+                            refresh={refresh}
+                            setRefresh={setRefresh}
                             userList={sponsors}
                         />
                     }
@@ -78,21 +95,21 @@ export default function ManageAccounts(props) {
                         selectAllDrivers={selectAllDrivers}
                         selectedDrivers={selectedDrivers}
                         setSelectedDrivers={setSelectedDrivers}
-                        refresh={refresh} 
-                        setRefresh={setRefresh} 
+                        refresh={refresh}
+                        setRefresh={setRefresh}
                         userList={drivers}
                     />
-                    
+
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
-                    {userType === 'A' && 
+                    {userType === 'A' &&
                         <UserList
                             user={user}
                             userType={userType}
                             selectAllDrivers={selectAllDrivers}
                             selectedDrivers={selectedDrivers}
                             setSelectedDrivers={setSelectedDrivers}
-                            refresh={refresh} 
-                            setRefresh={setRefresh} 
+                            refresh={refresh}
+                            setRefresh={setRefresh}
                             userList={admins}
                         />
                     }
