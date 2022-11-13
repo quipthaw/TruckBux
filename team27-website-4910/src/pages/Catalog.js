@@ -1,10 +1,7 @@
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Layout from "../components/Layout/Layout";
-import { Box, Button, CircularProgress, Dialog, DialogActions, Grid, Paper } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, Grid, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -19,7 +16,7 @@ import { Stack } from '@mui/system';
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
     const [itemList, setItemList] = React.useState();
-    const [cart, setCart] = React.useState(new Array());
+    const [cart, setCart] = React.useState([]);
     const [openCart, setOpenCart] = React.useState(false);
     const [cartButtonMessage, setCartButtonMessage] = React.useState('');
     const [searchParams, setParams] = React.useState({
@@ -27,6 +24,13 @@ export default function Catalog() {
         search: "",
         price: "[0..250]",
     })
+
+    const [ userAlert, setUserAlert ] = React.useState(false);
+    const [ userAlertMessage, setUserAlertMessage ] = React.useState("");
+    const [ userAlertSeverity, setUserAlertSeverity ] = React.useState("success");
+
+    const [ buyer, setBuyer ] = React.useState("KanyeWest");
+
     const categories = [
         {
             name: "Consumer Electronics",
@@ -120,6 +124,83 @@ export default function Catalog() {
         getCartSize();
     }, [cart]);
 
+    React.useEffect(() => {
+        getMyCart();
+    }, [itemList])
+
+    const saveMyCart = async () => {
+        const url = 'http://127.0.0.1:5000/Cart';
+
+        const data = {
+            'user': buyer,
+            'items': [...cart]
+        };
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        };
+
+        const response = await fetch(url, options);
+        const result = await response.json();
+
+        if(result.result === "success") {
+            setUserAlert(true);
+            setUserAlertSeverity("success");
+            setUserAlertMessage("Your cart has been saved!");
+        }
+        else {
+            setUserAlert(true);
+            setUserAlertSeverity("error");
+            setUserAlertMessage("Something went wrong. We were unable to save your cart!");
+        }
+
+        closeMyCart();
+    };
+
+    const purchaseMyCart = async () => {
+        console.log(cart)
+    }
+
+    const retrieveItemInfo = (cartItem) => {
+        return (
+            itemList.find((catalogItem) => {
+                return cartItem.itemId === catalogItem.itemId;
+            })
+        );
+    };
+
+    const getMyCart = async () => {
+        if(itemList !== undefined) {
+            const url = `http://127.0.0.1:5000/Cart?user=${buyer}`;
+
+            const response = await fetch(url);
+            const result = await response.json();
+
+            let buildingCart = [];
+
+            result.forEach((cartItem) => {
+                const newCartItem = {
+                    ...retrieveItemInfo(cartItem),
+                    'quantity': cartItem.quantity,
+                }
+                buildingCart.push(newCartItem);
+            })
+
+            setCart(buildingCart);
+            getCartSize();
+        }
+    }
+
+    const closeAlert = () => {
+        setUserAlert(false);
+        setUserAlertSeverity("success");
+        setUserAlertMessage("");
+    }
+
     const showCatalog = () => {
         if (loading) {
             return (
@@ -169,6 +250,7 @@ export default function Catalog() {
 
     return (
         <Layout>
+            {userAlert && <Alert onClose={() => {closeAlert()}} severity={userAlertSeverity}>{userAlertMessage}</Alert>}
             <Stack direction='column' spacing={6} sx={{ my: '1vh' }}>
                 <Stack direction={{ xs: 'column', md: 'row' }} justifyContent='space-between' spacing={2}>
                     <Box sx={{
@@ -224,7 +306,9 @@ export default function Catalog() {
                     <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
                         <MyCart cart={cart} setCart={setCart} />
                         <DialogActions>
-                            <Button variant="contained" onClick={closeMyCart}>Close</Button>
+                                <Button variant="contained" onClick={saveMyCart}>Save My Cart</Button>
+                                <Button variant="contained" onClick={closeMyCart}>Close</Button>
+                                <Button variant="contained" onClick={purchaseMyCart}>Purchase</Button>
                         </DialogActions>
                     </Dialog>
                 }

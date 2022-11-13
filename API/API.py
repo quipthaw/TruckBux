@@ -650,50 +650,56 @@ def update_cart():
 
     if request.method == 'POST':
         user = request.json['user']
-        item = request.json['item']
-        num = request.json['num']
-        cost = request.json['cost']
-        type = request.json['type']
+        items = request.json['items']
+        foo = jsonify({'result': 'didnt finish'})
 
-        # Empty cart use type 'E'
-        if type == 'E':
-            new_num = 0 - int(item)
-            query = 'DELETE FROM TruckBux.Cart WHERE username = :x'
-            param = {'x': user}
-            rows = db_connection.execute(text(query), param)
-            return (jsonify({'result': 'emptied'}))
+        #EMPTY OLD CART
+        queryDelete = 'DELETE FROM TruckBux.Cart WHERE username = :x'
+        paramDelete = {'x': user}
+        rowsDelete = db_connection.execute(text(queryDelete), paramDelete)
+        
+        #GET DATA FROM LIST
+        for i in range(len(items)):
+            dataList = [items[i]]
+            for index in range(len(dataList)):
+                for key in dataList[index]:
+                    if key == 'price': 
+                        cost = dataList[index][key]
+                    if key == 'itemId':
+                        item = dataList[index][key]
+                    if key == 'quantity':
+                        num = dataList[index][key]
 
-        # Remove item from cartuse type 'R'
-        # Post request with username and negative of normal Item_ID
-        if type == 'R':
-            query = 'DELETE FROM TruckBux.Cart WHERE username = :x AND Item_ID = :y'
-            param = {'x': user, 'y': item}
-            rows = db_connection.execute(text(query), param)
-            return (jsonify({'result': 'removed'}))
+            #ADD TO CART
+            for i in range(num):
+                foo = jsonify({'result': 'not yet'})
+                query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
+                query += 'values(:x, :y, :z);'
+                param = {'x': user, 'y': str(item), 'z':str(cost) }
+                print(user)
+                print(item)
+                print(cost)
+                try:
+                    db_connection.execute(text(query), param)
+                    foo = jsonify({'result': 'success'})
+                except:
+                    print('Insert Failed')
+                    foo = jsonify({'result': 'failure'})
 
-        # Add To Cart use type 'A'
-        for i in range(1, num):
-            foo = jsonify({'result': 'not yet'})
-            query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
-            query += 'values(:x, :y, :z)'
-            param = {'x': user, 'y': item, 'z': cost}
-            try:
-                db_connection.execute(text(query), param)
-                foo = jsonify({'result': 'success'})
-            except:
-                print('Insert Failed')
-                foo = jsonify({'result': 'failure'})
         return (foo)
 
     # GET ALL ITEMS CURRENTLY IN USERS CART
+    # IN FORM: [
+    #   {itemId: STR, quantity: NUM},
+    # ]
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
-        query = 'SELECT Item_ID FROM TruckBux.Cart where username = :x;'
+        query = 'SELECT Item_ID, COUNT(Item_ID) AS quantity FROM TruckBux.Cart WHERE username = :x  GROUP BY Item_ID;'
         params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
-            user_items.append(row[0])
+            user_items.append({'itemId': row[0], 'quantity': row[1]})
         return (jsonify(user_items))
 
 
