@@ -212,7 +212,6 @@ def get_catalog():
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
     }
-    print(queryURL)
     resp = requests.get(
         queryURL, headers=header)
 
@@ -675,29 +674,29 @@ def update_cart():
         items = request.json['items']
         foo = jsonify({'result': 'didnt finish'})
 
-        #EMPTY OLD CART
+        # EMPTY OLD CART
         queryDelete = 'DELETE FROM TruckBux.Cart WHERE username = :x'
         paramDelete = {'x': user}
         rowsDelete = db_connection.execute(text(queryDelete), paramDelete)
-        
-        #GET DATA FROM LIST
+
+        # GET DATA FROM LIST
         for i in range(len(items)):
             dataList = [items[i]]
             for index in range(len(dataList)):
                 for key in dataList[index]:
-                    if key == 'price': 
+                    if key == 'price':
                         cost = dataList[index][key]
                     if key == 'itemId':
                         item = dataList[index][key]
                     if key == 'quantity':
                         num = dataList[index][key]
 
-            #ADD TO CART
+            # ADD TO CART
             for i in range(num):
                 foo = jsonify({'result': 'not yet'})
                 query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
                 query += 'values(:x, :y, :z);'
-                param = {'x': user, 'y': str(item), 'z':str(cost) }
+                param = {'x': user, 'y': str(item), 'z': str(cost)}
                 print(user)
                 print(item)
                 print(cost)
