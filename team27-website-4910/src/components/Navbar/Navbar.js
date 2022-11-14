@@ -132,7 +132,12 @@ export default function Navbar(props) {
 
     const filterSettings = (a) => {
         const loggedOutFilter = ['Log Out', 'Profile',];
-        const signedInFilter = ['Sign In', 'Register',];
+        const signedInFilter = ['Sign In',];
+
+        if(sessionState !== 'A') {
+            signedInFilter.push('Register');
+        }
+
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
