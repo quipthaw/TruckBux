@@ -12,6 +12,8 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { MyCart } from '../components/Catalog/MyCart';
 import { Stack } from '@mui/system';
+import { useRecoilState } from 'recoil';
+import { userName } from '../recoil_atoms';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
@@ -29,7 +31,7 @@ export default function Catalog() {
     const [ userAlertMessage, setUserAlertMessage ] = React.useState("");
     const [ userAlertSeverity, setUserAlertSeverity ] = React.useState("success");
 
-    const [ buyer, setBuyer ] = React.useState("KanyeWest");
+    const [ usernameState, setUsernameState ] = useRecoilState(userName);
 
     const categories = [
         {
@@ -132,7 +134,7 @@ export default function Catalog() {
         const url = 'http://127.0.0.1:5000/Cart';
 
         const data = {
-            'user': buyer,
+            'user': usernameState,
             'items': [...cart]
         };
 
@@ -175,7 +177,7 @@ export default function Catalog() {
 
     const getMyCart = async () => {
         if(itemList !== undefined) {
-            const url = `http://127.0.0.1:5000/Cart?user=${buyer}`;
+            const url = `http://127.0.0.1:5000/Cart?user=${usernameState}`;
 
             const response = await fetch(url);
             const result = await response.json();
