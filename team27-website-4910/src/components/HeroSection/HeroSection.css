@@ -2,7 +2,7 @@
 
 div.hero-container {
     height: '75vh';
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .hero {
