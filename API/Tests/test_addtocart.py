@@ -10,13 +10,13 @@ def test_post():
         foo = {
                 'user': 'mcgraha',
                 'items' : [{
-                    'item':'XX20',
-                    'num': 1,
-                    'cost': '4'
+                    'itemId':'XX20',
+                    'quantity': 1,
+                    'price': '4'
                 }, {
-                    'item':'XY44',
-                    'num': 1,
-                    'cost': '4'
+                    'itemId':'XY44',
+                    'quantity': 1,
+                    'price': '4'
                 }],
             }
         result = requests.post(f'http://{api_host}/Cart', json=foo)
@@ -25,24 +25,20 @@ def test_post():
         print('test failed' + result.json())
 
 
-
-
-def test_empty():
+def test_one():
     try:
         foo = {
-                'user': 'mcgraha',
+                'user': 'dabo',
                 'items' : [{
-                    'item':'-666',
-                    'num': 1,
-                    'cost': '0'
+                    'itemId':'v1|110552646899|0',
+                    'quantity': 3,
+                    'price': '30'
                 }],
             }
         result = requests.post(f'http://{api_host}/Cart', json=foo)
         print(result.json())
     except:
         print('test failed' + result.json())
-
-
 
 
 def test_get():
@@ -52,6 +48,6 @@ def test_get():
     except:
         print('test failed')
 
-test_post()
+#test_post()
 #test_get()
-#test_empty()
+test_one()

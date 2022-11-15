@@ -117,6 +117,13 @@ def add_years(start_date, years):
     except ValueError:
         return start_date.replace(year=start_date.year + years, day=28)
 
+#Helper Function to Update ALL User Points
+def update_points(db_connection, point_change):
+    query = 'SET SQL_SAFE_UPDATES = 0; CALL UpdatePoints(:x);'
+    param = {'x': point_change}
+    result = db_connection.execute(text(query), param).fetchall()
+    return result
+
 
 # =============================================== LOGGING ===========================================
 
