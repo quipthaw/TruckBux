@@ -179,7 +179,13 @@ export default function RegForm() {
             let error = await parseResponse();
             if (!error) {
                 handleOpen();
-                setTimeout(() => { navigate('/login') }, 5000);
+                setTimeout(() => {
+                    if (sessionState === '0') {
+                        navigate('/login');
+                    } else {
+                        navigate('/');
+                    }
+                }, 3000);
             }
         }
         setLoading(false);
@@ -398,7 +404,7 @@ export default function RegForm() {
                             Account Created Successfully
                         </Typography>
                         <Typography variant='p' gutterBottom>
-                            You will be redirected to sign in in 5 seconds.
+                            You will be redirected to sign in in 3 seconds.
                         </Typography>
                         <Typography onClick={handleRedirect} variant='p' sx={{ my: 2 }}>
                             Click here if you were not redirected...
