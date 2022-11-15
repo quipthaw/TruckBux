@@ -131,6 +131,7 @@ def register():
     fname = request.json['fname']
     lname = request.json['lname']
     email = request.json['email']
+    sponsor = request.json['sponsor']
     active = 1
     if 'type' in request.json:
         act_type = request.json['type']
@@ -161,6 +162,11 @@ def register():
                      'z': email, 'j': fname, 'k': lname, 'l': act_type,
                      'a': active}
             db_connection.execute(query, param)
+            if act_type == 'S':
+                query = text(
+                    "INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES (:x, :y, :z)")
+                param = {'x': username, 'y': sponsor, 'z': active}
+                db_connection.execute(query, param)
             return jsonify(resp)
         except:
             resp['error'] = 'True'
