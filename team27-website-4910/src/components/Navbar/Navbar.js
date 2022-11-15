@@ -96,7 +96,7 @@ export default function Navbar(props) {
                 setBioState('');
             }
         },
-        { 'text': 'Register', 'path': '/register' },
+        { 'text': 'Create Account', 'path': '/register' },
         { 'text': 'Profile', 'path': '/profile' },
     ];
 
@@ -132,9 +132,13 @@ export default function Navbar(props) {
 
     const filterSettings = (a) => {
         const loggedOutFilter = ['Log Out', 'Profile',];
-        const signedInFilter = ['Sign In', 'Register',];
+        const signedInFilter = ['Sign In', 'Create Account',];
+        const signedInAdminFilter = ['Sign In'];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
+        }
+        else if (sessionState === 'A') {
+            return !(signedInAdminFilter.includes(a.text));
         }
         else {
             return !(signedInFilter.includes(a.text));

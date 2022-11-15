@@ -38,19 +38,19 @@ const router = createBrowserRouter([
     element: <Catalog />,
   },
   {
-    path: "sponsors/",
+    path: "/sponsors",
     element: <Sponsors />,
   },
   {
-    path: "drivers/",
+    path: "/drivers",
     element: <Drivers />,
   },
   {
-    path: "sponsorcreation/",
+    path: "/sponsorcreation",
     element: <SponsorCreation />,
   },
   {
-    path: "logs/",
+    path: "/logs",
     element: <Logs />,
   },
 ]);

@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import { Container } from '@mui/system';
 import React, { useEffect } from 'react';
 import Paper from '@mui/material/Paper';
-import { Box, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, ButtonGroup, CircularProgress, FormHelperText, Stack, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
@@ -14,15 +14,10 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
 import { useRecoilState } from 'recoil';
 import {
     userType,
     userName,
-    userFName,
-    userLName,
-    userEmail,
-    userBio
 } from '../../recoil_atoms';
 
 const style = {
@@ -62,6 +57,7 @@ export default function RegForm() {
         fname: '',
         lname: '',
         email: '',
+        sponsor: '',
     });
 
     useEffect(() => {
@@ -71,6 +67,7 @@ export default function RegForm() {
 
     const handleFormChange = (field) => (event) => {
         setValues({ ...values, [field]: event.target.value });
+        setErrors({ ...errors, [field]: '' })
     };
 
     const handleShowPassword = () => {
@@ -98,21 +95,23 @@ export default function RegForm() {
     };
 
     const checkEmptyFields = () => {
+        let emptyErrors = 0;
         let tempErrors = {
             username: errors.username,
             password: errors.password,
             fname: errors.fname,
             lname: errors.lname,
             email: errors.email,
+            sponsor: errors.sponsor
         }
         for (let field in tempErrors) {
-            if (field != 'passwordConf' && values[field] == '') {
+            if (values[field] === '') {
                 tempErrors[field] = 'Field cannot be left empty!';
-            } else if (errors[field] == 'Field cannot be left empty!') {
-                tempErrors[field] = '';
+                emptyErrors++;
             }
         }
         setErrors(tempErrors);
+        return emptyErrors > 0 ? true : false;
     };
 
     const numErrors = () => {
@@ -125,6 +124,7 @@ export default function RegForm() {
         if (values['password'] != values['passwordConf'] || values['password'] == '') { num++; }
         return num;
     };
+
     const parseResponse = async () => {
         const response = await fetch('http://127.0.0.1:5000/register', {
             method: 'POST',
@@ -138,6 +138,7 @@ export default function RegForm() {
                 lname: values.lname,
                 email: values.email,
                 type: values.type,
+                sponsor: values.sponsor,
             }),
         });
         const result = await response.json();
@@ -148,6 +149,7 @@ export default function RegForm() {
                 fname: errors.fname,
                 lname: errors.lname,
                 email: errors.email,
+                sponsor: errors.sponsor
             }
             for (let field in tempErrors) {
                 if (field in result) {
@@ -173,8 +175,7 @@ export default function RegForm() {
     //do all the things during submit
     const handleSubmit = async () => {
         setLoading(true);
-        checkEmptyFields();
-        if (numErrors() == 0) {
+        if (numErrors() == 0 && !checkEmptyFields()) {
             let error = await parseResponse();
             if (!error) {
                 handleOpen();
@@ -185,9 +186,15 @@ export default function RegForm() {
     }
 
     //Redirect to login page
-    const loginRedirect = (e) => {
+    const handleRedirect = (e) => {
         e.preventDefault();
-        navigate('/login');
+        if (sessionState === '0') {
+            navigate('/login');
+        } else {
+            navigate('/');
+        }
+
+
     }
 
     const showButtons = () => {
@@ -240,6 +247,7 @@ export default function RegForm() {
                         value={values.sponsor}
                         label="Sponsor"
                         onChange={handleFormChange('sponsor')}
+                        error={errors.sponsor != ''}
                     >
                         {
                             sponsors.map((sponsor) => {
@@ -249,6 +257,7 @@ export default function RegForm() {
                             })
                         }
                     </Select>
+                    <FormHelperText error={errors.sponsor != ''}>{errors.sponsor === '' ? 'Pick a sponsor' : errors.sponsor}</FormHelperText>
                 </FormControl>
             )
         }
@@ -288,6 +297,7 @@ export default function RegForm() {
                                     fullWidth
                                     error={errors.username == '' ? false : true}
                                     helperText={errors.username}
+                                    inputProps={{ maxLength: 15 }}
                                     required
                                 />
                                 <Typography textAlign='center' variant='subtitle1'>Password must contain: 8 characters, 1 uppercase, and 1 special character</Typography>
@@ -390,7 +400,7 @@ export default function RegForm() {
                         <Typography variant='p' gutterBottom>
                             You will be redirected to sign in in 5 seconds.
                         </Typography>
-                        <Typography onClick={loginRedirect} variant='p' sx={{ my: 2 }}>
+                        <Typography onClick={handleRedirect} variant='p' sx={{ my: 2 }}>
                             Click here if you were not redirected...
                         </Typography>
                     </Stack>
