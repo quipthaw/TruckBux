@@ -162,7 +162,7 @@ def register():
                      'z': email, 'j': fname, 'k': lname, 'l': act_type,
                      'a': active}
             db_connection.execute(query, param)
-            if act_type == 'S':
+            if sponsor != '':
                 query = text(
                     "INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES (:x, :y, :z)")
                 param = {'x': username, 'y': sponsor, 'z': active}
