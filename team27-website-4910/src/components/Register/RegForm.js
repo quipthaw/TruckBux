@@ -79,7 +79,11 @@ export default function RegForm() {
     };
 
     const handleCreationType = (type) => {
-        setValues({ ...values, ['type']: type });
+        if (type === 'A') {
+            setValues({ ...values, ['type']: type, ['sponsor']: '' });
+        } else {
+            setValues({ ...values, ['type']: type });
+        }
     };
 
     const [sponsors, setSponsors] = React.useState([]);
@@ -87,8 +91,8 @@ export default function RegForm() {
     const getSponsors = async () => {
         const response = await fetch(`http://127.0.0.1:5000/sponsors?user=${usernameState}`);
         const result = await response.json();
-        if (sessionState == 'S') {
-            setSponsors(result.relatedSponsors);
+        if (sessionState === 'S') {
+            setValues({ ...values, ['sponsor']: result.relatedSponsors[0].sponsorName });
         } else {
             setSponsors(result.otherSponsors);
         }
@@ -105,8 +109,12 @@ export default function RegForm() {
             sponsor: errors.sponsor
         }
         for (let field in tempErrors) {
-            if (values[field] === '') {
+            if (field !== 'sponsor' && values[field] === '') {
                 tempErrors[field] = 'Field cannot be left empty!';
+                emptyErrors++;
+            }
+            if (field === 'sponsor' && values[field] === '' && values.type === 'S') {
+                tempErrors[field] = 'Field cannot be left empty when making a sponsor!';
                 emptyErrors++;
             }
         }
@@ -243,7 +251,7 @@ export default function RegForm() {
     };
 
     const showSponsor = () => {
-        if (values.type === 'S' && (sessionState == 'A' || sessionState == 'S')) {
+        if ((values.type === 'S' || values.type === 'D') && sessionState == 'A') {
             return (
                 <FormControl fullWidth>
                     <InputLabel id="sponsor-select-label">Sponsor</InputLabel>
@@ -255,6 +263,7 @@ export default function RegForm() {
                         onChange={handleFormChange('sponsor')}
                         error={errors.sponsor != ''}
                     >
+                        {values.type !== 'S' && <MenuItem value=''>--- None ---</MenuItem>}
                         {
                             sponsors.map((sponsor) => {
                                 return (
