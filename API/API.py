@@ -703,9 +703,9 @@ def update_cart():
                 query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
                 query += 'values(:x, :y, :z);'
                 param = {'x': user, 'y': str(item), 'z': str(cost)}
-                print(user)
-                print(item)
-                print(cost)
+                #print(user)
+                #print(item)
+                #print(cost)
                 try:
                     db_connection.execute(text(query), param)
                     foo = jsonify({'result': 'success'})
@@ -730,6 +730,21 @@ def update_cart():
         return (jsonify(user_items))
 
 
+
+#helper for purchase, must be in api
+def get_new_cost(search):
+        if EXPIRES < datetime.datetime.now():
+            new_token()
+        queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}"
+        header = {
+            "Authorization": "Bearer " + EBAY_TOKEN
+        }
+        resp = requests.get(
+            queryURL, headers=header)
+        fun = resp.json()
+        new_cost = fun['price']['value']
+        return(new_cost)
+
 # Endpoint to let a user purchase items
 # @POST request takes in a username
 # Purchases itemts currently in users cart then removes items from cart
@@ -746,6 +761,19 @@ def user_purchase():
         param = {'x': user, 'd': datetime.datetime.now()}
         ps = 'SELECT sum(pointChange) FROM TruckBux.Points where nameReceiver = :x ;'
         pointsum = db_connection.execute(text(ps), param).fetchone()
+
+        #UPDATE PURCHASE COST
+        q = 'SELECT Item_ID, cost FROM TruckBux.Cart where username = :x ;'
+        costs = db_connection.execute(text(q), param).fetchall()
+        for rows in costs:
+            itemid = rows[0]
+            if len(str(itemid)) > 5:
+                new_cost = get_new_cost(itemid)
+                param2 = {'n': new_cost, 's': itemid}
+                if rows[1] != new_cost:
+                    q2 = 'UPDATE TruckBux.Cart SET cost = :n WHERE Item_ID = :s ;'
+                    db_connection.execute(text(q2), param2)
+
         cs = 'SELECT sum(cost) FROM TruckBux.Cart where username = :x ;'
         cartsum = db_connection.execute(text(cs), param).fetchone()
 
