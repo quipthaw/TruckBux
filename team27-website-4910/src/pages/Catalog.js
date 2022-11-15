@@ -27,11 +27,11 @@ export default function Catalog() {
         price: "[0..250]",
     })
 
-    const [ userAlert, setUserAlert ] = React.useState(false);
-    const [ userAlertMessage, setUserAlertMessage ] = React.useState("");
-    const [ userAlertSeverity, setUserAlertSeverity ] = React.useState("success");
+    const [userAlert, setUserAlert] = React.useState(false);
+    const [userAlertMessage, setUserAlertMessage] = React.useState("");
+    const [userAlertSeverity, setUserAlertSeverity] = React.useState("success");
 
-    const [ usernameState, setUsernameState ] = useRecoilState(userName);
+    const [usernameState, setUsernameState] = useRecoilState(userName);
 
     const categories = [
         {
@@ -149,7 +149,7 @@ export default function Catalog() {
         const response = await fetch(url, options);
         const result = await response.json();
 
-        if(result.result === "success") {
+        if (result.result === "success") {
             setUserAlert(true);
             setUserAlertSeverity("success");
             setUserAlertMessage("Your cart has been saved!");
@@ -176,7 +176,7 @@ export default function Catalog() {
     };
 
     const getMyCart = async () => {
-        if(itemList !== undefined) {
+        if (itemList !== undefined) {
             const url = `http://127.0.0.1:5000/Cart?user=${usernameState}`;
 
             const response = await fetch(url);
@@ -235,9 +235,12 @@ export default function Catalog() {
                                         <Box sx={{
                                             minHeight: 25
                                         }}>
-                                            <Typography textAlign='right' variant="subtitle1" color="text.secondary">
-                                                {'TB ' + item.price}
-                                            </Typography>
+                                            <Stack flexDirection='row' justifyContent='flex-end' alignItems='center'>
+                                                <img src='/TruckBuck.svg' width={25} />
+                                                <Typography textAlign='right' variant="subtitle1" color="text.secondary">
+                                                    {item.price}
+                                                </Typography>
+                                            </Stack>
                                         </Box>
                                         <Button variant="contained" onClick={() => toCart(item)}>Add To Cart</Button>
                                     </Stack>
@@ -252,7 +255,7 @@ export default function Catalog() {
 
     return (
         <Layout>
-            {userAlert && <Alert onClose={() => {closeAlert()}} severity={userAlertSeverity}>{userAlertMessage}</Alert>}
+            {userAlert && <Alert onClose={() => { closeAlert() }} severity={userAlertSeverity}>{userAlertMessage}</Alert>}
             <Stack direction='column' spacing={6} sx={{ my: '1vh' }}>
                 <Stack direction={{ xs: 'column', md: 'row' }} justifyContent='space-between' spacing={2}>
                     <Box sx={{
@@ -308,9 +311,9 @@ export default function Catalog() {
                     <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
                         <MyCart cart={cart} setCart={setCart} />
                         <DialogActions>
-                                <Button variant="contained" onClick={saveMyCart}>Save My Cart</Button>
-                                <Button variant="contained" onClick={closeMyCart}>Close</Button>
-                                <Button variant="contained" onClick={purchaseMyCart}>Purchase</Button>
+                            <Button variant="contained" onClick={saveMyCart}>Save My Cart</Button>
+                            <Button variant="contained" onClick={closeMyCart}>Close</Button>
+                            <Button variant="contained" onClick={purchaseMyCart}>Purchase</Button>
                         </DialogActions>
                     </Dialog>
                 }
