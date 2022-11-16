@@ -522,12 +522,12 @@ def applications():
 
         return jsonify({"result": "success"})
 
-        # @POST inserts new sponsor into database
-        # @GET
-        # if given user, if acctType is S returns all users associated with that sponsor
-        # if acctType is A, returns all users
-        # if given nothing, returns all Sponsor accounts
-        # @returns {1: {account1}, 2: {account2}}
+# @POST inserts new sponsor into database
+# @GET
+# if given user, if acctType is S returns all users associated with that sponsor
+# if acctType is A, returns all users
+# if given nothing, returns all Sponsor accounts
+# @returns {1: {account1}, 2: {account2}}
 
 
 @app.route('/sponsors', methods=['POST', 'GET'])
@@ -766,9 +766,13 @@ def user_purchase():
         q = 'SELECT Item_ID, cost FROM TruckBux.Cart where username = :x ;'
         costs = db_connection.execute(text(q), param).fetchall()
         for rows in costs:
+            print(rows)
             itemid = rows[0]
+            print(itemid)
+            print(len(str(itemid)))
             if len(str(itemid)) > 5:
                 new_cost = get_new_cost(itemid)
+                print(new_cost)
                 param2 = {'n': new_cost, 's': itemid}
                 if rows[1] != new_cost:
                     q2 = 'UPDATE TruckBux.Cart SET cost = :n WHERE Item_ID = :s ;'
@@ -779,7 +783,7 @@ def user_purchase():
 
         # NEITHER Can be null
         if pointsum[0] < cartsum[0]:
-            return (jsonify('not enough points'))
+            return (jsonify({'result': 'You do not have enough points.'}))
 
         param = {'x': user, 'd': datetime.datetime.now(), 'p': (
             0-cartsum[0]), 'o': 'purchase'}

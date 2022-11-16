@@ -13,7 +13,8 @@ import FormLabel from '@mui/material/FormLabel';
 import { MyCart } from '../components/Catalog/MyCart';
 import { Stack } from '@mui/system';
 import { useRecoilState } from 'recoil';
-import { userName } from '../recoil_atoms';
+import { userName, userType } from '../recoil_atoms';
+import { UserSelection } from '../components/Catalog/UserSelection';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
@@ -32,6 +33,10 @@ export default function Catalog() {
     const [userAlertSeverity, setUserAlertSeverity] = React.useState("success");
 
     const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [ sessionState, setSessionState ] = useRecoilState(userType);
+
+    const [ selectedSponsor, setSelectedSponsor ] = React.useState("");
+    const [ selectedDriver, setSelectedDriver ] = React.useState("");
 
     const categories = [
         {
@@ -98,11 +103,11 @@ export default function Catalog() {
             }),
         });
         if (response.ok) {
-            console.log("set");
+            //console.log("set");
             const result = await response.json();
             setItemList(result.items);
         } else {
-            console.log("not set")
+            //console.log("not set")
         }
         setLoading(false);
     };
@@ -130,14 +135,13 @@ export default function Catalog() {
         getMyCart();
     }, [itemList])
 
-    const saveMyCart = async () => {
+    const saveCartRequest = async () => {
+        console.log(cart)
         const url = 'http://127.0.0.1:5000/Cart';
-
         const data = {
             'user': usernameState,
             'items': [...cart]
         };
-
         const options = {
             method: 'POST',
             headers: {
@@ -149,7 +153,13 @@ export default function Catalog() {
         const response = await fetch(url, options);
         const result = await response.json();
 
-        if (result.result === "success") {
+        return result.result === "success";
+    };
+
+    const saveMyCartOnClick = async () => {
+        const result = await saveCartRequest();
+
+        if (result) {
             setUserAlert(true);
             setUserAlertSeverity("success");
             setUserAlertMessage("Your cart has been saved!");
@@ -163,8 +173,45 @@ export default function Catalog() {
         closeMyCart();
     };
 
-    const purchaseMyCart = async () => {
-        console.log(cart)
+    const purchaseCartRequest = async () => {
+        const url = 'http://127.0.0.1:5000/purchase';
+        const data = {
+            'user': usernameState,
+        };
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        };
+
+        const response = await fetch(url, options);
+        const result = await response.json();
+
+        return result.result;
+    }
+
+    const purchaseMyCartOnClick = async () => {
+        const storeCartResult = await saveCartRequest();
+
+        if(storeCartResult) {
+            const purchaseResult = await purchaseCartRequest();
+
+            if(purchaseResult === "Bought") {
+                setUserAlert(true);
+                setUserAlertSeverity("success");
+                setUserAlertMessage("Your purchase has been made!");
+            }
+            else {
+                setUserAlert(true);
+                setUserAlertSeverity("error");
+                setUserAlertMessage(purchaseResult);
+            }
+        }
+
+        closeMyCart();
+        setCart([]);
     }
 
     const retrieveItemInfo = (cartItem) => {
@@ -213,7 +260,7 @@ export default function Catalog() {
                 <Grid container spacing={1}>
                     {itemList.map((item) => {
                         return (
-                            <Grid item xs={12} md={6} lg={4}>
+                            <Grid key={item.itemId} item xs={12} md={6} lg={4}>
                                 <Paper sx={{
                                     height: '100%'
                                 }}>
@@ -258,9 +305,7 @@ export default function Catalog() {
             {userAlert && <Alert onClose={() => { closeAlert() }} severity={userAlertSeverity}>{userAlertMessage}</Alert>}
             <Stack direction='column' spacing={6} sx={{ my: '1vh' }}>
                 <Stack direction={{ xs: 'column', md: 'row' }} justifyContent='space-between' spacing={2}>
-                    <Box sx={{
-                        width: '100%'
-                    }}>
+                    <Box sx={{ width: '70%' }}>
                         <TextField
                             id="input-with-icon-textfield"
                             label="Search"
@@ -283,7 +328,17 @@ export default function Catalog() {
                             Search
                         </Button>
                     </Box>
-                    <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
+
+                    <Box sx={{ width: '10%' }}>
+                        <UserSelection user={usernameState} requestedType={'S'} selected={selectedSponsor} setSelected={setSelectedSponsor}/>
+                    </Box>
+                    <Box sx={{ width: '10%' }}>
+                        <UserSelection user={usernameState} requestedType={'D'} selected={selectedDriver} setSelected={setSelectedDriver}/>
+                    </Box>
+                    <Box sx={{ width: '10%' }}>
+                        <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
+                    </Box>
+                    
                 </Stack>
                 <Stack direction='row'>
                     <Box>
@@ -298,7 +353,7 @@ export default function Catalog() {
                             >
                                 {categories.map((item) => {
                                     return (
-                                        <FormControlLabel value={item.number} control={<Radio />} label={item.name} />
+                                        <FormControlLabel key={item.itemId} value={item.number} control={<Radio />} label={item.name} />
                                     )
                                 })}
                             </RadioGroup>
@@ -311,9 +366,9 @@ export default function Catalog() {
                     <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
                         <MyCart cart={cart} setCart={setCart} />
                         <DialogActions>
-                            <Button variant="contained" onClick={saveMyCart}>Save My Cart</Button>
+                            <Button variant="contained" onClick={saveMyCartOnClick}>Save My Cart</Button>
                             <Button variant="contained" onClick={closeMyCart}>Close</Button>
-                            <Button variant="contained" onClick={purchaseMyCart}>Purchase</Button>
+                            <Button variant="contained" onClick={purchaseMyCartOnClick}>Purchase</Button>
                         </DialogActions>
                     </Dialog>
                 }
