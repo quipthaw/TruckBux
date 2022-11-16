@@ -33,10 +33,10 @@ export default function Catalog() {
     const [userAlertSeverity, setUserAlertSeverity] = React.useState("success");
 
     const [usernameState, setUsernameState] = useRecoilState(userName);
-    const [ sessionState, setSessionState ] = useRecoilState(userType);
 
     const [ selectedSponsor, setSelectedSponsor ] = React.useState("");
     const [ selectedDriver, setSelectedDriver ] = React.useState("");
+    const [ processingPurchase, setProcessingPurchase ] = React.useState(false);
 
     const categories = [
         {
@@ -157,6 +157,7 @@ export default function Catalog() {
     };
 
     const saveMyCartOnClick = async () => {
+        setProcessingPurchase(true);
         const result = await saveCartRequest();
 
         if (result) {
@@ -171,13 +172,17 @@ export default function Catalog() {
         }
 
         closeMyCart();
+        setProcessingPurchase(false);
     };
 
     const purchaseCartRequest = async () => {
         const url = 'http://127.0.0.1:5000/purchase';
         const data = {
-            'user': usernameState,
+            'driver': selectedDriver,
+            'sponsor': selectedSponsor,
         };
+        console.log(selectedDriver)
+        console.log(selectedSponsor )
         const options = {
             method: 'POST',
             headers: {
@@ -193,6 +198,7 @@ export default function Catalog() {
     }
 
     const purchaseMyCartOnClick = async () => {
+        setProcessingPurchase(true);
         const storeCartResult = await saveCartRequest();
 
         if(storeCartResult) {
@@ -212,6 +218,7 @@ export default function Catalog() {
 
         closeMyCart();
         setCart([]);
+        setProcessingPurchase(false);
     }
 
     const retrieveItemInfo = (cartItem) => {
@@ -330,10 +337,10 @@ export default function Catalog() {
                     </Box>
 
                     <Box sx={{ width: '10%' }}>
-                        <UserSelection user={usernameState} requestedType={'S'} selected={selectedSponsor} setSelected={setSelectedSponsor}/>
+                        <UserSelection user={usernameState} requestedType={'S'} selection={selectedSponsor} setSelection={setSelectedSponsor}/>
                     </Box>
                     <Box sx={{ width: '10%' }}>
-                        <UserSelection user={usernameState} requestedType={'D'} selected={selectedDriver} setSelected={setSelectedDriver}/>
+                        <UserSelection user={usernameState} requestedType={'D'} selection={selectedDriver} setSelection={setSelectedDriver}/>
                     </Box>
                     <Box sx={{ width: '10%' }}>
                         <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
@@ -366,9 +373,9 @@ export default function Catalog() {
                     <Dialog open={openCart} onClose={closeMyCart} fullWidth maxWidth="md">
                         <MyCart cart={cart} setCart={setCart} />
                         <DialogActions>
-                            <Button variant="contained" onClick={saveMyCartOnClick}>Save My Cart</Button>
-                            <Button variant="contained" onClick={closeMyCart}>Close</Button>
-                            <Button variant="contained" onClick={purchaseMyCartOnClick}>Purchase</Button>
+                            <Button disabled={processingPurchase} variant="contained" onClick={saveMyCartOnClick}>Save My Cart</Button>
+                            <Button disabled={processingPurchase} variant="contained" onClick={closeMyCart}>Close</Button>
+                            <Button disabled={processingPurchase} variant="contained" onClick={purchaseMyCartOnClick}>Purchase</Button>
                         </DialogActions>
                     </Dialog>
                 }

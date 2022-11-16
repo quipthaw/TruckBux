@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { MenuItem, TextField } from '@mui/material';
 
 export const UserSelection = (props) => {
-  const { user, requestedType } = props;
+  const { user, requestedType, selection, setSelection } = props;
 
   const [ userList, setUserList ] = useState(['temp', 'nottemp']);
-  const [ selection, setSelection ] = useState('');
 
   useEffect(() => {
     getUserList();
@@ -46,13 +45,9 @@ export const UserSelection = (props) => {
     const response = await fetch(fetchURL);
     const result = await response.json();
 
-    console.log(result);
-
     const newUserList = result.relatedSponsors.map((sponsor) => {
       return sponsor.sponsorName;
     })
-
-    console.log(newUserList);
     setUserList(newUserList);
     setSelection(newUserList[0]);
   };

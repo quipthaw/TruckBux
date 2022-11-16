@@ -300,8 +300,6 @@ def update_profile():
 @app.route('/userlogin', methods=['POST'])
 @cross_origin()
 def user_login():
-    print("Printing Request")
-    print(request.json)
     username = request.json['user']
     result = {'result': 'Success'}
     # Checks to see if username is valid
@@ -635,7 +633,6 @@ def points():
                     try:
                         db_connection.execute(text(query), param)
                     except:
-                        print('Insert Failed')
                         return (jsonify({'result': 'failure'}))
             return (jsonify({'result': 'success'}))
 
@@ -649,7 +646,6 @@ def points():
             try:
                 db_connection.execute(text(query), param)
             except:
-                print('Insert Failed')
                 return (jsonify({'result': 'failure'}))
         return (jsonify({'result': 'success'}))
 
@@ -703,14 +699,10 @@ def update_cart():
                 query = 'INSERT INTO TruckBux.Cart (username, Item_ID, cost) '
                 query += 'values(:x, :y, :z);'
                 param = {'x': user, 'y': str(item), 'z': str(cost)}
-                #print(user)
-                #print(item)
-                #print(cost)
                 try:
                     db_connection.execute(text(query), param)
                     foo = jsonify({'result': 'success'})
                 except:
-                    print('Insert Failed')
                     foo = jsonify({'result': 'failure'})
 
         return (foo)
@@ -752,12 +744,20 @@ def get_new_cost(search):
 #
 # @GET request takes in username and
 # @returns all Item_ID's that user has purchased
+
+#TODO: User who initiates the purchase needs to be logged when sponsor
+    # makes purchase on behalf of driver
+# Purchases store only monetary amount - do we need to store points?
+# Point deductions are being made with monetary amount - not point amount
 @app.route('/purchase', methods=['POST', 'GET'])
 @cross_origin()
 def user_purchase():
 
     if request.method == 'POST':
-        user = request.json['user']
+
+        user = request.json['driver']
+        sponsor = request.json['sponsor']
+
         param = {'x': user, 'd': datetime.datetime.now()}
         ps = 'SELECT sum(pointChange) FROM TruckBux.Points where nameReceiver = :x ;'
         pointsum = db_connection.execute(text(ps), param).fetchone()
@@ -766,13 +766,9 @@ def user_purchase():
         q = 'SELECT Item_ID, cost FROM TruckBux.Cart where username = :x ;'
         costs = db_connection.execute(text(q), param).fetchall()
         for rows in costs:
-            print(rows)
             itemid = rows[0]
-            print(itemid)
-            print(len(str(itemid)))
             if len(str(itemid)) > 5:
                 new_cost = get_new_cost(itemid)
-                print(new_cost)
                 param2 = {'n': new_cost, 's': itemid}
                 if rows[1] != new_cost:
                     q2 = 'UPDATE TruckBux.Cart SET cost = :n WHERE Item_ID = :s ;'
@@ -786,11 +782,11 @@ def user_purchase():
             return (jsonify({'result': 'You do not have enough points.'}))
 
         param = {'x': user, 'd': datetime.datetime.now(), 'p': (
-            0-cartsum[0]), 'o': 'purchase'}
+            0-cartsum[0]), 'o': sponsor, 'r': 'Purchase'}
         query = 'UPDATE TruckBux.Cart SET Date_Time = :d WHERE username = :x ;'
         query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Cart WHERE username = :x ;'
         query3 = 'DELETE FROM TruckBux.Cart WHERE username = :x ;'
-        query4 = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) VALUES(:o, :x, :p, :o);'
+        query4 = 'INSERT INTO TruckBux.Points (nameGiver, nameReceiver, pointChange, changeReason) VALUES(:o, :x, :p, :r);'
 
         db_connection.execute(text(query), param)
         db_connection.execute(text(query2), param)
@@ -831,7 +827,6 @@ def notif():
         unseenNotifications = []
         i = 0
         for row in rows:
-            print(row)
             i += 1
             unseenNotifications.append({'message': row[0], 'date': row[1]})
 
