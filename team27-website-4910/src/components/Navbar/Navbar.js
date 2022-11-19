@@ -36,12 +36,13 @@ const pages = [
     { 'label': 'Catalog', 'path': '/catalog' },
     { 'label': 'Drivers', 'path': '/drivers' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
-    { 'label': 'Create Sponsor', 'path': '/sponsorcreation' }
+    { 'label': 'Logs', 'path': '/logs' },
 ];
 
 const driverPages = [
     { 'label': 'Catalog', 'path': '/catalog' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
+    { 'label': 'Logs', 'path': '/logs' },
 ];
 
 export default function Navbar(props) {
@@ -97,6 +98,7 @@ export default function Navbar(props) {
             }
         },
         { 'text': 'Create Account', 'path': '/register' },
+        { 'text': 'Create Sponsor', 'path': '/sponsorcreation' },
         { 'text': 'Profile', 'path': '/profile' },
     ];
 
@@ -131,14 +133,18 @@ export default function Navbar(props) {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out', 'Profile',];
-        const signedInFilter = ['Sign In', 'Create Account',];
-        const signedInASFilter = ['Sign In'];
+        const loggedOutFilter = ['Log Out', 'Profile', 'Create Sponsor'];
+        const signedInFilter = ['Sign In', 'Create Account', 'Create Sponsor'];
+        const signedInSFilter = ['Sign In', 'Create Sponsor'];
+        const signedInAFilter = ['Sign In'];
         if (sessionState === '0') {
             return !(loggedOutFilter.includes(a.text));
         }
-        else if (sessionState === 'A' || sessionState === 'S') {
-            return !(signedInASFilter.includes(a.text));
+        else if (sessionState === 'A') {
+            return !(signedInAFilter.includes(a.text));
+        }
+        else if (sessionState === 'S') {
+            return !(signedInSFilter.includes(a.text));
         }
         else {
             return !(signedInFilter.includes(a.text));
