@@ -4,17 +4,19 @@ import { Box, CircularProgress, FormControl, FormHelperText, InputLabel, MenuIte
 import Layout from '../components/Layout/Layout';
 import LogTable from '../components/LogTable/LogTable';
 import { useRecoilState } from 'recoil';
-import { userName } from '../recoil_atoms';
+import { userName, userType } from '../recoil_atoms';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 export default function Logs() {
     const [users, setUsers] = React.useState([]);
     const [logs, setLogs] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [sessionState, setSessionState] = useRecoilState(userType);
 
     const [userFilter, setUserFilter] = React.useState('');
 
@@ -41,7 +43,10 @@ export default function Logs() {
         setLoading(false);
     }
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+        if (sessionState === '0') { navigate('/'); }
         getUsers();
     }, []);
 
