@@ -44,9 +44,7 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 
 app = Flask(__name__)
-CORS(app, origins=['http://127.0.0.1:3000'])
-# CORS(app, origins=[
-#     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
+CORS(app, origins=['https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
@@ -924,6 +922,28 @@ def drivers_request():
             admins.append(dict(row))
 
     return (jsonify({"admins": admins, "sponsors": sponsors,  "drivers": drivers}))
+
+@app.route('/sponsorships', methods=['POST'])
+@cross_origin()
+def sponsorships_request():
+    user = request.json['user']
+    sponsor = request.json['sponsor']
+    acctType = get_acctType(db_connection, user)
+
+    query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
+    params = {'x' : user, 'y' : sponsor}
+
+    rows = db_connection.execute(text(query), params).fetchall()
+
+    if len(rows) == 0:
+        query = 'INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES ( :x, :y, :z)'
+        params = {'x' : user, 'y' : sponsor}
+
+        db_connection.execute(text(query), params)
+
+        return (jsonify({"status" : "success"}))
+    else:
+        return (jsonify({"status" : "fail", "error" : "Sponsorship already exists!"}))
 
 
 if __name__ == '__main__':
