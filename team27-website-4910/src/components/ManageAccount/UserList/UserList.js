@@ -1,20 +1,21 @@
 import { Stack, FormGroup, FormControlLabel, Checkbox, Paper, Container, Box, Typography } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserListRow } from './UserListRow';
 
 export const UserList = (props) => {
-    const { 
+    const {
         user,
         userType,
         selectAllDrivers,
-        userList, 
-        refresh, setRefresh, 
-        selectedDrivers, setSelectedDrivers 
+        userList,
+        orgList,
+        refresh, setRefresh,
+        selectedDrivers, setSelectedDrivers
     } = props;
 
     const disableSelections = userType === 'A' ? true : false;
-    const [ isSelected, setIsSelected ] = React.useState(false);
-    
+    const [isSelected, setIsSelected] = React.useState(false);
+
     const handleSelection = (e) => {
         selectAllDrivers();
     };
@@ -31,10 +32,11 @@ export const UserList = (props) => {
                     userType={userType}
                     selectedDrivers={selectedDrivers}
                     setSelectedDrivers={setSelectedDrivers}
-                    refresh={refresh} 
-                    setRefresh={setRefresh} 
-                    key={driver.username} 
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                    key={driver.username}
                     driver={driver}
+                    orgList={orgList}
                 />
             );
         });
@@ -48,11 +50,11 @@ export const UserList = (props) => {
                 <Paper>
                     <Container>
                         <Stack direction='row' alignItems='center'>
-                            <Box sx={{ width: '10%'}} align="center">
+                            <Box sx={{ width: '10%' }} align="center">
                                 <Typography>Select All</Typography>
-                                <FormGroup  sx={{ width: '5%'}}>
+                                <FormGroup sx={{ width: '5%' }}>
                                     <FormControlLabel
-                                    control={<Checkbox checked={isSelected} onChange={handleSelection}/>}
+                                        control={<Checkbox checked={isSelected} onChange={handleSelection} />}
                                     />
                                 </FormGroup>
                             </Box>

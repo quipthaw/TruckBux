@@ -11,7 +11,8 @@ export default function ManageAccounts(props) {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
-    const [sponsors, setSponsors] = React.useState();
+    const [sponsors, setSponsors] = React.useState(); //this is a list of the sponsor accounts
+    const [orgs, setOrgs] = React.useState([]); //this is a list of the actual sponsors like the organization over the sponsor accounts
     const [admins, setAdmins] = React.useState();
 
     const [applications, setApplications] = React.useState();
@@ -29,8 +30,14 @@ export default function ManageAccounts(props) {
         setAdmins(result.admins);
         setSponsors(result.sponsors);
         setDrivers(result.drivers);
+    };
 
-        setLoading(false);
+    const getOrgs = async () => {
+        if (userType == 'A') {
+            const response = await fetch('http://127.0.0.1:5000/sponsors');
+            const result = await response.json();
+            setOrgs(result.otherSponsors);
+        }
     };
 
     const getApps = async () => {
@@ -45,6 +52,7 @@ export default function ManageAccounts(props) {
     const getPageInfo = async () => {
         await getApps();
         await getDrivers();
+        await getOrgs();
         setLoading(false);
     };
 
@@ -98,6 +106,7 @@ export default function ManageAccounts(props) {
                         refresh={refresh}
                         setRefresh={setRefresh}
                         userList={drivers}
+                        orgList={orgs}
                     />
 
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
