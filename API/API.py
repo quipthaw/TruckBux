@@ -44,7 +44,8 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 
 app = Flask(__name__)
-CORS(app, origins=['https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
+CORS(app, origins=[
+     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
@@ -720,20 +721,19 @@ def update_cart():
         return (jsonify(user_items))
 
 
-
-#helper for purchase, must be in api
+# helper for purchase, must be in api
 def get_new_cost(search):
-        if EXPIRES < datetime.datetime.now():
-            new_token()
-        queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}"
-        header = {
-            "Authorization": "Bearer " + EBAY_TOKEN
-        }
-        resp = requests.get(
-            queryURL, headers=header)
-        fun = resp.json()
-        new_cost = fun['price']['value']
-        return(new_cost)
+    if EXPIRES < datetime.datetime.now():
+        new_token()
+    queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}"
+    header = {
+        "Authorization": "Bearer " + EBAY_TOKEN
+    }
+    resp = requests.get(
+        queryURL, headers=header)
+    fun = resp.json()
+    new_cost = fun['price']['value']
+    return (new_cost)
 
 # Endpoint to let a user purchase items
 # @POST request takes in a username
@@ -743,10 +743,12 @@ def get_new_cost(search):
 # @GET request takes in username and
 # @returns all Item_ID's that user has purchased
 
-#TODO: User who initiates the purchase needs to be logged when sponsor
+# TODO: User who initiates the purchase needs to be logged when sponsor
     # makes purchase on behalf of driver
 # Purchases store only monetary amount - do we need to store points?
 # Point deductions are being made with monetary amount - not point amount
+
+
 @app.route('/purchase', methods=['POST', 'GET'])
 @cross_origin()
 def user_purchase():
@@ -760,7 +762,7 @@ def user_purchase():
         ps = 'SELECT sum(pointChange) FROM TruckBux.Points where nameReceiver = :x ;'
         pointsum = db_connection.execute(text(ps), param).fetchone()
 
-        #UPDATE PURCHASE COST
+        # UPDATE PURCHASE COST
         q = 'SELECT Item_ID, cost FROM TruckBux.Cart where username = :x ;'
         costs = db_connection.execute(text(q), param).fetchall()
         for rows in costs:
@@ -923,27 +925,32 @@ def drivers_request():
 
     return (jsonify({"admins": admins, "sponsors": sponsors,  "drivers": drivers}))
 
+
 @app.route('/sponsorships', methods=['POST'])
 @cross_origin()
 def sponsorships_request():
     user = request.json['user']
     sponsor = request.json['sponsor']
+
+    if sponsor == '':
+        return (jsonify({"status": "fail", "error": "Cannot add sponsorship to empty sponsor!"}))
+
     acctType = get_acctType(db_connection, user)
 
     query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
-    params = {'x' : user, 'y' : sponsor}
+    params = {'x': user, 'y': sponsor}
 
     rows = db_connection.execute(text(query), params).fetchall()
 
     if len(rows) == 0:
         query = 'INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES ( :x, :y, :z)'
-        params = {'x' : user, 'y' : sponsor}
+        params = {'x': user, 'y': sponsor, 'z': 1}
 
         db_connection.execute(text(query), params)
 
-        return (jsonify({"status" : "success"}))
+        return (jsonify({"status": "success"}))
     else:
-        return (jsonify({"status" : "fail", "error" : "Sponsorship already exists!"}))
+        return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
 
 
 if __name__ == '__main__':

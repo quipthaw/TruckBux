@@ -8,7 +8,7 @@ export const UserList = (props) => {
         userType,
         selectAllDrivers,
         userList,
-        sponsorList,
+        orgList,
         refresh, setRefresh,
         selectedDrivers, setSelectedDrivers
     } = props;
@@ -36,7 +36,7 @@ export const UserList = (props) => {
                     setRefresh={setRefresh}
                     key={driver.username}
                     driver={driver}
-                    sponsorList={sponsorList}
+                    orgList={orgList}
                 />
             );
         });

@@ -11,13 +11,14 @@ export const UserListRow = (props) => {
         userType,
         driver,
         refresh,
-        sponsorList,
+        orgList,
         selectedDrivers, setSelectedDrivers
     } = props;
 
     //userType is passed from ManageAccounts, originally sessionState but can transform
     const [open, setOpen] = useState(false);
-    const [chosenSponsor, setChosenSponsor] = useState(sponsorList[0]);
+    const [chosenSponsor, setChosenSponsor] = useState('');
+    const [AddToSponsorFlag, setAddToSponsorFlag] = useState(false);
     const [error, setError] = useState('');
     const isAdminUser = userType === 'A' ? true : false;
 
@@ -39,10 +40,10 @@ export const UserListRow = (props) => {
                         id="sponsor-select"
                         value={chosenSponsor}
                         label="Sponsor"
-                        onChange={() => { setChosenSponsor() }}
+                        onChange={(e) => { setChosenSponsor(e.target.value) }}
                     >
                         {
-                            sponsorList.map((sponsor) => {
+                            orgList.map((sponsor) => {
                                 return (
                                     <MenuItem value={sponsor.sponsorName}>{sponsor.sponsorName}</MenuItem>
                                 )
@@ -51,7 +52,8 @@ export const UserListRow = (props) => {
                     </Select>
                     <FormHelperText error={error !== ''}>{error !== '' ? error : "Select a sponsor to add the driver to!"}</FormHelperText>
                 </FormControl>
-                <Button>Add to Sponsor</Button>
+                <Button onClick={sendSponsorShip}>Submit</Button>
+                <Button onClick={() => setAddToSponsorFlag(false)}>Cancel</Button>
             </Box>
         )
     };
@@ -105,7 +107,8 @@ export const UserListRow = (props) => {
                     <Box sx={{ width: '10%' }}>
                         <ProfileEditButton user={driver} />
                     </Box>
-                    {isAdminUser && driver.acctType === 'D' && <AddToSponsor />}
+                    {isAdminUser && driver.acctType === 'D' && AddToSponsorFlag && <AddToSponsor />}
+                    {isAdminUser && driver.acctType === 'D' && !AddToSponsorFlag && <Button onClick={() => setAddToSponsorFlag(true)}>Add Driver To A Sponsor</Button>}
                     {!isAdminUser && <Box sx={{ width: '10%' }}>
                         <PointDisplay refresh={refresh} driver={driver} user={user} />
                     </Box>}

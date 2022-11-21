@@ -11,8 +11,8 @@ export default function ManageAccounts(props) {
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
-    const [sponsors, setSponsors] = React.useState();
-    const [orgs, setOrgs] = React.useState();
+    const [sponsors, setSponsors] = React.useState(); //this is a list of the sponsor accounts
+    const [orgs, setOrgs] = React.useState([]); //this is a list of the actual sponsors like the organization over the sponsor accounts
     const [admins, setAdmins] = React.useState();
 
     const [applications, setApplications] = React.useState();
@@ -34,7 +34,7 @@ export default function ManageAccounts(props) {
 
     const getOrgs = async () => {
         if (userType == 'A') {
-            const response = await fetch(`http://127.0.0.1:5000/sponsors?user=${user}`);
+            const response = await fetch('http://127.0.0.1:5000/sponsors');
             const result = await response.json();
             setOrgs(result.otherSponsors);
         }
@@ -106,7 +106,7 @@ export default function ManageAccounts(props) {
                         refresh={refresh}
                         setRefresh={setRefresh}
                         userList={drivers}
-                        sponsorList={orgs}
+                        orgList={orgs}
                     />
 
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
