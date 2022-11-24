@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { MenuItem, TextField } from '@mui/material';
+import { useRecoilState } from 'recoil';
+import { userType } from '../../recoil_atoms';
 
 export const UserSelection = (props) => {
   const { user, requestedType, selection, setSelection } = props;
+  const [ sessionState, setSessionState ] = useRecoilState(userType);
 
   const [ userList, setUserList ] = useState(['temp', 'nottemp']);
 
@@ -45,9 +48,18 @@ export const UserSelection = (props) => {
     const response = await fetch(fetchURL);
     const result = await response.json();
 
-    const newUserList = result.relatedSponsors.map((sponsor) => {
-      return sponsor.sponsorName;
-    })
+    let newUserList = [];
+
+    if(sessionState === 'A') {
+      newUserList = result.otherSponsors.map((sponsor) => {
+        return sponsor.sponsorName;
+      })
+    }
+    else {
+      newUserList = result.relatedSponsors.map((sponsor) => {
+        return sponsor.sponsorName;
+      })
+    }
     setUserList(newUserList);
     setSelection(newUserList[0]);
   };
@@ -66,7 +78,7 @@ export const UserSelection = (props) => {
 
   return (
     <TextField
-      disabled
+      
       select
       id="catalogSponsor"
       label={requestedType === 'S' ? "Sponsor" : "Driver"}

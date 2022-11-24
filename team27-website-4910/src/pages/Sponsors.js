@@ -1,4 +1,4 @@
-import { CircularProgress, Paper, Typography } from '@mui/material';
+import { Box, CircularProgress, Paper, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
@@ -6,6 +6,7 @@ import { useRecoilState } from 'recoil';
 import { userName, userType } from '../recoil_atoms';
 import { MySponsorList } from '../components/ManageAccount/MySponsorList/MySponsorList';
 import { ApplicationList } from '../components/ApplicationList/ApplicationList';
+import { ConversionRateChange } from '../components/ManageAccount/ConversionRateChange';
 
 
 export default function Register() {
@@ -76,7 +77,10 @@ export default function Register() {
             {loading ?
                 <CircularProgress />
                 :
-                renderList()
+                <Stack direction="column" spacing={2}>
+                    <ConversionRateChange/>
+                    {renderList()}
+                </Stack>
             }
         </Layout>
     )

@@ -560,6 +560,8 @@ def sponsors():
             user = request.args['user']
             acctType = get_acctType(db_connection, user)
 
+            print(acctType)
+
             if (acctType == 'S'):
                 # sponsors will get only other sponsors
                 sponsName = get_sponsName(db_connection, user)
@@ -723,14 +725,17 @@ def update_cart():
 
 # helper for purchase, must be in api
 def get_new_cost(search):
+    print(search)
     if EXPIRES < datetime.datetime.now():
         new_token()
-    queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}"
+    queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}?"
+    #queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?item_id"
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
     }
     resp = requests.get(
         queryURL, headers=header)
+    print(resp.json())
     fun = resp.json()
     new_cost = fun['price']['value']
     return (new_cost)
@@ -951,6 +956,29 @@ def sponsorships_request():
         return (jsonify({"status": "success"}))
     else:
         return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
+
+
+@app.route('/conversionrate', methods=['POST'])
+@cross_origin()
+def change_conversion_rate_request():
+    user = request.json['user']
+    target = request.json['target']
+    newRate = request.json['rate']
+
+    userType = get_acctType(db_connection, user)
+    targetType = get_acctType(db_connection, target)
+
+    if(targetType != 'S'):
+        return jsonify({'error': 'Target user is not a sponsor.'})
+
+    if(userType == 'A' or (userType == 'S' and check_sponsorship(db_connection, user, target))):
+        query = 'UPDATE TruckBux.Sponsors SET pointConversionRate = :rate WHERE sponsorName = :target'
+        param = {'target': target, 'rate': newRate}
+
+        db_connection.execute(text(query), param)
+        return jsonify({'result': 'Points successfully changed.'})
+    else:
+        return jsonify({'error': 'Your account lacks privilege.'})
 
 
 if __name__ == '__main__':
