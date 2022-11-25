@@ -2,7 +2,10 @@ import datetime
 import requests
 import json
 import math
-from flask import Flask, request, jsonify
+import io
+import base64
+import matplotlib.pyplot as plt
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS, cross_origin
 from sqlalchemy import create_engine, text
 from helpers import *
@@ -47,10 +50,9 @@ app = Flask(__name__)
 CORS(app, origins=[
      'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
 
+
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
 # RETURN THE SQLACHEMY ENGINE OBJECT
-
-
 def get_connection():
     return create_engine(
         url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
@@ -951,6 +953,58 @@ def sponsorships_request():
         return (jsonify({"status": "success"}))
     else:
         return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
+
+
+@app.route('/reports', methods=['GET'])
+@cross_origin()
+def reports():
+    if EXPIRES < datetime.datetime.now():
+        new_token()
+
+    if request.args['report'] == 'top-products':
+        query = 'SELECT Item_ID, COUNT(*) FROM TruckBux.Purchases GROUP BY Item_ID ORDER BY COUNT(*) DESC LIMIT 10'
+        rows = db_connection.execute(query).fetchall()
+         
+        # build lists with itemIDs and number of purchases from DB
+        items, counts = [], []
+        for row in rows:
+            if row[0][0] == 'v':
+                items.append(row[0])
+                counts.append(row[1])
+
+        queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/"
+        header = {
+            "Authorization": "Bearer " + EBAY_TOKEN
+        } 
+        # Convert itemID into item title through ebay api call  
+        for i in range(len(items)):
+            url_call = queryURL + items[i] + '?'
+            resp = requests.get(
+                url_call, headers=header)
+            
+            if not 'errors' in json.loads(resp.content):
+                items[i] = json.loads(resp.content)['title'][:15] + '...'
+
+        # Build bar chart
+        fig, ax = plt.subplots()
+        x_ax = [i for i in range(len(items))]
+        ax.set_ylabel('Number of Purchases')
+        ax.set_title('Top 10 purchased products')
+        ten_labels = ['red', 'blue', 'orange', 'olive', 'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
+        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray', 'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
+        used_labels = ten_labels[:len(items)]
+        used_colors = ten_colors[:len(items)]
+
+        ax.bar(x_ax, counts, label=used_labels, color=used_colors)
+        ax.legend(labels=items, loc='best')
+
+        # send chart back in response
+        graph = io.BytesIO()
+        plt.savefig(graph, format='png')
+        encoded_img = base64.encodebytes(graph.getvalue()).decode('ascii')
+        return(jsonify({'graph': encoded_img}))
+    else:
+        pass
 
 
 if __name__ == '__main__':
