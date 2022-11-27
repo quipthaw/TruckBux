@@ -729,7 +729,7 @@ def get_new_cost(search):
     if EXPIRES < datetime.datetime.now():
         new_token()
     queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}?"
-    #queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?item_id"
+    print(queryURL)
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
     }
