@@ -994,12 +994,9 @@ def recurring_plans():
     sponsor_org = get_main_sponsor_org(db_connection, user)
     date = datetime.datetime.now()
 
-    print(targets)
-
     if(sponsor_org):
         sponsor_org = sponsor_org[0]
         for target in targets:
-            print(target)
             delete_existing_recurring(db_connection, target, sponsor_org)
             query = 'INSERT INTO TruckBux.RecurringPoints (sponsorName, username, points, startDate) VALUES (:org, :target, :points, :date)'
             param = {'org': sponsor_org, 'target': target, 'points': point_amount, 'date': date}
