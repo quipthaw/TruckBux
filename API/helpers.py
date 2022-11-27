@@ -184,3 +184,17 @@ def unlock_account(db_connection, username):
         return True
     else:
         return False
+
+
+# Function to check if user is part of sponsor organization
+def check_sponsorship(db_connection, user, organization):
+
+    query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :user AND sponsorName = :organization'
+    param = {'user': user, 'organization': organization}
+    
+    result = db_connection.execute(text(query), param)
+
+    if (result.one_or_none() != None):
+        return True
+    else:
+        return False

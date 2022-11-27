@@ -106,6 +106,7 @@ export default function Catalog() {
             //console.log("set");
             const result = await response.json();
             setItemList(result.items);
+            console.log(result.items);
         } else {
             //console.log("not set")
         }
