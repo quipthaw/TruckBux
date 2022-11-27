@@ -457,6 +457,7 @@ def applications():
         user = request.json['user']
         sponsorName = request.json['sponsName']
 
+
         if not check_dup_app(db_connection, user, sponsorName):
             query = 'INSERT INTO TruckBux.Applications (username, sponsorName) VALUES(:x, :y)'
             param = {'x': user, 'y': sponsorName}
