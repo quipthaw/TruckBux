@@ -37,12 +37,14 @@ const pages = [
     { 'label': 'Drivers', 'path': '/drivers' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
+    { 'label': 'Purchase History', 'path': '/purchasehistory'},
 ];
 
 const driverPages = [
     { 'label': 'Catalog', 'path': '/catalog' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
+    { 'label': 'Purchase History', 'path': '/purchasehistory'},
 ];
 
 export default function Navbar(props) {
@@ -133,7 +135,7 @@ export default function Navbar(props) {
     };
 
     const filterSettings = (a) => {
-        const loggedOutFilter = ['Log Out', 'Profile', 'Create Sponsor'];
+        const loggedOutFilter = ['Log Out', 'Profile', 'Create Sponsor', 'Purchase History'];
         const signedInFilter = ['Sign In', 'Create Account', 'Create Sponsor'];
         const signedInSFilter = ['Sign In', 'Create Sponsor'];
         const signedInAFilter = ['Sign In'];

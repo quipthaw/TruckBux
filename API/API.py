@@ -805,11 +805,11 @@ def user_purchase():
     elif request.method == 'GET':
         user = request.args['user']
         user_items = []
-        query = 'SELECT Item_ID FROM TruckBux.Purchases where username = :x'
+        query = 'SELECT * FROM TruckBux.Purchases where username = :x'
         params = {'x': user}
         rows = db_connection.execute(text(query), params).fetchall()
         for row in rows:
-            user_items.append(row[0])
+            user_items.append(dict(row))
         return (jsonify(user_items))
 
 
