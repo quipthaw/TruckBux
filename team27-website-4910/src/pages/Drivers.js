@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import { userName, userType } from '../recoil_atoms';
 import ManageAccounts from '../components/ManageAccount/ManageAccounts';
 import { useNavigate } from 'react-router-dom';
+import { PurchaseHistory } from '../components/PurchaseHistory/PurchaseHistory';
 
 export default function Drivers() {
     const [usernameState, setUsernameState] = useRecoilState(userName);
@@ -17,6 +18,7 @@ export default function Drivers() {
 
     return (
         <Layout>
+            <PurchaseHistory/>
             <ManageAccounts user={usernameState} userType={sessionState} />
         </Layout>
     )

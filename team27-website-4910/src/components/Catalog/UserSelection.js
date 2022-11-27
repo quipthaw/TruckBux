@@ -29,13 +29,10 @@ export const UserSelection = (props) => {
 
     const response = await fetch(fetchURL);
     const result = await response.json();
-    console.log(result);
 
     const newUserList = result.drivers.map((driver) => {
       return driver.username;
     })
-
-    console.log(newUserList);
     setUserList(newUserList);
     setSelection(newUserList[0]);
   }
