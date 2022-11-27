@@ -6,6 +6,7 @@ import {
   TextField, 
   Stack,
   MenuItem,
+  Alert,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -54,7 +55,33 @@ export const PointChangeForm = (props) => {
     }
   }, [isRecurringPlan]);
 
-  //For now this only spits out into console. Use props to set what is needed
+  const handleRecurringPlan = async () => {
+    const targets = selectedDrivers.map((driver) => {
+      return (
+        driver.username
+      );
+    });
+
+    const data = {
+      user: user,
+      targets: targets,
+      points: pointChange,
+    };
+
+    const options = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    };
+
+    const response = await fetch('http://127.0.0.1:5000/pointsrecurring', options);
+    const result = await response.json();
+
+    setRecurringError(result.Result);
+  }
+
   const handleSubmit = async () => {
     if(Number(pointChange) !== 0 && selectedDrivers.length !== 0) {
       
@@ -68,7 +95,9 @@ export const PointChangeForm = (props) => {
         receivers = ['all'];
       }
 
-      console.log(receivers);
+      if(isRecurringPlan) {
+        handleRecurringPlan();
+      }
 
       const data = {
         giver: user,
@@ -87,7 +116,6 @@ export const PointChangeForm = (props) => {
 
       const response = await fetch('http://127.0.0.1:5000/points', options);
       const result = await response.json();
-      console.log(result);
 
       setRefresh(refresh ? false : true);
     }
@@ -123,12 +151,10 @@ export const PointChangeForm = (props) => {
 
     return (
       <TextField
-        error={(recurringPeriod === '' && isRecurringPlan)}
         disabled
         select
         id="recurringSelection"
         label="Recurring Period"
-        helperText={recurringError}
         InputLabelProps={{ shrink: true }}
         value={recurringPeriod}
         onChange={handleSelection}
@@ -140,36 +166,39 @@ export const PointChangeForm = (props) => {
   };
 
   return (
-    <Stack direction="row" spacing={2}>
-        <TextField
-          id="points"
-          label="Points"
-          type="number"
-          value={pointChange}
-          onKeyDown={filterPeriodE}
-          onChange={handlePointChange}
-          sx={{ width: '10%' }}
-        />
-        <TextField
-          id="reason"
-          label="Reason for Point Change"
-          type="text"
-          value={reason}
-          onChange={handleReasonChange}
-          sx={{ width: '50%' }}
-        />
-        <PlanCheckBox/>
-        <RecurringInfo 
-          recurringPeriod={recurringPeriod}
-          setRecurringPeriod={setRecurringPeriod}
-        />
-        <Button 
-          variant="contained"
-          onClick={handleSubmit}
-          sx={{ width: '10%' }}
-        >
-          Confirm
-        </Button>
+    <Stack direction="column" spacing={2}>
+      <Alert severity="warning">{recurringError}</Alert>
+      <Stack direction="row" spacing={2}>
+          <TextField
+            id="points"
+            label="Points"
+            type="number"
+            value={pointChange}
+            onKeyDown={filterPeriodE}
+            onChange={handlePointChange}
+            sx={{ width: '10%' }}
+          />
+          <TextField
+            id="reason"
+            label="Reason for Point Change"
+            type="text"
+            value={reason}
+            onChange={handleReasonChange}
+            sx={{ width: '50%' }}
+          />
+          <PlanCheckBox/>
+          <RecurringInfo 
+            recurringPeriod={recurringPeriod}
+            setRecurringPeriod={setRecurringPeriod}
+          />
+          <Button 
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{ width: '10%' }}
+          >
+            Confirm
+          </Button>
+      </Stack>
     </Stack>
   );
 };

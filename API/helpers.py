@@ -198,3 +198,18 @@ def check_sponsorship(db_connection, user, organization):
         return True
     else:
         return False
+
+def get_main_sponsor_org(db_connection, user):
+
+    query = 'SELECT sponsorName FROM TruckBux.Sponsorships WHERE username = :user'
+    param = {'user': user}
+
+    result = db_connection.execute(text(query), param).fetchone()
+
+    return result
+
+def delete_existing_recurring(db_connection, user, organization):
+    query = 'DELETE FROM TruckBux.RecurringPoints WHERE sponsorName = :org AND username = :user'
+    param = {'user': user, 'org': organization}
+
+    db_connection.execute(text(query), param)

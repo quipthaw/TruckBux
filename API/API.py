@@ -983,6 +983,33 @@ def change_conversion_rate_request():
     else:
         return jsonify({'error': 'Your account lacks privilege.'})
 
+@app.route('/pointsrecurring', methods=['POST'])
+@cross_origin()
+def recurring_plans():
+    user = request.json['user']
+    targets = request.json['targets']
+    point_amount = request.json['points']
+
+    # Ensure only main
+    sponsor_org = get_main_sponsor_org(db_connection, user)
+    date = datetime.datetime.now()
+
+    if(sponsor_org):
+        sponsor_org = sponsor_org[0]
+        for target in targets:
+            delete_existing_recurring(db_connection, target, sponsor_org)
+            query = 'INSERT INTO TruckBux.RecurringPoints (sponsorName, username, points, startDate) VALUES (:org, :target, :points, :date)'
+            param = {'org': sponsor_org, 'target': target, 'points': point_amount, 'date': date}
+
+            result = db_connection.execute(text(query), param)
+
+        if(result):
+            return jsonify({ 'Result': 'Recurring plan created.' })
+        else:
+            return jsonify({ 'Result': 'There was a problem making your plan.' })
+    else:
+        return jsonify({ 'Result': 'Your account lacks this privilege.' })
+
 
 @app.route('/reports', methods=['GET'])
 @cross_origin()
