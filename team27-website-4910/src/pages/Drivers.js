@@ -18,7 +18,6 @@ export default function Drivers() {
 
     return (
         <Layout>
-            <PurchaseHistory/>
             <ManageAccounts user={usernameState} userType={sessionState} />
         </Layout>
     )
