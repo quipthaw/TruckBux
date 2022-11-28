@@ -46,7 +46,7 @@ export default function Logs() {
         const response = await fetch(responseURL);
         const result = await response.json();
 
-        setUsers(result.drivers);
+        setUsers(result.drivers.concat(result.sponsors.concat(result.admins)));
     }
 
     const navigate = useNavigate();
