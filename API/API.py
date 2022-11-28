@@ -866,7 +866,7 @@ def log_filter():
             query += ' username = :x'
             params['x'] = request.args.get('username')
             numFiltersAdded += 1
-        if 'log_type' in request.args:
+        if 'log_type' in request.args and request.args.get('log_type') != '':
             if numFiltersAdded > 0:
                 query += ' AND'
             query += ' log_type = :y'
