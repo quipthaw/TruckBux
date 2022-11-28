@@ -119,9 +119,7 @@ export default function EnhancedTable(props) {
     }
 
     EnhancedTableHead.propTypes = {
-        numSelected: PropTypes.number.isRequired,
         onRequestSort: PropTypes.func.isRequired,
-        onSelectAllClick: PropTypes.func.isRequired,
         order: PropTypes.oneOf(['asc', 'desc']).isRequired,
         orderBy: PropTypes.string.isRequired,
         rowCount: PropTypes.number.isRequired,
@@ -147,9 +145,6 @@ export default function EnhancedTable(props) {
         );
     }
 
-    EnhancedTableToolbar.propTypes = {
-        numSelected: PropTypes.number.isRequired,
-    };
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
     const [page, setPage] = React.useState(0);
@@ -191,8 +186,6 @@ export default function EnhancedTable(props) {
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-                 rows.sort(getComparator(order, orderBy)).slice() */}
                             {stableSort(rows, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {

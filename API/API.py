@@ -457,7 +457,6 @@ def applications():
         user = request.json['user']
         sponsorName = request.json['sponsName']
 
-
         if not check_dup_app(db_connection, user, sponsorName):
             query = 'INSERT INTO TruckBux.Applications (username, sponsorName) VALUES(:x, :y)'
             param = {'x': user, 'y': sponsorName}
@@ -867,7 +866,7 @@ def log_filter():
             query += ' username = :x'
             params['x'] = request.args.get('username')
             numFiltersAdded += 1
-        if 'log_type' in request.args:
+        if 'log_type' in request.args and request.args.get('log_type') != '':
             if numFiltersAdded > 0:
                 query += ' AND'
             query += ' log_type = :y'
@@ -899,6 +898,18 @@ def log_filter():
         data.append(dict(row))
 
     return (jsonify({'number': len(data), 'logs': data}))
+
+
+@app.route('/logs/types', methods=['GET'])
+@cross_origin()
+def log_type_filter():
+    query = 'SELECT DISTINCT log_type FROM TruckBux.Logging'
+    rows = db_connection.execute(text(query)).fetchall()
+    types = []
+    for row in rows:
+        types.append(row.log_type)
+
+    return (jsonify({'types': types}))
 
 # Endpoint to retrieve drivers based on requesting user
 
@@ -974,10 +985,10 @@ def change_conversion_rate_request():
     userType = get_acctType(db_connection, user)
     targetType = get_acctType(db_connection, target)
 
-    if(targetType != 'S'):
+    if (targetType != 'S'):
         return jsonify({'error': 'Target user is not a sponsor.'})
 
-    if(userType == 'A' or (userType == 'S' and check_sponsorship(db_connection, user, target))):
+    if (userType == 'A' or (userType == 'S' and check_sponsorship(db_connection, user, target))):
         query = 'UPDATE TruckBux.Sponsors SET pointConversionRate = :rate WHERE sponsorName = :target'
         param = {'target': target, 'rate': newRate}
 
@@ -985,6 +996,7 @@ def change_conversion_rate_request():
         return jsonify({'result': 'Points successfully changed.'})
     else:
         return jsonify({'error': 'Your account lacks privilege.'})
+
 
 @app.route('/pointsrecurring', methods=['POST'])
 @cross_origin()
@@ -997,21 +1009,22 @@ def recurring_plans():
     sponsor_org = get_main_sponsor_org(db_connection, user)
     date = datetime.datetime.now()
 
-    if(sponsor_org):
+    if (sponsor_org):
         sponsor_org = sponsor_org[0]
         for target in targets:
             delete_existing_recurring(db_connection, target, sponsor_org)
             query = 'INSERT INTO TruckBux.RecurringPoints (sponsorName, username, points, startDate) VALUES (:org, :target, :points, :date)'
-            param = {'org': sponsor_org, 'target': target, 'points': point_amount, 'date': date}
+            param = {'org': sponsor_org, 'target': target,
+                     'points': point_amount, 'date': date}
 
             result = db_connection.execute(text(query), param)
 
-        if(result):
-            return jsonify({ 'Result': 'Recurring plan created.' })
+        if (result):
+            return jsonify({'Result': 'Recurring plan created.'})
         else:
-            return jsonify({ 'Result': 'There was a problem making your plan.' })
+            return jsonify({'Result': 'There was a problem making your plan.'})
     else:
-        return jsonify({ 'Result': 'Your account lacks this privilege.' })
+        return jsonify({'Result': 'Your account lacks this privilege.'})
 
 
 @app.route('/reports', methods=['GET'])
@@ -1023,7 +1036,7 @@ def reports():
     if request.args['report'] == 'top-products':
         query = 'SELECT Item_ID, COUNT(*) FROM TruckBux.Purchases GROUP BY Item_ID ORDER BY COUNT(*) DESC LIMIT 10'
         rows = db_connection.execute(query).fetchall()
-         
+
         # build lists with itemIDs and number of purchases from DB
         items, counts = [], []
         for row in rows:
@@ -1034,13 +1047,13 @@ def reports():
         queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/"
         header = {
             "Authorization": "Bearer " + EBAY_TOKEN
-        } 
-        # Convert itemID into item title through ebay api call  
+        }
+        # Convert itemID into item title through ebay api call
         for i in range(len(items)):
             url_call = queryURL + items[i] + '?'
             resp = requests.get(
                 url_call, headers=header)
-            
+
             if not 'errors' in json.loads(resp.content):
                 items[i] = json.loads(resp.content)['title'][:15] + '...'
 
@@ -1049,8 +1062,10 @@ def reports():
         x_ax = [i for i in range(len(items))]
         ax.set_ylabel('Number of Purchases')
         ax.set_title('Top 10 purchased products')
-        ten_labels = ['red', 'blue', 'orange', 'olive', 'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
-        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray', 'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
+        ten_labels = ['red', 'blue', 'orange', 'olive',
+                      'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
+        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray',
+                      'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
         used_labels = ten_labels[:len(items)]
         used_colors = ten_colors[:len(items)]
 
@@ -1061,11 +1076,11 @@ def reports():
         graph = io.BytesIO()
         plt.savefig(graph, format='png')
         encoded_img = base64.encodebytes(graph.getvalue()).decode('ascii')
-        return(jsonify({'graph': encoded_img}))
+        return (jsonify({'graph': encoded_img}))
     elif request.args['report'] == 'number-sales-sponsor':
         query = 'SELECT modder, COUNT(*) FROM TruckBux.Logging WHERE log_type = "purchase" AND modder != "N/A" AND modder != "" GROUP BY modder ORDER BY COUNT(*) DESC LIMIT 10'
         rows = db_connection.execute(query).fetchall()
-         
+
         # build lists with itemIDs and number of purchases from DB
         sponsors, counts = [], []
         for row in rows:
@@ -1077,8 +1092,10 @@ def reports():
         x_ax = [i for i in range(len(sponsors))]
         ax.set_ylabel('Number of sales')
         ax.set_title('Number Sales By Sponsor')
-        ten_labels = ['red', 'blue', 'orange', 'olive', 'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
-        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray', 'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
+        ten_labels = ['red', 'blue', 'orange', 'olive',
+                      'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
+        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray',
+                      'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
         used_labels = ten_labels[:len(sponsors)]
         used_colors = ten_colors[:len(sponsors)]
 
@@ -1088,11 +1105,11 @@ def reports():
         graph = io.BytesIO()
         plt.savefig(graph, format='png')
         encoded_img = base64.encodebytes(graph.getvalue()).decode('ascii')
-        return(jsonify({'graph': encoded_img}))
+        return (jsonify({'graph': encoded_img}))
     elif request.args['report'] == 'sales-sponsor-value':
-        pass #TODO
+        pass  # TODO
     elif request.args['report'] == 'purchases-by-driver':
-        pass #TODO
+        pass  # TODO
     else:
         pass
 

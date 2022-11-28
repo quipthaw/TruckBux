@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Logs() {
     const [users, setUsers] = React.useState([]);
     const [logs, setLogs] = React.useState([]);
+    const [logTypes, setLogTypes] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [usernameState, setUsernameState] = useRecoilState(userName);
     const [sessionState, setSessionState] = useRecoilState(userType);
@@ -22,9 +23,15 @@ export default function Logs() {
 
     const handleUFChange = (event) => {
         setUserFilter(event.target.value);
-    }
+    };
 
-    const [startTime, setStartTime] = React.useState(moment().format('YYYY-MM-DD'));
+    const [typeFilter, setTypeFilter] = React.useState('');
+
+    const handleTFChange = (event) => {
+        setTypeFilter(event.target.value);
+    };
+
+    const [startTime, setStartTime] = React.useState(moment('2022-08-01').format('YYYY-MM-DD'));
     const [endTime, setEndTime] = React.useState(moment().format('YYYY-MM-DD'));
 
     const handleSTChange = (newValue) => {
@@ -35,12 +42,11 @@ export default function Logs() {
     };
 
     const getUsers = async () => {
-        const responseURL = `http://127.0.0.1:5000/drivers?user=${usernameState}`
+        const responseURL = `http://127.0.0.1:5000/users?user=${usernameState}`
         const response = await fetch(responseURL);
         const result = await response.json();
 
         setUsers(result.drivers);
-        setLoading(false);
     }
 
     const navigate = useNavigate();
@@ -48,22 +54,32 @@ export default function Logs() {
     useEffect(() => {
         if (sessionState === '0') { navigate('/'); }
         getUsers();
+        getLogTypes();
+        getLogs();
+        setLoading(false);
     }, []);
 
     const getLogs = async () => {
-        setLoading(true);
-        const responseURL = `http://127.0.0.1:5000/logs?start_date=${startTime}&end_date=${endTime}&username=${userFilter}`
+        const responseURL = `http://127.0.0.1:5000/logs?start_date=${startTime}&end_date=${endTime}&username=${userFilter}&log_type=${typeFilter}`;
 
         const response = await fetch(responseURL);
         const result = await response.json();
 
         setLogs(result.logs);
-        setLoading(false);
+    }
+
+    const getLogTypes = async () => {
+        const responseURL = `http://127.0.0.1:5000/logs/types`;
+
+        const response = await fetch(responseURL);
+        const result = await response.json();
+
+        setLogTypes(result.types);
     }
 
     useEffect(() => {
         getLogs();
-    }, [userFilter, startTime, endTime]);
+    }, [userFilter, typeFilter, startTime, endTime]);
 
 
     return (
@@ -86,11 +102,27 @@ export default function Logs() {
                                         <MenuItem value=''>-- All --</MenuItem>
                                         {users.map((user) => {
                                             return (
-                                                <MenuItem value={user.username}>{user.username}</MenuItem>
+                                                <MenuItem key={user.username} value={user.username}>{user.username}</MenuItem>
                                             )
                                         })}
                                     </Select>
                                     <FormHelperText>Logs for this user</FormHelperText>
+                                </FormControl>
+                                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                    <InputLabel>Log Type</InputLabel>
+                                    <Select
+                                        value={typeFilter}
+                                        label='Log Type'
+                                        onChange={handleTFChange}
+                                    >
+                                        <MenuItem value=''>-- All --</MenuItem>
+                                        {logTypes.map((logType) => {
+                                            return (
+                                                <MenuItem key={logType} value={logType}>{logType}</MenuItem>
+                                            )
+                                        })}
+                                    </Select>
+                                    <FormHelperText>What type of logs</FormHelperText>
                                 </FormControl>
                                 <Box sx={{ m: 1 }}>
                                     <MobileDatePicker
