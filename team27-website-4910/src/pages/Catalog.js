@@ -181,6 +181,7 @@ export default function Catalog() {
         const data = {
             'driver': selectedDriver,
             'sponsor': selectedSponsor,
+            'active_user': usernameState,
         };
         console.log(selectedDriver)
         console.log(selectedSponsor )
