@@ -800,6 +800,9 @@ def user_purchase():
         db_connection.execute(text(query2), param)
         db_connection.execute(text(query3), param)
         db_connection.execute(text(query4), param)
+
+        log(db_connection, user, 'purchase', modder=sponsor, reason='purchase')
+
         return (jsonify({'result': 'Bought'}))
 
     elif request.method == 'GET':
@@ -1059,6 +1062,37 @@ def reports():
         plt.savefig(graph, format='png')
         encoded_img = base64.encodebytes(graph.getvalue()).decode('ascii')
         return(jsonify({'graph': encoded_img}))
+    elif request.args['report'] == 'number-sales-sponsor':
+        query = 'SELECT modder, COUNT(*) FROM TruckBux.Logging WHERE log_type = "purchase" AND modder != "N/A" AND modder != "" GROUP BY modder ORDER BY COUNT(*) DESC LIMIT 10'
+        rows = db_connection.execute(query).fetchall()
+         
+        # build lists with itemIDs and number of purchases from DB
+        sponsors, counts = [], []
+        for row in rows:
+            sponsors.append(row[0])
+            counts.append(row[1])
+
+        # Build bar chart
+        fig, ax = plt.subplots()
+        x_ax = [i for i in range(len(sponsors))]
+        ax.set_ylabel('Number of sales')
+        ax.set_title('Number Sales By Sponsor')
+        ten_labels = ['red', 'blue', 'orange', 'olive', 'gray', 'green', 'purple', 'pink', 'brown', 'cyan']
+        ten_colors = ['tab:red', 'tab:blue', 'tab:orange', 'tab:olive', 'tab:gray', 'tab:green', 'tab:purple', 'tab:pink', 'tab:brown', 'tab:cyan']
+        used_labels = ten_labels[:len(sponsors)]
+        used_colors = ten_colors[:len(sponsors)]
+
+        ax.bar(sponsors, counts, label=used_labels, color=used_colors)
+
+        # send chart back in response
+        graph = io.BytesIO()
+        plt.savefig(graph, format='png')
+        encoded_img = base64.encodebytes(graph.getvalue()).decode('ascii')
+        return(jsonify({'graph': encoded_img}))
+    elif request.args['report'] == 'sales-sponsor-value':
+        pass #TODO
+    elif request.args['report'] == 'purchases-by-driver':
+        pass #TODO
     else:
         pass
 
