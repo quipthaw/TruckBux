@@ -562,8 +562,6 @@ def sponsors():
             user = request.args['user']
             acctType = get_acctType(db_connection, user)
 
-            print(acctType)
-
             if (acctType == 'S'):
                 # sponsors will get only other sponsors
                 sponsName = get_sponsName(db_connection, user)
@@ -727,17 +725,14 @@ def update_cart():
 
 # helper for purchase, must be in api
 def get_new_cost(search):
-    print(search)
     if EXPIRES < datetime.datetime.now():
         new_token()
     queryURL = f"https://api.sandbox.ebay.com/buy/browse/v1/item/{search}?"
-    print(queryURL)
     header = {
         "Authorization": "Bearer " + EBAY_TOKEN
     }
     resp = requests.get(
         queryURL, headers=header)
-    print(resp.json())
     fun = resp.json()
     new_cost = fun['price']['value']
     return (new_cost)
@@ -765,6 +760,13 @@ def user_purchase():
         user = request.json['driver']
         sponsor = request.json['sponsor']
 
+        # Ensure user(driver) is affiliated with this sponsor
+        if(check_sponsorship(db_connection, user, sponsor) == False):
+            return (jsonify({'result': 'This user-sponsor combination is not valid.'}))
+
+        # User who initiated the purchase. This is used only for logging.
+        active_user = request.json['active_user']
+
         param = {'x': user, 'd': datetime.datetime.now()}
         ps = 'SELECT sum(pointChange) FROM TruckBux.Points where nameReceiver = :x ;'
         pointsum = db_connection.execute(text(ps), param).fetchone()
@@ -789,7 +791,7 @@ def user_purchase():
             return (jsonify({'result': 'You do not have enough points.'}))
 
         param = {'x': user, 'd': datetime.datetime.now(), 'p': (
-            0-cartsum[0]), 'o': sponsor, 'r': 'Purchase'}
+            0-(round(cartsum[0]))), 'o': sponsor, 'r': 'Purchase'}
         query = 'UPDATE TruckBux.Cart SET Date_Time = :d WHERE username = :x ;'
         query2 = 'INSERT INTO TruckBux.Purchases SELECT * FROM TruckBux.Cart WHERE username = :x ;'
         query3 = 'DELETE FROM TruckBux.Cart WHERE username = :x ;'
@@ -800,7 +802,7 @@ def user_purchase():
         db_connection.execute(text(query3), param)
         db_connection.execute(text(query4), param)
 
-        log(db_connection, user, 'purchase', modder=sponsor, reason='purchase')
+        log(db_connection, user, 'purchase', modder=active_user, reason='purchase')
 
         return (jsonify({'result': 'Bought'}))
 

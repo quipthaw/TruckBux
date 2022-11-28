@@ -140,7 +140,7 @@ export default function Catalog() {
         console.log(cart)
         const url = 'http://127.0.0.1:5000/Cart';
         const data = {
-            'user': usernameState,
+            'user': selectedDriver,
             'items': [...cart]
         };
         const options = {
@@ -181,6 +181,7 @@ export default function Catalog() {
         const data = {
             'driver': selectedDriver,
             'sponsor': selectedSponsor,
+            'active_user': usernameState,
         };
         console.log(selectedDriver)
         console.log(selectedSponsor )
