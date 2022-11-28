@@ -760,6 +760,12 @@ def user_purchase():
         user = request.json['driver']
         sponsor = request.json['sponsor']
 
+        print(user)
+        print(sponsor)
+
+        if(check_sponsorship(db_connection, user, sponsor) == False):
+            return (jsonify({'result': 'This user-sponsor combination is not valid.'}))
+
         # User who initiated the purchase. This is used only for logging.
         active_user = request.json['active_user']
 
@@ -781,6 +787,9 @@ def user_purchase():
 
         cs = 'SELECT sum(cost) FROM TruckBux.Cart where username = :x ;'
         cartsum = db_connection.execute(text(cs), param).fetchone()
+
+        print(pointsum[0])
+        print(cartsum[0])
 
         # NEITHER Can be null
         if pointsum[0] < cartsum[0]:
