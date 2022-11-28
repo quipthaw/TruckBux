@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout/Layout';
 import { useRecoilState } from 'recoil';
 import { userName, userType } from '../recoil_atoms';
@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { PurchaseHistory } from '../components/PurchaseHistory/PurchaseHistory';
 
 export default function Drivers() {
-    const [usernameState, setUsernameState] = useRecoilState(userName);
     const [sessionState, setSessionState] = useRecoilState(userType);
+    const [ usernameState, setUsernameState ] = useRecoilState(userName);
+    const [ user, setUser ] = useState();
 
     const navigate = useNavigate();
 
@@ -16,9 +17,26 @@ export default function Drivers() {
         if (sessionState !== 'A' && sessionState !== 'S') { navigate('/'); }
     }, []);
 
+    const getSponsorName = async () => {
+        const URL = `http://127.0.0.1:5000/sponsors?user=${usernameState}`
+        const response = await fetch(URL);
+        const result = await response.json();
+
+        setUser(result.relatedSponsors[0].sponsorName)
+    }
+
+    useEffect(() => {
+        if(sessionState === 'A') {
+            setUser(usernameState);
+        }
+        else {
+            getSponsorName();
+        }
+    }, [])
+
     return (
         <Layout>
-            <ManageAccounts user={usernameState} userType={sessionState} />
+            {user && <ManageAccounts user={user} userType={sessionState} />}
         </Layout>
     )
 }

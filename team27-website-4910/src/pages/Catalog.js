@@ -103,12 +103,8 @@ export default function Catalog() {
             }),
         });
         if (response.ok) {
-            //console.log("set");
             const result = await response.json();
             setItemList(result.items);
-            console.log(result.items);
-        } else {
-            //console.log("not set")
         }
         setLoading(false);
     };
@@ -137,7 +133,6 @@ export default function Catalog() {
     }, [itemList])
 
     const saveCartRequest = async () => {
-        console.log(cart)
         const url = 'http://127.0.0.1:5000/Cart';
         const data = {
             'user': selectedDriver,
@@ -183,8 +178,6 @@ export default function Catalog() {
             'sponsor': selectedSponsor,
             'active_user': usernameState,
         };
-        console.log(selectedDriver)
-        console.log(selectedSponsor )
         const options = {
             method: 'POST',
             headers: {
@@ -362,7 +355,7 @@ export default function Catalog() {
                             >
                                 {categories.map((item) => {
                                     return (
-                                        <FormControlLabel key={item.itemId} value={item.number} control={<Radio />} label={item.name} />
+                                        <FormControlLabel key={item.name} value={item.number} control={<Radio />} label={item.name} />
                                     )
                                 })}
                             </RadioGroup>
