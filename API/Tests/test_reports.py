@@ -9,7 +9,7 @@ from matplotlib import image as mpimg
 api_host = '127.0.0.1:5000'
 
 
-result = requests.get(f'http://{api_host}/reports', params={'report': 'top-products'})
+result = requests.get(f'http://{api_host}/reports', params={'report': 'number-sales-sponsor'})
 enc_img = json.loads(result.content)['graph']
 data = base64.b64decode((enc_img))
 fp = io.BytesIO(data)
