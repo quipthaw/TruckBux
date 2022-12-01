@@ -16,6 +16,7 @@ import Drivers from './pages/Drivers';
 import SponsorCreation from "./pages/SponsorCreation";
 import Logs from './pages/Logs';
 import PurchaseHistoryPage from "./pages/PurchaseHistoryPage";
+import Test from "./pages/test";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
   {
     path: "/purchasehistory",
     element: <PurchaseHistoryPage />,
+  },
+  {
+    path: "/test",
+    element: <Test />,
   },
 ]);
 
