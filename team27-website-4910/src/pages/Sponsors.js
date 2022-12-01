@@ -20,7 +20,7 @@ export default function Register() {
     const [applications, setApplications] = React.useState();
 
     const getSponsors = async () => {
-        const responseURL = sessionState === '0' ? `http://127.0.0.1:5000/sponsors` : `http://127.0.0.1:5000/sponsors?user=${usernameState}`;
+        const responseURL = sessionState === '0' ? `https://team27.cpsc4911.com/sponsors` : `https://team27.cpsc4911.com/sponsors?user=${usernameState}`;
         const response = await fetch(responseURL);
         const result = await response.json();
 
@@ -29,7 +29,7 @@ export default function Register() {
     };
 
     const getApps = async () => {
-        const getRequestURL = `http://127.0.0.1:5000/applications?user=${usernameState}`
+        const getRequestURL = `https://team27.cpsc4911.com/applications?user=${usernameState}`
         const response = await fetch(getRequestURL);
         const result = await response.json();
 
@@ -78,7 +78,7 @@ export default function Register() {
                 <CircularProgress />
                 :
                 <Stack direction="column" spacing={2}>
-                    <ConversionRateChange/>
+                    <ConversionRateChange />
                     {renderList()}
                 </Stack>
             }

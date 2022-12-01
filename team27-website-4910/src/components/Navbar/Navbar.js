@@ -37,14 +37,14 @@ const pages = [
     { 'label': 'Drivers', 'path': '/drivers' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
-    { 'label': 'Purchase History', 'path': '/purchasehistory'},
+    { 'label': 'Purchase History', 'path': '/purchasehistory' },
 ];
 
 const driverPages = [
     { 'label': 'Catalog', 'path': '/catalog' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
-    { 'label': 'Purchase History', 'path': '/purchasehistory'},
+    { 'label': 'Purchase History', 'path': '/purchasehistory' },
 ];
 
 export default function Navbar(props) {
@@ -70,7 +70,7 @@ export default function Navbar(props) {
             body: JSON.stringify(data),
         }
 
-        const response = await fetch('http://127.0.0.1:5000/notifications', options)
+        const response = await fetch('https://team27.cpsc4911.com/notifications', options)
         const result = await response.json();
         setGotNotifications(true);
         setUserNotifications(result);

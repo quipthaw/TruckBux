@@ -43,7 +43,7 @@ export default function Logs() {
     };
 
     const getUsers = async () => {
-        const responseURL = `http://127.0.0.1:5000/users?user=${usernameState}`
+        const responseURL = `https://team27.cpsc4911.com/users?user=${usernameState}`
         const response = await fetch(responseURL);
         const result = await response.json();
 
@@ -61,7 +61,7 @@ export default function Logs() {
     }, []);
 
     const getLogs = async () => {
-        const responseURL = `http://127.0.0.1:5000/logs?start_date=${startTime}&end_date=${endTime}&username=${userFilter}&log_type=${typeFilter}`;
+        const responseURL = `https://team27.cpsc4911.com/logs?start_date=${startTime}&end_date=${endTime}&username=${userFilter}&log_type=${typeFilter}`;
 
         const response = await fetch(responseURL);
         const result = await response.json();
@@ -70,7 +70,7 @@ export default function Logs() {
     }
 
     const getLogTypes = async () => {
-        const responseURL = `http://127.0.0.1:5000/logs/types`;
+        const responseURL = `https://team27.cpsc4911.com/logs/types`;
 
         const response = await fetch(responseURL);
         const result = await response.json();

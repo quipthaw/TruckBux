@@ -5,15 +5,15 @@ import { userName } from '../../recoil_atoms';
 import { UserSelection } from '../Catalog/UserSelection';
 
 export const ConversionRateChange = () => {
-  const [ usernameState, setUsernameState ] = useRecoilState(userName);
-  const [ targetSponsor, setTargetSponsor ] = useState('');
-  const [ conversionRate, setConversionRate ] = useState(1.0);
+  const [usernameState, setUsernameState] = useRecoilState(userName);
+  const [targetSponsor, setTargetSponsor] = useState('');
+  const [conversionRate, setConversionRate] = useState(1.0);
 
-  const [ processing, setProcessing ] = useState(false);
-  const [ error, setError ] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState('');
 
   const filterKeyDown = (e) => {
-    if(e.key === 'e') {
+    if (e.key === 'e') {
       e.preventDefault();
     }
   }
@@ -25,26 +25,26 @@ export const ConversionRateChange = () => {
   const changeRateRequest = async () => {
     setProcessing(true);
 
-    const url = 'http://127.0.0.1:5000/conversionrate';
+    const url = 'https://team27.cpsc4911.com/conversionrate';
     const data = {
-        'user': usernameState,
-        'target': targetSponsor,
-        'rate': conversionRate,
+      'user': usernameState,
+      'target': targetSponsor,
+      'rate': conversionRate,
     };
     console.log(usernameState)
     console.log(targetSponsor)
     const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
     };
 
     const response = await fetch(url, options);
     const result = await response.json();
 
-    if(result.error) {
+    if (result.error) {
       setError(result.error);
     }
     else {
@@ -56,18 +56,18 @@ export const ConversionRateChange = () => {
 
   return (
     <Stack direction="column" spacing={2} sx={{ my: '1vh' }}>
-      
+
       <Typography variant='h3' gutterBottom>Conversion Rate Change</Typography>
       <Typography gutterBottom>{error}</Typography>
-      
+
       <Stack justifyContent="center" direction="row" spacing={2}>
-        
-        <UserSelection 
+
+        <UserSelection
           disabled={processing}
-          user={usernameState} 
+          user={usernameState}
           requestedType="S"
-          selection={targetSponsor} 
-          setSelection={setTargetSponsor} 
+          selection={targetSponsor}
+          setSelection={setTargetSponsor}
         />
 
         <TextField

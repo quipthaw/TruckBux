@@ -22,7 +22,7 @@ export default function ManageAccounts(props) {
     const [selectedDrivers, setSelectedDrivers] = React.useState([]);
 
     const getDrivers = async () => {
-        const getRequestURL = `http://127.0.0.1:5000/users?user=${user}`
+        const getRequestURL = `https://team27.cpsc4911.com/users?user=${user}`
         const response = await fetch(getRequestURL);
 
         const result = await response.json();
@@ -34,14 +34,14 @@ export default function ManageAccounts(props) {
 
     const getOrgs = async () => {
         if (userType == 'A') {
-            const response = await fetch('http://127.0.0.1:5000/sponsors');
+            const response = await fetch('https://team27.cpsc4911.com/sponsors');
             const result = await response.json();
             setOrgs(result.otherSponsors);
         }
     };
 
     const getApps = async () => {
-        const getRequestURL = `http://127.0.0.1:5000/applications?user=${user}`
+        const getRequestURL = `https://team27.cpsc4911.com/applications?user=${user}`
         const response = await fetch(getRequestURL);
 
         const result = await response.json();

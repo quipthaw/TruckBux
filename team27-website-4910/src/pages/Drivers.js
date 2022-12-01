@@ -8,8 +8,8 @@ import { PurchaseHistory } from '../components/PurchaseHistory/PurchaseHistory';
 
 export default function Drivers() {
     const [sessionState, setSessionState] = useRecoilState(userType);
-    const [ usernameState, setUsernameState ] = useRecoilState(userName);
-    const [ user, setUser ] = useState();
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [user, setUser] = useState();
 
     const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ export default function Drivers() {
     }, []);
 
     const getSponsorName = async () => {
-        const URL = `http://127.0.0.1:5000/sponsors?user=${usernameState}`
+        const URL = `https://team27.cpsc4911.com/sponsors?user=${usernameState}`
         const response = await fetch(URL);
         const result = await response.json();
 
@@ -26,7 +26,7 @@ export default function Drivers() {
     }
 
     useEffect(() => {
-        if(sessionState === 'A') {
+        if (sessionState === 'A') {
             setUser(usernameState);
         }
         else {
