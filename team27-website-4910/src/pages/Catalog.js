@@ -34,9 +34,9 @@ export default function Catalog() {
 
     const [usernameState, setUsernameState] = useRecoilState(userName);
 
-    const [ selectedSponsor, setSelectedSponsor ] = React.useState("");
-    const [ selectedDriver, setSelectedDriver ] = React.useState("");
-    const [ processingPurchase, setProcessingPurchase ] = React.useState(false);
+    const [selectedSponsor, setSelectedSponsor] = React.useState("");
+    const [selectedDriver, setSelectedDriver] = React.useState("");
+    const [processingPurchase, setProcessingPurchase] = React.useState(false);
 
     const categories = [
         {
@@ -46,6 +46,38 @@ export default function Catalog() {
         {
             name: "Sporting Goods",
             number: 888,
+        },
+        {
+            name: "Building Materials",
+            number: 41498,
+        },
+        {
+            name: "Electrical Equipment",
+            number: 92074,
+        },
+        {
+            name: "Cell Phone Accessories",
+            number: 9394,
+        },
+        {
+            name: "Computer Accessories",
+            number: 3676,
+        },
+        {
+            name: "Home Theatre",
+            number: 32852,
+        },
+        {
+            name: "Home Improvement",
+            number: 159907,
+        },
+        {
+            name: "Pet Supplies",
+            number: 1281,
+        },
+        {
+            name: "Video Games",
+            number: 1249,
         },
     ]
 
@@ -196,10 +228,10 @@ export default function Catalog() {
         setProcessingPurchase(true);
         const storeCartResult = await saveCartRequest();
 
-        if(storeCartResult) {
+        if (storeCartResult) {
             const purchaseResult = await purchaseCartRequest();
 
-            if(purchaseResult === "Bought") {
+            if (purchaseResult === "Bought") {
                 setUserAlert(true);
                 setUserAlertSeverity("success");
                 setUserAlertMessage("Your purchase has been made!");
@@ -332,15 +364,15 @@ export default function Catalog() {
                     </Box>
 
                     <Box sx={{ width: '10%' }}>
-                        <UserSelection user={usernameState} requestedType={'S'} selection={selectedSponsor} setSelection={setSelectedSponsor}/>
+                        <UserSelection user={usernameState} requestedType={'S'} selection={selectedSponsor} setSelection={setSelectedSponsor} />
                     </Box>
                     <Box sx={{ width: '10%' }}>
-                        <UserSelection user={usernameState} requestedType={'D'} selection={selectedDriver} setSelection={setSelectedDriver}/>
+                        <UserSelection user={usernameState} requestedType={'D'} selection={selectedDriver} setSelection={setSelectedDriver} />
                     </Box>
                     <Box sx={{ width: '10%' }}>
                         <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
                     </Box>
-                    
+
                 </Stack>
                 <Stack direction='row'>
                     <Box>
