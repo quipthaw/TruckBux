@@ -57,7 +57,7 @@ const router = createBrowserRouter([
   {
     path: "/purchasehistory",
     element: <PurchaseHistoryPage />,
-  },
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -897,7 +897,9 @@ def log_filter():
 
     data = []
     for row in rows:
-        data.append(dict(row))
+        currRow = dict(row)
+        currRow['ID'] = str(currRow['ID'])
+        data.append(dict(currRow))
 
     return (jsonify({'number': len(data), 'logs': data}))
 
