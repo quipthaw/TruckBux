@@ -25,7 +25,6 @@ export default function Catalog() {
     const [searchParams, setParams] = React.useState({
         category: "293",
         search: "",
-        price: "[0..250]",
     })
 
     const [userAlert, setUserAlert] = React.useState(false);
@@ -37,6 +36,18 @@ export default function Catalog() {
     const [selectedSponsor, setSelectedSponsor] = React.useState("");
     const [selectedDriver, setSelectedDriver] = React.useState("");
     const [processingPurchase, setProcessingPurchase] = React.useState(false);
+
+    const [minPrice, setMinPrice] = React.useState(0);
+
+    const handleMinChange = (e) => {
+        setMinPrice(e.target.value);
+    };
+
+    const [maxPrice, setMaxPrice] = React.useState(200);
+
+    const handleMaxChange = (e) => {
+        setMaxPrice(e.target.value);
+    };
 
     const categories = [
         {
@@ -131,7 +142,7 @@ export default function Catalog() {
             body: JSON.stringify({
                 category: searchParams.category,
                 search: searchParams.search,
-                price: searchParams.price,
+                price: `[${minPrice}..${maxPrice}]`,
             }),
         });
         if (response.ok) {
@@ -392,6 +403,22 @@ export default function Catalog() {
                                 })}
                             </RadioGroup>
                         </FormControl>
+                        <Box>
+                            <TextField
+                                type='number'
+                                label='Minimum Price'
+                                value={minPrice}
+                                onChange={handleMinChange}
+                                margin={'normal'}
+                            />
+                            <TextField
+                                type='number'
+                                label='Maximum Price'
+                                value={maxPrice}
+                                onChange={handleMaxChange}
+                                margin={'normal'}
+                            />
+                        </Box>
                     </Box>
                     {showCatalog()}
                 </Stack>
@@ -406,7 +433,6 @@ export default function Catalog() {
                         </DialogActions>
                     </Dialog>
                 }
-                /comment
             </Stack>
         </Layout>
     )
