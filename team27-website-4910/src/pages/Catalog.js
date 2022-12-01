@@ -38,15 +38,28 @@ export default function Catalog() {
     const [processingPurchase, setProcessingPurchase] = React.useState(false);
 
     const [minPrice, setMinPrice] = React.useState(0);
+    const [minError, setMinError] = React.useState(false);
 
     const handleMinChange = (e) => {
         setMinPrice(e.target.value);
+        if (isNaN(parseInt(e.target.value)) || e.target.value > maxPrice) {
+            setMinError(true);
+        } else {
+            setMinPrice(e.target.value);
+            setMinError(false);
+        }
     };
 
     const [maxPrice, setMaxPrice] = React.useState(200);
+    const [maxError, setMaxError] = React.useState(false);
 
     const handleMaxChange = (e) => {
-        setMaxPrice(e.target.value);
+        if (isNaN(parseInt(e.target.value)) || e.target.value < minPrice) {
+            setMaxError(true);
+        } else {
+            setMaxPrice(e.target.value);
+            setMaxError(false);
+        }
     };
 
     const categories = [
@@ -142,7 +155,7 @@ export default function Catalog() {
             body: JSON.stringify({
                 category: searchParams.category,
                 search: searchParams.search,
-                price: `[${minPrice}..${maxPrice}]`,
+                price: `[${minError ? 0 : minPrice}..${maxError ? 250 : maxPrice}]`,
             }),
         });
         if (response.ok) {
@@ -407,16 +420,18 @@ export default function Catalog() {
                             <TextField
                                 type='number'
                                 label='Minimum Price'
+                                error={minError}
+                                helperText={minError ? "invalid input" : "set minimum price"}
                                 value={minPrice}
                                 onChange={handleMinChange}
-                                margin={'normal'}
                             />
                             <TextField
                                 type='number'
                                 label='Maximum Price'
+                                error={maxError}
+                                helperText={maxError ? "invalid input" : "set maximum price"}
                                 value={maxPrice}
                                 onChange={handleMaxChange}
-                                margin={'normal'}
                             />
                         </Box>
                     </Box>
@@ -433,6 +448,7 @@ export default function Catalog() {
                         </DialogActions>
                     </Dialog>
                 }
+                /comment
             </Stack>
         </Layout>
     )
