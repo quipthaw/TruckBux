@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 
 export const PointDisplay = (props) => {
   const { driver, refresh, user } = props;
-  const [ points, setPoints ] = useState(0);
+  const [points, setPoints] = useState(0);
 
-  const [ loading, setLoading ] = useState(true);
-  
+  const [loading, setLoading] = useState(true);
+
   const getPoints = async () => {
     setLoading(true);
     const getRequestURL = `http://127.0.0.1:5000/points?driver=${driver}`;
@@ -14,7 +14,7 @@ export const PointDisplay = (props) => {
     const result = await response.json();
 
     const sponsorResult = result.find((sponsor) => sponsor.sponsorName === user)
-    if(sponsorResult !== undefined) {
+    if (sponsorResult !== undefined) {
       setPoints(Number(sponsorResult.points));
     }
     else {
@@ -28,7 +28,7 @@ export const PointDisplay = (props) => {
   }, [refresh])
 
   const Display = () => {
-    if(loading) {
+    if (loading) {
       return <CircularProgress />;
     }
     else {

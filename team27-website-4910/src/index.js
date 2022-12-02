@@ -43,7 +43,7 @@ const router = createBrowserRouter([
     element: <Sponsors />,
   },
   {
-    path: "/drivers",
+    path: "/users",
     element: <Drivers />,
   },
   {

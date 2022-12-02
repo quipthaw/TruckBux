@@ -34,17 +34,17 @@ const alwaysPages = [
 
 const pages = [
     { 'label': 'Catalog', 'path': '/catalog' },
-    { 'label': 'Drivers', 'path': '/drivers' },
+    { 'label': 'Users', 'path': '/users' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
-    { 'label': 'Purchase History', 'path': '/purchasehistory'},
+    { 'label': 'Purchase History', 'path': '/purchasehistory' },
 ];
 
 const driverPages = [
     { 'label': 'Catalog', 'path': '/catalog' },
     { 'label': 'Sponsors', 'path': '/sponsors' },
     { 'label': 'Logs', 'path': '/logs' },
-    { 'label': 'Purchase History', 'path': '/purchasehistory'},
+    { 'label': 'Purchase History', 'path': '/purchasehistory' },
 ];
 
 export default function Navbar(props) {
