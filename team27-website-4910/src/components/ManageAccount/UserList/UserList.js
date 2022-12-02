@@ -48,7 +48,7 @@ export const UserList = (props) => {
 
     return (
         <Stack direction='column' spacing={2}>
-            {!disableSelections &&
+            {!disableSelections && !props.isSponsor &&
                 <Paper>
                     <Container>
                         <Stack direction='row' alignItems='center'>

@@ -166,7 +166,7 @@ export default function Logs() {
                                 <LogTable logs={logs} />
                                 <Button onClick={() => { downloadCSV(logs) }}>Download Logs</Button>
                             </Box>
-                            {sessionState == 'A' &&
+                            {(sessionState == 'A' || sessionState == 'S') &&
                                 <Stack my={5} spacing={2} width='75%'>
                                     <Typography variant='h5'>Generate Reports:</Typography>
                                     <ReportSelector />

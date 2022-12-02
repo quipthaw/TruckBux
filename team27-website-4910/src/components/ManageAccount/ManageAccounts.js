@@ -81,20 +81,19 @@ export default function ManageAccounts(props) {
                     {userType === 'S' && <Typography variant='h3' gutterBottom>Point Change</Typography>}
                     {userType === 'S' && <ManagePoints user={user} drivers={drivers} selectedDrivers={selectedDrivers} refresh={refresh} setRefresh={setRefresh} />}
 
-                    {userType === 'A' && <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>}
-                    {userType === 'A' &&
-                        <UserList
-                            user={sponsor}
-                            userType={userType}
-                            selectAllDrivers={selectAllDrivers}
-                            selectedDrivers={selectedDrivers}
-                            setSelectedDrivers={setSelectedDrivers}
-                            refresh={refresh}
-                            setRefresh={setRefresh}
-                            userList={sponsors}
-                            getPage={getPageInfo}
-                        />
-                    }
+                    <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>
+                    <UserList
+                        user={sponsor}
+                        userType={userType}
+                        selectAllDrivers={selectAllDrivers}
+                        selectedDrivers={selectedDrivers}
+                        setSelectedDrivers={setSelectedDrivers}
+                        refresh={refresh}
+                        setRefresh={setRefresh}
+                        userList={sponsors}
+                        getPage={getPageInfo}
+                        isSponsor
+                    />
 
                     {userType === 'S' && <Typography variant='h3' gutterBottom>My Drivers</Typography>}
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Driver Accounts</Typography>}

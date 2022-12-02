@@ -113,7 +113,7 @@ export const UserListRow = (props) => {
         <Paper>
             <Container>
                 <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                    {!isAdminUser && <Box sx={{ width: '10%' }} align="center">
+                    {!isAdminUser && driver.acctType !== 'S' && <Box sx={{ width: '10%' }} align="center">
                         <PointChangeSelectionBox
                             selectedDrivers={selectedDrivers}
                             setSelectedDrivers={setSelectedDrivers}
@@ -132,10 +132,11 @@ export const UserListRow = (props) => {
                     </Box>
                     {isAdminUser && driver.acctType === 'D' && AddToSponsorFlag && <AddToSponsor />}
                     {isAdminUser && driver.acctType === 'D' && !AddToSponsorFlag && <Button onClick={() => setAddToSponsorFlag(true)}>Add Driver To A Sponsor</Button>}
-                    {!isAdminUser && <Box sx={{ width: '10%' }}>
-                        <PointDisplay refresh={refresh} driver={driver.username} user={user} />
-                    </Box>}
-                    {!isAdminUser && <Box sx={{ width: '5%' }}>
+                    {!isAdminUser && driver.acctType !== 'S' &&
+                        <Box sx={{ width: '10%' }}>
+                            <PointDisplay refresh={refresh} driver={driver.username} user={user} />
+                        </Box>}
+                    {!isAdminUser && driver.acctType !== 'S' && <Box sx={{ width: '5%' }}>
                         <Button onClick={dropSponsor}>Drop</Button>
                     </Box>}
                 </Stack>
