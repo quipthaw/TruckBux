@@ -971,31 +971,37 @@ def drivers_request():
     return (jsonify({"admins": admins, "sponsors": sponsors,  "drivers": drivers}))
 
 
-@app.route('/sponsorships', methods=['POST'])
+@app.route('/sponsorships', methods=['POST', 'PATCH'])
 @cross_origin()
 def sponsorships_request():
     user = request.json['user']
     sponsor = request.json['sponsor']
 
-    if sponsor == '':
-        return (jsonify({"status": "fail", "error": "Cannot add sponsorship to empty sponsor!"}))
+    if request.method == 'POST':
+        if sponsor == '':
+            return (jsonify({"status": "fail", "error": "Cannot add sponsorship to empty sponsor!"}))
 
-    acctType = get_acctType(db_connection, user)
+        acctType = get_acctType(db_connection, user)
 
-    query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
-    params = {'x': user, 'y': sponsor}
+        query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
+        params = {'x': user, 'y': sponsor}
 
-    rows = db_connection.execute(text(query), params).fetchall()
+        rows = db_connection.execute(text(query), params).fetchall()
 
-    if len(rows) == 0:
-        query = 'INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES ( :x, :y, :z)'
-        params = {'x': user, 'y': sponsor, 'z': 1}
+        if len(rows) == 0:
+            query = 'INSERT INTO TruckBux.Sponsorships (username, sponsorName, active) VALUES ( :x, :y, :z)'
+            params = {'x': user, 'y': sponsor, 'z': 1}
 
-        db_connection.execute(text(query), params)
+            db_connection.execute(text(query), params)
 
+            return (jsonify({"status": "success"}))
+        else:
+            return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
+    elif request.method == 'PATCH':
+        query = 'DELETE FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
+        param = {'x': user, 'y': sponsor}
+        db_connection.execute(text(query), param)
         return (jsonify({"status": "success"}))
-    else:
-        return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
 
 
 @app.route('/conversionrate', methods=['POST'])
