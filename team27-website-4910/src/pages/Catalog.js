@@ -15,6 +15,7 @@ import { Stack } from '@mui/system';
 import { useRecoilState } from 'recoil';
 import { userName, userType } from '../recoil_atoms';
 import { UserSelection } from '../components/Catalog/UserSelection';
+import { PointDisplay } from '../components/ManagePoints/PointDisplay';
 
 export default function Catalog() {
     const [loading, setLoading] = React.useState(true);
@@ -39,6 +40,8 @@ export default function Catalog() {
 
     const [minPrice, setMinPrice] = React.useState(0);
     const [minError, setMinError] = React.useState(false);
+
+    const [ points, setPoints ] = React.useState(0);
 
     const handleMinChange = (e) => {
         setMinPrice(e.target.value);
@@ -174,6 +177,20 @@ export default function Catalog() {
         setCartButtonMessage(newMessage);
     };
 
+    const getMyPoints = async () => {
+        const URL = `http://127.0.0.1:5000/points?driver=${selectedDriver}`
+        const response = await fetch(URL);
+        const result = await response.json();
+    
+        const sponsorResult = result.find((sponsor) => sponsor.sponsorName === selectedSponsor)
+        if(sponsorResult !== undefined) {
+          setPoints(Number(sponsorResult.points));
+        }
+        else {
+          setPoints(0);
+        }
+    }
+
     //Catalog effect management
     React.useEffect(() => {
         getItems();
@@ -187,6 +204,10 @@ export default function Catalog() {
     React.useEffect(() => {
         getMyCart();
     }, [itemList])
+
+    React.useEffect(() => {
+        getMyPoints();
+    }, [selectedDriver, selectedSponsor])
 
     const saveCartRequest = async () => {
         const url = 'http://127.0.0.1:5000/Cart';
@@ -259,6 +280,7 @@ export default function Catalog() {
                 setUserAlert(true);
                 setUserAlertSeverity("success");
                 setUserAlertMessage("Your purchase has been made!");
+                getMyPoints();
             }
             else {
                 setUserAlert(true);
@@ -395,6 +417,13 @@ export default function Catalog() {
                     </Box>
                     <Box sx={{ width: '10%' }}>
                         <Button variant='contained' onClick={openMyCart}>{cartButtonMessage}</Button>
+                    </Box>
+
+                    <Box>
+                        <Stack direction="column" spacing={2}>
+                            <Typography align="center">Points:</Typography>
+                            <Typography align="center">{points}</Typography>
+                        </Stack>
                     </Box>
 
                 </Stack>
