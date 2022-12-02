@@ -48,7 +48,7 @@ PASS_COMP_REQS = 'Password must contain 8 characters, 1 uppercase, and 1 special
 
 app = Flask(__name__)
 CORS(app, origins=[
-     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000'])
+     'https://dev.d2g18lgy66c0b0.amplifyapp.com/*', 'http://127.0.0.1:3000/*'])
 
 
 # PYTHON FUNCTION TO CONNECT TO THE MYSQL DATABASE AND
@@ -761,7 +761,7 @@ def user_purchase():
         sponsor = request.json['sponsor']
 
         # Ensure user(driver) is affiliated with this sponsor
-        if(check_sponsorship(db_connection, user, sponsor) == False):
+        if (check_sponsorship(db_connection, user, sponsor) == False):
             return (jsonify({'result': 'This user-sponsor combination is not valid.'}))
 
         # User who initiated the purchase. This is used only for logging.
@@ -802,7 +802,8 @@ def user_purchase():
         db_connection.execute(text(query3), param)
         db_connection.execute(text(query4), param)
 
-        log(db_connection, user, 'purchase', modder=active_user, reason='purchase')
+        log(db_connection, user, 'purchase',
+            modder=active_user, reason='purchase')
 
         return (jsonify({'result': 'Bought'}))
 
