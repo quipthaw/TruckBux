@@ -10,8 +10,6 @@ export const MySponsorListRow = (props) => {
   const [usernameState, setUsernameState] = useRecoilState(userName);
   const [sessionState, setSessionState] = useRecoilState(userType);
 
-  const driver = { 'username': usernameState };
-
   const handleGetSponsors = () => {
     props.getSponsors();
   };
@@ -41,7 +39,7 @@ export const MySponsorListRow = (props) => {
           {sessionState !== '0' && <Typography>{"Conversion Rate: " + sponsor.pointConversionRate}</Typography>}
         </Box>
         <Stack flexDirection='row'>
-          {showPoints && <PointDisplay driver={driver} user={sponsor.sponsorName} />}
+          {showPoints && <PointDisplay driver={usernameState} user={sponsor.sponsorName} />}
           {showPoints && <Button onClick={dropSponsor}>Drop</Button>}
           {!showPoints && sessionState === 'D' && <Button onClick={submitApp}>Apply</Button>}
         </Stack>
