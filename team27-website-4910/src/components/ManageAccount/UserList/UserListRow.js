@@ -103,7 +103,7 @@ export const UserListRow = (props) => {
     const PointDialog = () => {
         return (
             <Dialog open={open} onClose={closeDialog} fullWidth maxWidth="md">
-                <ManageAccounts user={driver.username} userType={driver?.acctType} />
+                <ManageAccounts user={driver.username} sponsor={driver.username} userType={driver?.acctType} />
                 <Button onClick={closeDialog}>Close</Button>
             </Dialog>
         );

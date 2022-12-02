@@ -8,6 +8,8 @@ import { UserList } from './UserList/UserList';
 export default function ManageAccounts(props) {
     const { user, sponsor, userType } = props;
 
+    console.log(user, sponsor, userType);
+
     const [loading, setLoading] = React.useState(true);
 
     const [drivers, setDrivers] = React.useState();
