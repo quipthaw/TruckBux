@@ -8,8 +8,8 @@ import { PurchaseHistory } from '../components/PurchaseHistory/PurchaseHistory';
 
 export default function Drivers() {
     const [sessionState, setSessionState] = useRecoilState(userType);
-    const [ usernameState, setUsernameState ] = useRecoilState(userName);
-    const [ user, setUser ] = useState();
+    const [usernameState, setUsernameState] = useRecoilState(userName);
+    const [sponsor, setSponsor] = useState();
 
     const navigate = useNavigate();
 
@@ -22,12 +22,12 @@ export default function Drivers() {
         const response = await fetch(URL);
         const result = await response.json();
 
-        setUser(result.relatedSponsors[0].sponsorName)
+        setSponsor(result.relatedSponsors[0].sponsorName)
     }
 
     useEffect(() => {
-        if(sessionState === 'A') {
-            setUser(usernameState);
+        if (sessionState === 'A') {
+            setSponsor(usernameState);
         }
         else {
             getSponsorName();
@@ -36,7 +36,7 @@ export default function Drivers() {
 
     return (
         <Layout>
-            {user && <ManageAccounts user={user} userType={sessionState} />}
+            {sponsor && <ManageAccounts user={usernameState} sponsor={sponsor} userType={sessionState} />}
         </Layout>
     )
 }

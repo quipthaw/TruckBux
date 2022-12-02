@@ -6,7 +6,7 @@ import { ApplicationList } from '../ApplicationList/ApplicationList';
 import { UserList } from './UserList/UserList';
 
 export default function ManageAccounts(props) {
-    const { user, userType } = props;
+    const { user, sponsor, userType } = props;
 
     const [loading, setLoading] = React.useState(true);
 
@@ -84,7 +84,7 @@ export default function ManageAccounts(props) {
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Sponsor Accounts</Typography>}
                     {userType === 'A' &&
                         <UserList
-                            user={user}
+                            user={sponsor}
                             userType={userType}
                             selectAllDrivers={selectAllDrivers}
                             selectedDrivers={selectedDrivers}
@@ -98,7 +98,7 @@ export default function ManageAccounts(props) {
                     {userType === 'S' && <Typography variant='h3' gutterBottom>My Drivers</Typography>}
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Driver Accounts</Typography>}
                     <UserList
-                        user={user}
+                        user={sponsor}
                         userType={userType}
                         selectAllDrivers={selectAllDrivers}
                         selectedDrivers={selectedDrivers}
@@ -112,7 +112,7 @@ export default function ManageAccounts(props) {
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
                     {userType === 'A' &&
                         <UserList
-                            user={user}
+                            user={sponsor}
                             userType={userType}
                             selectAllDrivers={selectAllDrivers}
                             selectedDrivers={selectedDrivers}

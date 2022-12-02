@@ -13,7 +13,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { MyCart } from '../components/Catalog/MyCart';
 import { Stack } from '@mui/system';
 import { useRecoilState } from 'recoil';
-import { userName, userType } from '../recoil_atoms';
+import { userName } from '../recoil_atoms';
 import { UserSelection } from '../components/Catalog/UserSelection';
 import { PointDisplay } from '../components/ManagePoints/PointDisplay';
 
