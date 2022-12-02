@@ -9,7 +9,7 @@ export const PointDisplay = (props) => {
   
   const getPoints = async () => {
     setLoading(true);
-    const getRequestURL = `http://127.0.0.1:5000/points?driver=${driver.username}`;
+    const getRequestURL = `http://127.0.0.1:5000/points?driver=${driver}`;
     const response = await fetch(getRequestURL);
     const result = await response.json();
 

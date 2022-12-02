@@ -110,7 +110,7 @@ export const UserListRow = (props) => {
                     {isAdminUser && driver.acctType === 'D' && AddToSponsorFlag && <AddToSponsor />}
                     {isAdminUser && driver.acctType === 'D' && !AddToSponsorFlag && <Button onClick={() => setAddToSponsorFlag(true)}>Add Driver To A Sponsor</Button>}
                     {!isAdminUser && <Box sx={{ width: '10%' }}>
-                        <PointDisplay refresh={refresh} driver={driver} user={user} />
+                        <PointDisplay refresh={refresh} driver={driver.username} user={user} />
                     </Box>}
                     {!isAdminUser && <Box sx={{ width: '5%' }}>
                         <Button>Drop</Button>
