@@ -996,7 +996,11 @@ def sponsorships_request():
         else:
             return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
     elif request.method == 'PATCH':
-        sponsorName = get_sponsName(db_connection, sponsor)
+        trueSponsor = request.json['trueSponsor']
+        if trueSponsor == 'true':
+            sponsorName = sponsor
+        else:
+            sponsorName = get_sponsName(db_connection, sponsor)
         query = 'DELETE FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
         param = {'x': user, 'y': sponsorName}
         db_connection.execute(text(query), param)

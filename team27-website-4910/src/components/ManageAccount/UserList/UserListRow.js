@@ -93,7 +93,8 @@ export const UserListRow = (props) => {
             },
             body: JSON.stringify({
                 user: driver.username,
-                sponsor: usernameState
+                sponsor: usernameState,
+                trueSponsor: "false"
             }),
         });
         handleGetPage();

@@ -34,7 +34,8 @@ export const MySponsorListRow = (props) => {
       },
       body: JSON.stringify({
         user: usernameState,
-        sponsor: sponsor.sponsorName
+        sponsor: sponsor.sponsorName,
+        trueSponsor: "true"
       }),
     });
     handleGetSponsors();
