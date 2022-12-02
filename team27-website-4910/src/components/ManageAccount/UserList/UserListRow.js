@@ -4,13 +4,15 @@ import { ProfileEditButton } from '../../ProfileInfo/ProfileEditButton';
 import { PointDisplay } from '../../ManagePoints/PointDisplay';
 import { PointChangeSelectionBox } from '../../ManagePoints/PointChangeSelectionBox';
 import ManageAccounts from '../ManageAccounts';
+import { userName } from '../../../recoil_atoms';
+import { useRecoilState } from 'recoil';
 
 export const UserListRow = (props) => {
     const {
         user,
         userType,
         driver,
-        refresh,
+        refresh, setRefresh,
         orgList,
         selectedDrivers, setSelectedDrivers
     } = props;
@@ -21,6 +23,8 @@ export const UserListRow = (props) => {
     const [AddToSponsorFlag, setAddToSponsorFlag] = useState(false);
     const [error, setError] = useState('');
     const isAdminUser = userType === 'A' ? true : false;
+
+    const [usernameState, setUsernameState] = useRecoilState(userName);
 
     const closeDialog = () => {
         setOpen(false);
@@ -58,6 +62,10 @@ export const UserListRow = (props) => {
         )
     };
 
+    const handleGetPage = () => {
+        props.getPage();
+    };
+
     const sendSponsorShip = async () => {
         const response = await fetch('http://127.0.0.1:5000/sponsorships', {
             method: 'POST',
@@ -75,6 +83,20 @@ export const UserListRow = (props) => {
         } else {
             setError('');
         }
+    };
+
+    const dropSponsor = async () => {
+        const response = await fetch(`http://127.0.0.1:5000/sponsorships`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user: driver.username,
+                sponsor: usernameState
+            }),
+        });
+        handleGetPage();
     };
 
     const PointDialog = () => {
@@ -113,7 +135,7 @@ export const UserListRow = (props) => {
                         <PointDisplay refresh={refresh} driver={driver.username} user={user} />
                     </Box>}
                     {!isAdminUser && <Box sx={{ width: '5%' }}>
-                        <Button>Drop</Button>
+                        <Button onClick={dropSponsor}>Drop</Button>
                     </Box>}
                 </Stack>
             </Container>
