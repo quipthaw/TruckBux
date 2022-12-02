@@ -61,7 +61,7 @@ export default function Logs() {
     }, []);
 
     const getLogs = async () => {
-        const responseURL = `http://127.0.0.1:5000/logs?start_date=${startTime}&end_date=${endTime}&username=${userFilter}&log_type=${typeFilter}`;
+        const responseURL = `http://127.0.0.1:5000/logs?user=${usernameState}&start_date=${startTime}&end_date=${endTime}&username=${userFilter}&log_type=${typeFilter}`;
 
         const response = await fetch(responseURL);
         const result = await response.json();
@@ -109,22 +109,24 @@ export default function Logs() {
                     }}>
                         <Stack alignItems='center'>
                             <Stack flexDirection='row' sx={{ my: 5 }}>
-                                <FormControl sx={{ m: 1, minWidth: 120 }}>
-                                    <InputLabel>User</InputLabel>
-                                    <Select
-                                        value={userFilter}
-                                        label='User'
-                                        onChange={handleUFChange}
-                                    >
-                                        <MenuItem value=''>-- All --</MenuItem>
-                                        {users.map((user) => {
-                                            return (
-                                                <MenuItem key={user.username} value={user.username}>{user.username}</MenuItem>
-                                            )
-                                        })}
-                                    </Select>
-                                    <FormHelperText>Logs for this user</FormHelperText>
-                                </FormControl>
+                                {sessionState !== 'D' &&
+                                    <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                        <InputLabel>User</InputLabel>
+                                        <Select
+                                            value={userFilter}
+                                            label='User'
+                                            onChange={handleUFChange}
+                                        >
+                                            <MenuItem value=''>-- All --</MenuItem>
+                                            {users.map((user) => {
+                                                return (
+                                                    <MenuItem key={user.username} value={user.username}>{user.username}</MenuItem>
+                                                )
+                                            })}
+                                        </Select>
+                                        <FormHelperText>Logs for this user</FormHelperText>
+                                    </FormControl>
+                                }
                                 <FormControl sx={{ m: 1, minWidth: 120 }}>
                                     <InputLabel>Log Type</InputLabel>
                                     <Select
