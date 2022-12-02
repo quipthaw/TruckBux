@@ -62,7 +62,7 @@ export const ApplicationListRow = (props) => {
             <Stack direction='row' justifyContent='space-between'>
                 <Box>
                     {sessionState === 'S' ? <Typography variant='h6' gutterBottom>{app.username}</Typography> : <Typography variant='h6' gutterBottom>{app.sponsorName}</Typography>}
-                    {sessionState === 'S' && <Typography gutterBottom>{app.fname + " " + app.lname}</Typography>}
+                    {sessionState === 'S' && <Typography gutterBottom>{app.fName + " " + app.lName}</Typography>}
                     <Typography>{"Status: " + app.status}</Typography>
                     {sessionState === 'D' && <Typography gutterBottom>{app.statusReason}</Typography>}
                     <Typography>{app.date}</Typography>
