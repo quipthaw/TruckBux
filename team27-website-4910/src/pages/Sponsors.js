@@ -78,7 +78,7 @@ export default function Register() {
                 <CircularProgress />
                 :
                 <Stack direction="column" spacing={2}>
-                    <ConversionRateChange/>
+                    {sessionState !== 'D' && <ConversionRateChange/>}
                     {renderList()}
                 </Stack>
             }
