@@ -5,16 +5,16 @@ import { userType } from '../../recoil_atoms';
 
 export const UserSelection = (props) => {
   const { user, requestedType, selection, setSelection } = props;
-  const [ sessionState, setSessionState ] = useRecoilState(userType);
+  const [sessionState, setSessionState] = useRecoilState(userType);
 
-  const [ userList, setUserList ] = useState(['temp', 'nottemp']);
+  const [userList, setUserList] = useState(['temp', 'nottemp']);
 
   useEffect(() => {
     getUserList();
   }, [])
 
   const getUserList = () => {
-    if(requestedType === 'S') {
+    if (requestedType === 'S') {
       getSponsorList()
     }
     else {
@@ -23,8 +23,8 @@ export const UserSelection = (props) => {
   }
 
   const getDriverList = async () => {
-    const path = 'http://127.0.0.1:5000/users';
-    
+    const path = 'https://team27.cpsc4911.com/users';
+
     const fetchURL = `${path}?user=${user}`;
 
     const response = await fetch(fetchURL);
@@ -38,7 +38,7 @@ export const UserSelection = (props) => {
   }
 
   const getSponsorList = async () => {
-    const path = 'http://127.0.0.1:5000/sponsors';
+    const path = 'https://team27.cpsc4911.com/sponsors';
 
     const fetchURL = `${path}?user=${user}`;
 
@@ -47,7 +47,7 @@ export const UserSelection = (props) => {
 
     let newUserList = [];
 
-    if(sessionState === 'A') {
+    if (sessionState === 'A') {
       newUserList = result.otherSponsors.map((sponsor) => {
         return sponsor.sponsorName;
       })
@@ -75,7 +75,7 @@ export const UserSelection = (props) => {
 
   return (
     <TextField
-      
+
       select
       id="catalogSponsor"
       label={requestedType === 'S' ? "Sponsor" : "Driver"}

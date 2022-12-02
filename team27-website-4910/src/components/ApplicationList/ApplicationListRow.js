@@ -15,7 +15,7 @@ export const ApplicationListRow = (props) => {
         props.getApps();
     };
     const approveApp = async () => {
-        const response = await fetch(`http://127.0.0.1:5000/applications`, {
+        const response = await fetch(`https://team27.cpsc4911.com/applications`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -29,7 +29,7 @@ export const ApplicationListRow = (props) => {
         handleGetApps();
     };
     const denyApp = async () => {
-        const response = await fetch(`http://127.0.0.1:5000/applications`, {
+        const response = await fetch(`https://team27.cpsc4911.com/applications`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export const ApplicationListRow = (props) => {
         handleGetApps();
     };
     const cancelApp = async () => {
-        const response = await fetch(`http://127.0.0.1:5000/applications`, {
+        const response = await fetch(`https://team27.cpsc4911.com/applications`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'

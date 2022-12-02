@@ -41,7 +41,7 @@ export default function Catalog() {
     const [minPrice, setMinPrice] = React.useState(0);
     const [minError, setMinError] = React.useState(false);
 
-    const [ points, setPoints ] = React.useState(0);
+    const [points, setPoints] = React.useState(0);
 
     const handleMinChange = (e) => {
         setMinPrice(e.target.value);
@@ -150,7 +150,7 @@ export default function Catalog() {
 
     const getItems = async () => {
         setLoading(true);
-        const response = await fetch('http://127.0.0.1:5000/catalog', {
+        const response = await fetch('https://team27.cpsc4911.com/catalog', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -178,16 +178,16 @@ export default function Catalog() {
     };
 
     const getMyPoints = async () => {
-        const URL = `http://127.0.0.1:5000/points?driver=${selectedDriver}`
+        const URL = `https://team27.cpsc4911.com/points?driver=${selectedDriver}`
         const response = await fetch(URL);
         const result = await response.json();
-    
+
         const sponsorResult = result.find((sponsor) => sponsor.sponsorName === selectedSponsor)
-        if(sponsorResult !== undefined) {
-          setPoints(Number(sponsorResult.points));
+        if (sponsorResult !== undefined) {
+            setPoints(Number(sponsorResult.points));
         }
         else {
-          setPoints(0);
+            setPoints(0);
         }
     }
 
@@ -210,7 +210,7 @@ export default function Catalog() {
     }, [selectedDriver, selectedSponsor])
 
     const saveCartRequest = async () => {
-        const url = 'http://127.0.0.1:5000/Cart';
+        const url = 'https://team27.cpsc4911.com/Cart';
         const data = {
             'user': selectedDriver,
             'items': [...cart]
@@ -249,7 +249,7 @@ export default function Catalog() {
     };
 
     const purchaseCartRequest = async () => {
-        const url = 'http://127.0.0.1:5000/purchase';
+        const url = 'https://team27.cpsc4911.com/purchase';
         const data = {
             'driver': selectedDriver,
             'sponsor': selectedSponsor,
@@ -304,7 +304,7 @@ export default function Catalog() {
 
     const getMyCart = async () => {
         if (itemList !== undefined) {
-            const url = `http://127.0.0.1:5000/Cart?user=${usernameState}`;
+            const url = `https://team27.cpsc4911.com/Cart?user=${usernameState}`;
 
             const response = await fetch(url);
             const result = await response.json();

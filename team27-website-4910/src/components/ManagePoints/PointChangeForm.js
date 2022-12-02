@@ -76,7 +76,7 @@ export const PointChangeForm = (props) => {
       body: JSON.stringify(data)
     };
 
-    const response = await fetch('http://127.0.0.1:5000/pointsrecurring', options);
+    const response = await fetch('https://team27.cpsc4911.com/pointsrecurring', options);
     const result = await response.json();
 
     setRecurringError(result.Result);
@@ -114,7 +114,7 @@ export const PointChangeForm = (props) => {
         body: JSON.stringify(data)
       };
 
-      const response = await fetch('http://127.0.0.1:5000/points', options);
+      const response = await fetch('https://team27.cpsc4911.com/points', options);
       const result = await response.json();
 
       setRefresh(refresh ? false : true);
