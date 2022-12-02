@@ -981,8 +981,6 @@ def sponsorships_request():
         if sponsor == '':
             return (jsonify({"status": "fail", "error": "Cannot add sponsorship to empty sponsor!"}))
 
-        acctType = get_acctType(db_connection, user)
-
         query = 'SELECT * FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
         params = {'x': user, 'y': sponsor}
 
@@ -998,8 +996,9 @@ def sponsorships_request():
         else:
             return (jsonify({"status": "fail", "error": "Sponsorship already exists!"}))
     elif request.method == 'PATCH':
+        sponsorName = get_sponsName(db_connection, sponsor)
         query = 'DELETE FROM TruckBux.Sponsorships WHERE username = :x AND sponsorName = :y'
-        param = {'x': user, 'y': sponsor}
+        param = {'x': user, 'y': sponsorName}
         db_connection.execute(text(query), param)
         return (jsonify({"status": "success"}))
 

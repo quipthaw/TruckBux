@@ -92,6 +92,7 @@ export default function ManageAccounts(props) {
                             refresh={refresh}
                             setRefresh={setRefresh}
                             userList={sponsors}
+                            getPage={getPageInfo}
                         />
                     }
 
@@ -107,6 +108,7 @@ export default function ManageAccounts(props) {
                         setRefresh={setRefresh}
                         userList={drivers}
                         orgList={orgs}
+                        getPage={getPageInfo}
                     />
 
                     {userType === 'A' && <Typography variant='h3' gutterBottom>Admin Accounts</Typography>}
@@ -120,6 +122,7 @@ export default function ManageAccounts(props) {
                             refresh={refresh}
                             setRefresh={setRefresh}
                             userList={admins}
+                            getPage={getPageInfo}
                         />
                     }
                 </Stack>
