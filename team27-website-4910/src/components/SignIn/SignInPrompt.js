@@ -54,7 +54,7 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(userData)
         };
 
-        let userResponse = await fetch('http://127.0.0.1:5000/getprofile', userOptions);
+        let userResponse = await fetch('https://team27.cpsc4911.com/getprofile', userOptions);
 
         userResponse = await userResponse.json();
 
@@ -86,7 +86,7 @@ export const SignInPrompt = (props) => {
             body: JSON.stringify(loginData)
         };
 
-        let loginResponse = await fetch('http://127.0.0.1:5000/userlogin', loginOptions);
+        let loginResponse = await fetch('https://team27.cpsc4911.com/userlogin', loginOptions);
 
         loginResponse = await loginResponse.json();
 

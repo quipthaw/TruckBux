@@ -7,12 +7,12 @@ import { AccountDeactivation } from './AccountDeactivation';
 
 export const ProfileInfo = (props) => {
   const { username } = props;
-  const [ updatingProfile, setUpdatingProfile ] = useState(false);
-  const [ updatingError, setUpdatingError ] = useState('');
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [updatingError, setUpdatingError] = useState('');
 
   //Information of the user. This information is not 
   //changed until the user confirms account changes.
-  const [ profileInfo, setProfileInfo ] = useState({
+  const [profileInfo, setProfileInfo] = useState({
     //acctType: ''
     //active: '1'
     //bio: ''
@@ -26,7 +26,7 @@ export const ProfileInfo = (props) => {
 
   //Information that is displayed on the profile page. 
   //This changes as input is given by the user.
-  const [ editProfileInfo, setEditProfileInfo ] = useState({
+  const [editProfileInfo, setEditProfileInfo] = useState({
     //acctType: ''
     //active: '1'
     //bio: ''
@@ -39,7 +39,7 @@ export const ProfileInfo = (props) => {
   })
 
   const assignProfile = (result) => {
-    const newProfileInfo = {...result.user[0]};
+    const newProfileInfo = { ...result.user[0] };
 
     setProfileInfo(newProfileInfo);
     setEditProfileInfo(newProfileInfo);
@@ -48,14 +48,14 @@ export const ProfileInfo = (props) => {
   const getProfileInformation = async () => {
     const profileData = { user: username };
     const profileOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData)
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(profileData)
     };
 
-    const profileResponse = await fetch('http://127.0.0.1:5000/getprofile', profileOptions);
+    const profileResponse = await fetch('https://team27.cpsc4911.com/getprofile', profileOptions);
     const result = await profileResponse.json();
 
     assignProfile(result);
@@ -73,17 +73,17 @@ export const ProfileInfo = (props) => {
     const options = {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(data)
     };
 
-    const response = await fetch('http://127.0.0.1:5000/updateprof', options);
+    const response = await fetch('https://team27.cpsc4911.com/updateprof', options);
     const result = await response.json();
 
-    if(result.error === "False") {
+    if (result.error === "False") {
       setProfileInfo(() => {
-        const newProfileInfo = {...editProfileInfo};
+        const newProfileInfo = { ...editProfileInfo };
         return newProfileInfo;
       });
       setUpdatingError('');
@@ -106,7 +106,7 @@ export const ProfileInfo = (props) => {
 
   const resetEditProfileInfo = () => {
     setEditProfileInfo(() => {
-      const newEditProfileInfo = {...profileInfo};
+      const newEditProfileInfo = { ...profileInfo };
 
       return newEditProfileInfo;
     })
@@ -123,36 +123,36 @@ export const ProfileInfo = (props) => {
 
   const onEmailChange = (e) => {
     setEditProfileInfo((prevEditInfo) => {
-      const newEditProfileInfo = {...prevEditInfo};
+      const newEditProfileInfo = { ...prevEditInfo };
       newEditProfileInfo.email = e.target.value;
-      
+
       return newEditProfileInfo;
     })
   };
 
   const onFirstnameChange = (e) => {
     setEditProfileInfo((prevEditInfo) => {
-      const newEditProfileInfo = {...prevEditInfo};
+      const newEditProfileInfo = { ...prevEditInfo };
       newEditProfileInfo.fName = e.target.value;
-      
+
       return newEditProfileInfo;
     })
   };
 
   const onLastnameChange = (e) => {
     setEditProfileInfo((prevEditInfo) => {
-      const newEditProfileInfo = {...prevEditInfo};
+      const newEditProfileInfo = { ...prevEditInfo };
       newEditProfileInfo.lName = e.target.value;
-      
+
       return newEditProfileInfo;
     })
   };
 
   const onBioChange = (e) => {
     setEditProfileInfo((prevEditInfo) => {
-      const newEditProfileInfo = {...prevEditInfo};
+      const newEditProfileInfo = { ...prevEditInfo };
       newEditProfileInfo.bio = e.target.value;
-      
+
       return newEditProfileInfo;
     })
   };
@@ -170,16 +170,16 @@ export const ProfileInfo = (props) => {
   const DisplayUserType = () => {
     let acctType = "Driver";
 
-    if(profileInfo.acctType === 'A') {
+    if (profileInfo.acctType === 'A') {
       acctType = "Admin";
     }
-    else if(profileInfo.acctType === 'S') {
+    else if (profileInfo.acctType === 'S') {
       acctType = "Sponsor"
     }
 
     const userTypeMessage = `Account Type: ${acctType}`;
     return (
-        <Typography align='center'>{userTypeMessage}</Typography>
+      <Typography align='center'>{userTypeMessage}</Typography>
     );
   };
 
@@ -188,9 +188,9 @@ export const ProfileInfo = (props) => {
       <Paper sx={{ width: '100%' }}>
         <Box sx={{ height: '100%', width: '100%', padding: '25px' }}>
           <Stack direction="column" spacing={2}>
-            
+
             <DisplayUserType />
-            
+
             <Stack direction="row" spacing={2}>
 
               <TextField
@@ -251,14 +251,14 @@ export const ProfileInfo = (props) => {
             </Stack>
 
             {updatingProfile && updatingError !== '' && <Typography align="center" color='red'>{updatingError}</Typography>}
-            <EditButtons/>
-            <UpdatePassword 
+            <EditButtons />
+            <UpdatePassword
               username={profileInfo.username}
               firstname={profileInfo.fName}
               lastname={profileInfo.lName}
               email={profileInfo.email}
             />
-            <AccountDeactivation active={profileInfo.active} username={profileInfo.username} setProfileInfo={setProfileInfo}/>
+            <AccountDeactivation active={profileInfo.active} username={profileInfo.username} setProfileInfo={setProfileInfo} />
           </Stack>
         </Box>
       </Paper>

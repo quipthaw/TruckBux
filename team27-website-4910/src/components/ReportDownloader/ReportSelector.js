@@ -38,7 +38,7 @@ export default function ReportSelector() {
 
     async function getReport() {
         setLoading(true);
-        const response = await fetch(`http://127.0.0.1:5000/reports?report=${reportType}`);
+        const response = await fetch(`https://team27.cpsc4911.com/reports?report=${reportType}`);
         const result = await response.json();
         saveByteArray(binaryToArray(result.graph));
         setLoading(false);

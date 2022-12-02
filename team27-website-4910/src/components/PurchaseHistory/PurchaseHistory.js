@@ -6,14 +6,14 @@ import { userName } from '../../recoil_atoms';
 import { PurchaseHistoryRow } from './PurchaseHistoryRow';
 
 export const PurchaseHistory = () => {
-  const [ usernameState, setUsernameState ] = useRecoilState(userName);
-  const [ driver, setDriver ] = useState('');
+  const [usernameState, setUsernameState] = useRecoilState(userName);
+  const [driver, setDriver] = useState('');
   //const [ sponsor, setSponsor ] = useState('');
-  const [ purchaseHistory, setPurchaseHistory ] = useState([]);
+  const [purchaseHistory, setPurchaseHistory] = useState([]);
 
   const getPurchaseHistory = async () => {
-    const URL = `http://127.0.0.1:5000/purchase?user=${driver}`;
-    
+    const URL = `https://team27.cpsc4911.com/purchase?user=${driver}`;
+
     const response = await fetch(URL);
     const result = await response.json();
 
@@ -21,14 +21,14 @@ export const PurchaseHistory = () => {
   }
 
   useEffect(() => {
-    if(driver !== '') {
+    if (driver !== '') {
       getPurchaseHistory()
     }
   }, [driver])
 
   const userSelectionRow = () => {
     return (
-      <UserSelection user={usernameState} requestedType={'D'} selection={driver} setSelection={setDriver}/>
+      <UserSelection user={usernameState} requestedType={'D'} selection={driver} setSelection={setDriver} />
     )
   }
 
@@ -57,29 +57,29 @@ export const PurchaseHistory = () => {
   }
 
   const populateHistory = () => {
-    if(purchaseHistory) {
-        const history = purchaseHistory.map((historyRow) => {
-          return <PurchaseHistoryRow key={historyRow.ID} historyRow={historyRow}/>
-        })
+    if (purchaseHistory) {
+      const history = purchaseHistory.map((historyRow) => {
+        return <PurchaseHistoryRow key={historyRow.ID} historyRow={historyRow} />
+      })
 
-        return history;
+      return history;
     }
   }
 
   return (
-      <Stack direction="column" spacing={2}>
-        <Grid container spacing={4} align="center">
-          <Grid item xs={12}>
-            <Paper>{userSelectionRow()}</Paper>
-          </Grid>
-          <Grid item xs={12}>
-            {populateHistoryHeader()}
-          </Grid>
-          <Grid item xs={12}>
-            {populateHistory()}
-          </Grid>
+    <Stack direction="column" spacing={2}>
+      <Grid container spacing={4} align="center">
+        <Grid item xs={12}>
+          <Paper>{userSelectionRow()}</Paper>
         </Grid>
+        <Grid item xs={12}>
+          {populateHistoryHeader()}
+        </Grid>
+        <Grid item xs={12}>
+          {populateHistory()}
+        </Grid>
+      </Grid>
 
-      </Stack>
+    </Stack>
   )
 }

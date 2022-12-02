@@ -14,7 +14,7 @@ export const MySponsorListRow = (props) => {
     props.getSponsors();
   };
   const submitApp = async () => {
-    const response = await fetch(`http://127.0.0.1:5000/applications`, {
+    const response = await fetch(`https://team27.cpsc4911.com/applications`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -27,7 +27,7 @@ export const MySponsorListRow = (props) => {
     handleGetSponsors();
   };
   const dropSponsor = async () => {
-    const response = await fetch(`http://127.0.0.1:5000/sponsorships`, {
+    const response = await fetch(`https://team27.cpsc4911.com/sponsorships`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
