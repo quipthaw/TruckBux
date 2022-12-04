@@ -883,6 +883,7 @@ def log_filter():
         else:
             query = 'SELECT * FROM TruckBux.Logging'
             numFiltersAdded = 0
+            params = {}
 
     if len(request.args) > 1:
         if numFiltersAdded == 0:
