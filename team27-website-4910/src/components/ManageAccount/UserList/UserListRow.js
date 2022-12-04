@@ -82,6 +82,8 @@ export const UserListRow = (props) => {
             setError(result.error);
         } else {
             setError('');
+            setAddToSponsorFlag(false);
+            alert(`Added ${driver.username} to ${chosenSponsor}`);
         }
     };
 
