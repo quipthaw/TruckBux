@@ -96,4 +96,16 @@ Git for version control linked to Dev Ops.
         Can basically do anything.
         Products are sold and delivered via the store associated with the API we choose.
         We receive 1% of sales each month.
+        
+        
+        
+        
+        
+![unnamed (1)](https://user-images.githubusercontent.com/98988760/210686387-52864941-3890-4130-85dd-fe4df7d2a026.png)
     
+![unnamed (2)](https://user-images.githubusercontent.com/98988760/210686461-e9337e14-a078-470c-900c-fc44900ae8a7.png)
+
+![unnamed (3)](https://user-images.githubusercontent.com/98988760/210686524-380356b7-de22-4955-85dd-c5491d3f0a99.png)
+    
+    
+
