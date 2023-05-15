@@ -1,5 +1,5 @@
 
-Web app designed to simulate a rewards pragram incentivizing safe driving for truck drivers.
+Web app designed to simulate a rewards program incentivizing safe driving for truck drivers.
 Hosted in cloud.
 Connected to DB.
 Public API.
